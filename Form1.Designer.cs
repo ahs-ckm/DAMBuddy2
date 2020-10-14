@@ -80,6 +80,10 @@
             this.tslWorkRepository = new System.Windows.Forms.ToolStripLabel();
             this.tsWorkReload = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel6 = new System.Windows.Forms.ToolStripLabel();
+            this.tstbWIPSearch = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.tstbWorkFilter = new System.Windows.Forms.ToolStripTextBox();
             this.tsWorkFilterClear = new System.Windows.Forms.ToolStripButton();
@@ -103,10 +107,11 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.timerRepoFilter = new System.Windows.Forms.Timer(this.components);
-            this.toolStripLabel6 = new System.Windows.Forms.ToolStripLabel();
-            this.tstbWIPSearch = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.cmsRemove = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -124,6 +129,7 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.toolStrip2.SuspendLayout();
+            this.cmsRemove.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox3
@@ -396,7 +402,6 @@
             // 
             this.lvRepository.Activation = System.Windows.Forms.ItemActivation.OneClick;
             this.lvRepository.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lvRepository.CheckBoxes = true;
             this.lvRepository.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.Asset});
             this.lvRepository.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -415,6 +420,7 @@
             this.lvRepository.View = System.Windows.Forms.View.Details;
             this.lvRepository.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lvRepository_ItemChecked);
             this.lvRepository.SelectedIndexChanged += new System.EventHandler(this.lvRepository_SelectedIndexChanged_1);
+            this.lvRepository.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvRepository_MouseUp);
             // 
             // Asset
             // 
@@ -549,7 +555,6 @@
             // lvWork
             // 
             this.lvWork.Activation = System.Windows.Forms.ItemActivation.OneClick;
-            this.lvWork.CheckBoxes = true;
             this.lvWork.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.chFilename,
             this.chStale});
@@ -568,6 +573,7 @@
             this.lvWork.UseCompatibleStateImageBehavior = false;
             this.lvWork.View = System.Windows.Forms.View.Details;
             this.lvWork.SelectedIndexChanged += new System.EventHandler(this.lvWork_SelectedIndexChanged);
+            this.lvWork.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvWork_MouseUp);
             // 
             // chFilename
             // 
@@ -673,11 +679,41 @@
             this.tsWorkReload.Name = "tsWorkReload";
             this.tsWorkReload.Size = new System.Drawing.Size(52, 52);
             this.tsWorkReload.Text = "Reload Available Assets";
+            this.tsWorkReload.Click += new System.EventHandler(this.tsWorkReload_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 55);
+            // 
+            // toolStripLabel6
+            // 
+            this.toolStripLabel6.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.toolStripLabel6.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.toolStripLabel6.Name = "toolStripLabel6";
+            this.toolStripLabel6.Size = new System.Drawing.Size(122, 52);
+            this.toolStripLabel6.Text = "Content Search";
+            // 
+            // tstbWIPSearch
+            // 
+            this.tstbWIPSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tstbWIPSearch.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.tstbWIPSearch.Name = "tstbWIPSearch";
+            this.tstbWIPSearch.Size = new System.Drawing.Size(200, 55);
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton2.Image = global::DAMBuddy2.Properties.Resources.icons8_search_48;
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(52, 52);
+            this.toolStripButton2.Text = "toolStripButton1";
+            // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(6, 55);
             // 
             // toolStripLabel3
             // 
@@ -857,34 +893,40 @@
             this.timerRepoFilter.Interval = 1000;
             this.timerRepoFilter.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // toolStripLabel6
+            // cmsRemove
             // 
-            this.toolStripLabel6.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
-            this.toolStripLabel6.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.toolStripLabel6.Name = "toolStripLabel6";
-            this.toolStripLabel6.Size = new System.Drawing.Size(122, 52);
-            this.toolStripLabel6.Text = "Content Search";
+            this.cmsRemove.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSeparator9,
+            this.refreshToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.tsmWIPRemove});
+            this.cmsRemove.Name = "cmsRemove";
+            this.cmsRemove.Size = new System.Drawing.Size(172, 60);
+            this.cmsRemove.Text = "Remove";
             // 
-            // tstbWIPSearch
+            // toolStripSeparator9
             // 
-            this.tstbWIPSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tstbWIPSearch.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
-            this.tstbWIPSearch.Name = "tstbWIPSearch";
-            this.tstbWIPSearch.Size = new System.Drawing.Size(200, 55);
+            this.toolStripSeparator9.Name = "toolStripSeparator9";
+            this.toolStripSeparator9.Size = new System.Drawing.Size(177, 6);
             // 
-            // toolStripButton2
+            // tsmWIPRemove
             // 
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::DAMBuddy2.Properties.Resources.icons8_search_48;
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(52, 52);
-            this.toolStripButton2.Text = "toolStripButton1";
+            this.tsmWIPRemove.Name = "tsmWIPRemove";
+            this.tsmWIPRemove.Size = new System.Drawing.Size(180, 22);
+            this.tsmWIPRemove.Text = "Remove from WIP";
+            this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
             // 
-            // toolStripSeparator8
+            // refreshToolStripMenuItem
             // 
-            this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(6, 55);
+            this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.refreshToolStripMenuItem.Text = "Refresh from CKM";
+            this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
             // 
             // Form1
             // 
@@ -923,6 +965,7 @@
             this.splitContainer2.ResumeLayout(false);
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
+            this.cmsRemove.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1006,6 +1049,11 @@
         private System.Windows.Forms.ToolStripTextBox tstbWIPSearch;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
+        private System.Windows.Forms.ContextMenuStrip cmsRemove;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+        private System.Windows.Forms.ToolStripMenuItem tsmWIPRemove;
+        private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
     }
 }
 

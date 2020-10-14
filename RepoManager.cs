@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 
-public class GitManager
+public class RepoManager
 {
 	private string m_LocalPath = "";
 	private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
@@ -29,14 +29,17 @@ public class GitManager
 
     public delegate void StaleCallback(string filename);
     public delegate void DisplayWIPCallback(string filename, string originalpath);
+    public delegate void RemoveWIPCallback(string filename);
 
+    RemoveWIPCallback m_callbackRemoveWIP;
     StaleCallback m_callbackStale;
     DisplayWIPCallback m_callbackDisplayWIP;
 
-    public GitManager( string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay)
+    public RepoManager( string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove)
 	{
         m_callbackDisplayWIP = callbackDisplay;
         m_callbackStale = callbackStale;
+        m_callbackRemoveWIP = callbackRemove;
 
 		m_LocalPath = localpath + @"\mgr";
     }
@@ -142,9 +145,14 @@ public class GitManager
 
         MakeMd5(initialFile);
 
-        m_dictWIPNameID[Path.GetFileName(filepath)] = "";
+        m_dictWIPNameID[Path.GetFileName(filepath)] = filepath;
 
         SaveExistingWip();
+
+        if( m_callbackDisplayWIP != null)
+        {
+            m_callbackDisplayWIP(Path.GetFileName(filepath), filepath);
+        }
 
         //copy filepath to 
     }
@@ -244,8 +252,9 @@ public class GitManager
                 hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
             }
         }
-        
-        
+
+        if (File.Exists(filepath + ".md5")) File.Delete(filepath + ".md5");
+
         File.WriteAllText(filepath + ".md5", hashvalue);
     }
 
@@ -316,18 +325,68 @@ public class GitManager
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
+                if (line == "") break;
                 var values = line.Split(',');
-
+                
                 m_dictWIPNameID.Add(values[0], values[1]);
                 DisplayWIP(values[0], values[1]);
             }
         }
     }
 
-    public bool RemoveWIP( string filename )
+    public bool RemoveWIP( string filename, string gitpath )
     {
+        // if modified message the user
 
-        return false;
+        // delete file in WIP
+        
+
+        string wipFile = m_LocalPath + @"\" + WIP + @"\" + filename;
+        string initialFile = m_LocalPath + @"\" + GITKEEP_INITIAL+ @"\" + filename;
+        string updateFile = m_LocalPath + @"\" + GITKEEP_UPDATE + @"\" + filename;
+        try
+        {
+
+            if (File.Exists(wipFile))
+            {
+                m_dictWIPNameID.Remove(filename);
+                File.Delete(wipFile);
+                if( File.Exists(wipFile + ".md5"))
+                {
+                    File.Delete(wipFile + ".md5");
+                }
+
+                
+            }
+
+            // move inital/update file back to repo path
+            if (File.Exists(updateFile))
+            {
+                File.Move(updateFile, gitpath);
+                if (File.Exists(initialFile)) File.Delete(initialFile);
+                if (File.Exists(updateFile + ".md5")) File.Delete(initialFile + ".md5");
+            }
+            else
+            {
+                File.Move(initialFile, gitpath);
+                if (File.Exists(initialFile + ".md5")) File.Delete(initialFile + ".md5");
+            
+            }
+
+            if ( m_callbackRemoveWIP != null)
+            {
+                m_callbackRemoveWIP(filename);
+
+            }
+
+            SaveExistingWip();
+        }
+        catch ( Exception e )
+        {
+            
+        }
+
+        return true;
     }
 
 

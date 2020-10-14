@@ -36,7 +36,7 @@ namespace DAMBuddy2
         private string gFolderName = "";
         private string gCacheName = "";
         private string gCacheDir = "";
-        private GitManager m_RepoManager;
+        private RepoManager m_RepoManager;
 
         private delegate void ControlCallback(string s);
         private System.Drawing.Point m_ptScrollPos;
@@ -78,7 +78,19 @@ namespace DAMBuddy2
             //MessageBox.Show("StaleCallback :" + filename);
 
             SetAssetStale(filename);
+        }
 
+        public void RemoveWIPCallback(string filename)
+        {
+            foreach( ListViewItem item in lvWork.Items )
+            {
+                if( item.Text == filename)
+                {
+                    lvWork.Items.Remove(item);
+                    break;
+                }
+            }
+            tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + ")";
         }
 
         public void DisplayWIPCallback(string filename, string originalpath)
@@ -103,8 +115,9 @@ namespace DAMBuddy2
                 //listView1.LostFocus += (s, e) => listView1.SelectedIndices.Clear();
                 AppSettingsSection settings = (AppSettingsSection)ConfigurationManager.GetSection("PreviewView.Properties.Settings");
 
+
                 
-                m_RepoManager = new GitManager(m_RepoPath, StaleCallback, DisplayWIPCallback);
+                m_RepoManager = new RepoManager(m_RepoPath, StaleCallback, DisplayWIPCallback, RemoveWIPCallback);
                 m_RepoManager.Init(30000*1, 60000*1);
     
                 m_browserSchedule = new ChromiumWebBrowser("http://ckcm:8008/scheduler-plan.html"); // TODO:Fix port
@@ -231,7 +244,7 @@ namespace DAMBuddy2
             catch (Exception e)
             {
                 MessageBox.Show("Problems with dictionaries using sTID = " + sTID);
-                throw e;
+               // throw e;
             }
 
             string sTempXML = "";
@@ -792,11 +805,6 @@ namespace DAMBuddy2
 
         }
 
-        private void cbTemplateName_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //RunTransform( cbTemplateName.Text);
-        }
-
         private void OpenInWord()
         {
             var word = new Microsoft.Office.Interop.Word.Application();
@@ -816,13 +824,6 @@ namespace DAMBuddy2
             //var savePathPdf = Server.MapPath("~/MyFiles/Html2PdfTest.pdf");
             word.Documents.Open(newFilename);
         }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-
-
-        }
-
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
@@ -946,11 +947,6 @@ namespace DAMBuddy2
 
         }
 
-        private void toolStripButton1_Click_2(object sender, EventArgs e)
-        {
-
-        }
-
         static public string WalkDirectoryTree(System.IO.DirectoryInfo root, ref string filename)
         {
             System.IO.FileInfo[] files = null;
@@ -1015,11 +1011,6 @@ namespace DAMBuddy2
 
         }
 
-        private void toolStripButton1_Click_3(object sender, EventArgs e)
-        {
-            PrepareTransformSupport();
-        }
-
         private void tstbFilter_TextChanged(object sender, EventArgs e)
         {
             timerRepoFilter.Enabled = true;
@@ -1068,16 +1059,6 @@ namespace DAMBuddy2
 
         }
 
-        private bool AddToWIP( string AssetName ) 
-        {
-            // get asset id
-
-            // add to wip list
-
-            return true;
-        
-        }
-
         
 
         private void lvRepository_ItemChecked(object sender, ItemCheckedEventArgs e)
@@ -1088,10 +1069,10 @@ namespace DAMBuddy2
             {
                 m_RepoManager.AddWIP((string)e.Item.Tag);
 
-                ListViewItem itemWIP = new ListViewItem(e.Item.Text);
-                itemWIP.Tag = e.Item.Tag;
+            //    ListViewItem itemWIP = new ListViewItem(e.Item.Text);
+              //  itemWIP.Tag = e.Item.Tag;
 
-                lvWork.Items.Add(itemWIP).SubItems.Add("-") ;
+                //lvWork.Items.Add(itemWIP).SubItems.Add("-") ;
 
                 //lvRepository.Items.Remove(e.Item);
                 //lvWork.Items.Add(e.Item);
@@ -1354,6 +1335,149 @@ namespace DAMBuddy2
             Form2 test = new Form2();
             test.Ticket = m_RepoPath;            
             test.ShowDialog();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("");
+        }
+
+        private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
+
+        }
+
+        private void tsmWIPAdd_Click(object sender, EventArgs e)
+        {
+            SendKeys.Send("{ESC}"); // 
+            MenuItem item = (MenuItem)sender;
+            if (item.Tag != null)
+            {
+                string itemdata = (string)item.Tag;
+                m_RepoManager.AddWIP(itemdata);
+
+            }
+        }
+
+        private void tsmWIPRemove_Click(object sender, EventArgs e)
+        {
+            SendKeys.Send("{ESC}"); // 
+            MenuItem item = (MenuItem)sender;
+            //MessageBox.Show(item.Text);
+            string itemData = item.Tag.ToString();
+
+            var items = itemData.Split('~');
+            
+            if ( items.Length > 1 )
+            {
+                m_RepoManager.RemoveWIP(items[0], items[1]);
+            }
+            /*string filename = itemData.Substring(0, seperator);
+            string originalpath = itemData.Substring( seperator + 1, itemData.Length - seperator);
+
+            m_RepoManager.RemoveWIP(filename, originalpath);*/
+        }
+
+        private void lvWork_MouseUp(object sender, MouseEventArgs e)
+        {
+            bool match = false;
+
+
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+
+                Console.WriteLine(sender.ToString());
+
+                foreach (ListViewItem item in lvWork.Items)
+                {
+                    if (item.Bounds.Contains(new System.Drawing.Point(e.X, e.Y)))
+                    {
+                        //MenuItem[] mi = new MenuItem[1];//{ new MenuItem("Remove " + item.Text), new MenuItem("World"), new MenuItem(item.Text) };
+
+                        var Remove = new MenuItem(("Remove " + item.Text));
+                        Remove.Tag = item.Text + "~" + item.Tag;
+                        Remove.Enabled = true;
+                        Remove.Click += tsmWIPRemove_Click;
+
+
+
+                        MenuItem[] mi = { Remove };
+
+                        //mi.Append(Remove);
+                        lvWork.ContextMenu = new ContextMenu(mi);
+                        match = true;
+                        break;
+                    }
+                }
+                if (match )
+                {
+                    Console.WriteLine("showing context menu for lvWork");
+                    lvWork.ContextMenu.Show(lvWork, new System.Drawing.Point(e.X, e.Y));
+                }
+                else
+                {
+                    //Show listViews context menu
+                }
+
+            }
+        }
+
+        private void lvRepository_MouseUp(object sender, MouseEventArgs e)
+        {
+            bool match = false;
+
+
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+
+                Console.WriteLine(sender.ToString());
+
+                foreach (ListViewItem item in lvRepository.Items)
+                {
+                    if (item.Bounds.Contains(new System.Drawing.Point(e.X, e.Y)))
+                    {
+                        //MenuItem[] mi = new MenuItem[1];//{ new MenuItem("Remove " + item.Text), new MenuItem("World"), new MenuItem(item.Text) };
+
+                        var bEnabled = !m_RepoManager.isAssetinWIP(item.Text);
+                        string prefix = "";
+
+                        if (!bEnabled) prefix = "Already in WIP : ";
+                        else prefix = "Add ";
+                        
+                        var Add = new MenuItem((prefix + item.Text));
+                        Add.Tag = item.Tag;
+
+                        Add.Enabled = bEnabled;
+                        Add.Click += tsmWIPAdd_Click;
+
+
+
+                        MenuItem[] mi = { Add };
+
+                        //mi.Append(Remove);
+                        lvRepository.ContextMenu = new ContextMenu(mi);
+                        match = true;
+                        break;
+                    }
+                }
+                if (match)
+                {
+                    
+                    lvRepository.ContextMenu.Show(lvRepository, new System.Drawing.Point(e.X, e.Y));
+                }
+                else
+                {
+                    //Show listViews context menu
+                }
+
+            }
+
+        }
+
+        private void tsWorkReload_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

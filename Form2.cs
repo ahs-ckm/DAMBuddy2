@@ -22,7 +22,7 @@ namespace DAMBuddy2
 
         private string m_Ticket = "";
 
-        private GitManager manager = null;
+        private RepoManager manager = null;
 
         private static string m_Repository = "https://github.com/ahs-ckm/ckm-mirror";
 
@@ -94,7 +94,7 @@ namespace DAMBuddy2
 
         private void button3_Click(object sender, EventArgs e)
         {
-//            manager = new GitManager( textBox1.Text );
+//            manager = new RepoManager( textBox1.Text );
 
         }
 
@@ -119,7 +119,7 @@ namespace DAMBuddy2
 
         private void button7_Click(object sender, EventArgs e)
         {
-            //manager = new GitManager(textBox1.Text);
+            //manager = new RepoManager(textBox1.Text);
             //manager.Init(( 1000 * 30 ), (1000 * 60));
    
         }
