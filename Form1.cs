@@ -80,6 +80,26 @@ namespace DAMBuddy2
             SetAssetStale(filename);
         }
 
+        public void UpdateWorkViewTitle( )
+        {
+            string AssetCount = lvWork.Items.Count.ToString();
+            int stalecount = 0;
+            foreach ( ListViewItem item in lvWork.Items )
+            {
+                if (item.SubItems[1].Text == "STALE") stalecount++;
+            }
+
+            if( stalecount == 0 )
+            {
+                tpWIP.Text = "Work View (" + AssetCount + ")";
+            }
+            else 
+            { 
+                tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + " - " + stalecount.ToString() +"!)"; 
+            }
+            
+        }
+
         public void RemoveWIPCallback(string filename)
         {
             foreach( ListViewItem item in lvWork.Items )
@@ -90,7 +110,9 @@ namespace DAMBuddy2
                     break;
                 }
             }
-            tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + ")";
+
+            UpdateWorkViewTitle();
+            //tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + ")";
         }
 
         public void DisplayWIPCallback(string filename, string originalpath)
@@ -100,7 +122,8 @@ namespace DAMBuddy2
             newitem.SubItems.Add("Fresh");
             lvWork.Items.Add(newitem);
 
-            tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + ")";
+            UpdateWorkViewTitle();
+            //tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + ")";
         }
 
 
@@ -138,7 +161,7 @@ namespace DAMBuddy2
                 PrepareTransformSupport();
 
                 LoadRepositoryTemplates();
-                LoadTransforms();
+                //LoadTransforms();
                 //            webBrowser1.Url =
 
                 tsbWord.Enabled = false;
@@ -383,17 +406,6 @@ namespace DAMBuddy2
             return Req;
         }
 
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            LoadRepositoryTemplates();
-            LoadTransforms();
-        }
-
-        private void LoadTransforms()
-        {
-            return;
-        }
 
         private void LoadRepositoryTemplates()
         {
@@ -1252,7 +1264,7 @@ namespace DAMBuddy2
                     item.SubItems[1].Text = "STALE";
                 }
             }
-
+            UpdateWorkViewTitle();
         }
 
         private void tsbRepoSearch_Click(object sender, EventArgs e)
@@ -1478,6 +1490,11 @@ namespace DAMBuddy2
         private void tsWorkReload_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void tsbRepositoryReload_Click(object sender, EventArgs e)
+        {
+            LoadRepositoryTemplates();
         }
     }
 }

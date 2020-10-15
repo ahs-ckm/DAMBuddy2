@@ -109,9 +109,9 @@
             this.timerRepoFilter = new System.Windows.Forms.Timer(this.components);
             this.cmsRemove = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -235,6 +235,7 @@
             this.tsbRepositoryReload.Name = "tsbRepositoryReload";
             this.tsbRepositoryReload.Size = new System.Drawing.Size(52, 52);
             this.tsbRepositoryReload.Text = "Reload Available Assets";
+            this.tsbRepositoryReload.Click += new System.EventHandler(this.tsbRepositoryReload_Click);
             // 
             // toolStripSeparator6
             // 
@@ -907,26 +908,26 @@
             // toolStripSeparator9
             // 
             this.toolStripSeparator9.Name = "toolStripSeparator9";
-            this.toolStripSeparator9.Size = new System.Drawing.Size(177, 6);
-            // 
-            // tsmWIPRemove
-            // 
-            this.tsmWIPRemove.Name = "tsmWIPRemove";
-            this.tsmWIPRemove.Size = new System.Drawing.Size(180, 22);
-            this.tsmWIPRemove.Text = "Remove from WIP";
-            this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
+            this.toolStripSeparator9.Size = new System.Drawing.Size(168, 6);
             // 
             // refreshToolStripMenuItem
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.refreshToolStripMenuItem.Text = "Refresh from CKM";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(168, 6);
+            // 
+            // tsmWIPRemove
+            // 
+            this.tsmWIPRemove.Name = "tsmWIPRemove";
+            this.tsmWIPRemove.Size = new System.Drawing.Size(171, 22);
+            this.tsmWIPRemove.Text = "Remove from WIP";
+            this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
             // 
             // Form1
             // 
