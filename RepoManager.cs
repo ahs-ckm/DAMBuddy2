@@ -36,15 +36,26 @@ public class RepoManager
     StaleCallback m_callbackStale;
     DisplayWIPCallback m_callbackDisplayWIP;
 
+    public string LocalPath { get => m_LocalPath; }
+
     public RepoManager(string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove)
     {
         m_callbackDisplayWIP = callbackDisplay;
         m_callbackStale = callbackStale;
         m_callbackRemoveWIP = callbackRemove;
 
-        m_LocalPath = localpath + @"\mgr";
+        m_LocalPath = localpath + @"";
     }
 
+    public string GetTemplateByID( string sTID )
+    {
+        string sTemplateXML = "";
+
+
+
+
+        return sTemplateXML;
+    }
 
     public void Pull2()
     {
@@ -379,7 +390,7 @@ public class RepoManager
         m_dictWIPNameID = new Dictionary<string, string>();
         
         m_watcher = new FileSystemWatcher();
-        m_watcher.Path = m_LocalPath + @"\local\templates";
+        m_watcher.Path = m_LocalPath + @"\mgr\local\templates";
         m_watcher.IncludeSubdirectories = true;
         m_watcher.NotifyFilter = NotifyFilters.LastWrite;
         m_watcher.Filter = "*.oet";

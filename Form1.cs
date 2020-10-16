@@ -73,6 +73,8 @@ namespace DAMBuddy2
         private Dictionary<string, string> dictIdName;
         private Dictionary<string, List<string>> dictIdArchetypes;
 
+        private TransformRequestBuilder m_RequestBuilder;
+
 
         public void StaleCallback(string filename) {
             //MessageBox.Show("StaleCallback :" + filename);
@@ -142,7 +144,7 @@ namespace DAMBuddy2
                 
                 m_RepoManager = new RepoManager(m_RepoPath, StaleCallback, DisplayWIPCallback, RemoveWIPCallback);
                 m_RepoManager.Init(30000*1, 60000*1);
-    
+
                 m_browserSchedule = new ChromiumWebBrowser("http://ckcm:8008/scheduler-plan.html"); // TODO:Fix port
                 m_browserUpload = new ChromiumWebBrowser("about:blank");
                 tpUpload.Controls.Add(m_browserUpload);
@@ -154,6 +156,9 @@ namespace DAMBuddy2
 
                 m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
                 m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
+                
+
+                m_RequestBuilder = new TransformRequestBuilder(m_RepoManager, appsettings["QueryServiceUrl"] ?? "App Settings not found");
 
                 //string test = settings.Settings["CacheServiceUrl"] ?? "";
 
@@ -175,141 +180,6 @@ namespace DAMBuddy2
         }
 
 
-        private void sanitizeEmbeddedXML2(ref string sXML)
-        {
-            int pos = sXML.IndexOf("<id>");
-            if (pos < 1) return;
-            sXML = sXML.Remove(0, pos);
-            sXML = @"<opt:TEMPLATE xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='openEHR/v1/Template' xmlns:opt='http://www.oceaninformatics.org/OPTWS'>" + sXML;
-            sXML = sXML.Replace(@"</template>", @"</opt:TEMPLATE>");
-
-        }
-
-        private void sanitizeEmbeddedXML(ref string sXML)
-        {
-            sXML = sXML.Replace("<?xml version=\"1.0\"?>", "");
-            sXML = sXML.Replace("<template xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"openEHR/v1/Template\">", @"<opt:TEMPLATE xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='openEHR/v1/Template' xmlns:opt='http://www.oceaninformatics.org/OPTWS'>");
-            sXML = sXML.Replace(@"</template>", @"</opt:TEMPLATE>");
-
-            // sXML = template;
-
-        }
-
-        void GetEmbeddedTemplateXML(ref string sXML, ref List<string> listAllEmbedded, string sTemplateFile)
-        {
-
-
-            //string sTid = dictIdName[sTemplateFile];
-
-            List<string> listEmbeddedInSingleTemplate;
-
-            bool exists = dictTemplateChildren.TryGetValue(sTemplateFile, out listEmbeddedInSingleTemplate);
-
-            if (exists)
-            {
-                foreach (string sEmbeddedId in listEmbeddedInSingleTemplate)
-                {
-
-                    if (listAllEmbedded.Contains(sEmbeddedId.ToLower())) continue;
-                    //if (sXML.Contains("<id>" + sEmbeddedId ) ) continue;
-                    listAllEmbedded.Add(sEmbeddedId.ToLower());
-                    string sTempXML = "";
-                    string sEmbeddedTemplateFile = dictIdName[sEmbeddedId];
-                    sTempXML += File.ReadAllText(sEmbeddedTemplateFile);
-                    GetEmbeddedTemplateXML(ref sTempXML, ref listAllEmbedded, sEmbeddedTemplateFile);
-                    sanitizeEmbeddedXML2(ref sTempXML);
-                    sXML += sTempXML;
-                }
-
-            }
-
-            //sXML += sTempXML;
-
-        }
-
-
-        private string GetAllEmbeddedTemplateXML(string sTemplateFile)
-        {
-            string sTempXML = "";
-            List<string> listAllEmbedded = new List<string>();
-            // get all embedded templates for the subkect
-            //BuildDictionaries(sTemplateFile); //TODO: TEST
-            GetEmbeddedTemplateXML(ref sTempXML, ref listAllEmbedded, sTemplateFile);
-
-
-            return sTempXML;
-        }
-
-        private string GetTemplateXML(string sTemplateFile)
-        {
-            var sXML = "";
-            sXML = File.ReadAllText(sTemplateFile);
-
-            int pos = sXML.IndexOf("<template");
-            if (pos < 1) return sXML;
-            sXML = sXML.Remove(0, pos);
-
-            //sXML = sXML.Replace("<?xml version=\"1.0\"?>", "");
-            return sXML;
-        }
-
-        private string GetArchetypeXML(ref string sArchetypeXML, string sTID)
-        {
-            string sTemplateFile = "";
-            List<string> listArch = null;
-
-            try
-            {
-                sTemplateFile = dictIdName[sTID];
-                listArch = dictIdArchetypes[sTID];
-
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Problems with dictionaries using sTID = " + sTID);
-               // throw e;
-            }
-
-            string sTempXML = "";
-
-            foreach (string sArchID in listArch)
-            {
-                if (!sArchetypeXML.Contains(sArchID))
-                {
-                    //sTempXML = File.ReadAllText(@"C:\temp\ArchetypeXML\" + sArchID + ".xml");
-                    sTempXML = File.ReadAllText(m_RepoPath + @"\ArchetypeXML\" + sArchID + ".xml");
-
-
-
-                    sTempXML = sTempXML.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
-                    sTempXML = sTempXML.Replace("<archetype xmlns=\"http://schemas.openehr.org/v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">", "");
-                    sTempXML = "<opt:ARCHETYPE xmlns=\"http://schemas.openehr.org/v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:opt=\"http://www.oceaninformatics.org/OPTWS\">" + sTempXML;
-                    sTempXML = sTempXML.Replace("</archetype>", "</opt:ARCHETYPE>");
-                    sArchetypeXML += sTempXML;
-
-                }
-            }
-
-            List<string> listEmbedded;
-
-            bool exists = dictTemplateChildren.TryGetValue(sTemplateFile, out listEmbedded);
-
-            if (exists)
-            {
-                foreach (string sEmbeddedId in listEmbedded)
-                {
-                    //string sEmbeddedTemplateFile = dictIdName[sEmbeddedId];
-                    //sArchetypeXML += File.ReadAllText(sEmbeddedTemplateFile);
-
-                    GetArchetypeXML(ref sArchetypeXML, sEmbeddedId);
-                }
-
-            }
-
-            // sArchetypeXML += sTempXML;
-
-            return sArchetypeXML;
-        }
         private bool PrepareTransformSupport()
         {
 
@@ -344,38 +214,17 @@ namespace DAMBuddy2
                 }
 
             }
-
-
             return true;
         }
-        private string GetAllArchetypeXML(string sTid)
+
+        private string BuildSOAPRequest3(string sTemplateFilepath)
         {
-            string sCombinedArchetypes = "";
-
-            GetArchetypeXML(ref sCombinedArchetypes, sTid);
-
-            return sCombinedArchetypes;
+            string theRequest = "";
+            m_RequestBuilder.BuildRequest(sTemplateFilepath, ref theRequest);
+            return theRequest;
         }
 
-        private string BuildSOAPRequest2(string sTemplateName)
-        {
 
-            var sTemplateXML = GetTemplateXML(dictIdName[sTemplateName]);
-
-            string request = "";
-            request += startBlock;
-            request += sTemplateXML;
-            request += "<archetypes>";
-            request += GetAllArchetypeXML(dictIdName[dictIdName[sTemplateName]]);
-            request += "</archetypes>";
-            request += "<embeddedTemplates>";
-            request += GetAllEmbeddedTemplateXML(dictIdName[sTemplateName]);
-            request += "</embeddedTemplates>";
-            request += endBlock;
-
-            textBox2.Text = request;
-            return request;
-        }
 
         private static string GetLocalVersionNumber()
         {
@@ -469,7 +318,7 @@ namespace DAMBuddy2
                     catch { }
 
                     count++;
-                    if (count > 1000) break;
+                    //if (count > 1000) break;
                 }
             }
             finally
@@ -480,122 +329,6 @@ namespace DAMBuddy2
             }
         }
 
-
-        //private
-
-        private string BuildDictionaries(string template)
-        {
-            if (dictTemplateChildren == null) dictTemplateChildren = new Dictionary<string, List<string>>();
-            if (dictIdName == null) dictIdName = new Dictionary<string, string>();
-            if (dictIdArchetypes == null) dictIdArchetypes = new Dictionary<string, List<string>>();
-
-            XDocument xtemplate = null;
-            //SetCurrentRepo();
-            try
-            {
-                xtemplate = XDocument.Load(@template);
-            }
-            catch
-            {
-                return "ERROR - template skipped - dont select!";
-            }
-
-            string title = "Unknown";
-            string sTid = "";
-            var ids = xtemplate.Descendants().Where(p => p.Name.LocalName == "id").FirstOrDefault();
-            if (ids != null)
-            {
-                sTid = ids.Value;
-                Console.WriteLine("Template ID = " + sTid);
-                dictIdName[template] = sTid;
-                dictIdName[sTid] = template;
-
-            }
-
-            var defs = xtemplate.Descendants().Where(p => p.Name.LocalName == "integrity_checks");
-            if (defs != null)
-            {
-                foreach (XElement def in defs)
-                {
-                    var archid = def.Attribute("archetype_id");
-
-                    List<string> sValue = new List<string>();
-                    bool exists = dictIdArchetypes.TryGetValue(sTid, out sValue);
-
-                    if (exists && !sValue.Contains(archid.Value))
-                    {
-                        sValue.Add(archid.Value);
-                        dictIdArchetypes[sTid] = sValue;
-                    }
-                    else if (!exists)
-                    {
-                        sValue = sValue ?? new List<string>();
-                        sValue.Add(archid.Value);
-                        dictIdArchetypes.Add(sTid, sValue);
-                    }
-
-                }
-                Console.WriteLine("Template ID = " + ids.Value);
-                dictIdName[template] = ids.Value;
-                dictIdName[ids.Value] = template;
-            }
-
-
-            var names = xtemplate.Descendants().Where(p => p.Name.LocalName == "name").FirstOrDefault();
-            if (names != null)
-            {
-                Console.WriteLine("Template Name = " + names.Value);
-                //     dictIdName[template] = ids.Value;
-                dictIdName[names.Value] = template;
-                //titles.Add(names.Value);
-                title = names.Value;
-            }
-
-
-
-            xtemplate.Descendants().Where(p => p.Name.LocalName == "Item")
-                         .ToList()
-                         .ForEach(e =>
-                         {
-                             XAttribute tid = e.Attribute("template_id");
-                             if (tid != null)
-                             {
-                                 Console.WriteLine(tid.Value);
-                                 string Value = tid.Value;
-                                 List<string> sValue = new List<string>();
-                                 bool exists = dictTemplateChildren.TryGetValue(template, out sValue);
-
-                                 if (exists && !sValue.Contains(Value))
-                                 {
-                                     sValue.Add(Value);
-                                     dictTemplateChildren[template] = sValue;
-                                 }
-                                 else if (!exists)
-                                 {
-                                     sValue = sValue ?? new List<string>();
-                                     sValue.Add(Value);
-                                     dictTemplateChildren.Add(template, sValue);
-                                 }
-
-
-                             }
-                             //Console.WriteLine(e);
-                         });
-
-            foreach (var childelem in xtemplate.XPathSelectElements("//item"))
-            {
-                string templateid = childelem.Element("template_id").Value;
-                Console.WriteLine(templateid);
-            }
-
-
-            return title;
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void RunTransform(string sTemplateName)
         {
@@ -658,12 +391,20 @@ namespace DAMBuddy2
                     tspStatusLabel.Text = "Transforming " + m_currentDocument + ": Building SOAP Request...";
                     System.Windows.Forms.Application.DoEvents();
 
-                    string sSOAPRequest = BuildSOAPRequest2(sTemplateName);
+
+
+//                    string sSOAPRequest = BuildSOAPRequest3(dictIdName[sTemplateName]);
+
+                    string sSOAPRequest = BuildSOAPRequest3(dictFileToPath[sTemplateName]);
+
+                    
+
+
                     toolStripProgressBar1.PerformStep();
                     System.Windows.Forms.Application.DoEvents();
 
                     SOAPReqBody.LoadXml(sSOAPRequest);
-                    //File.WriteAllText(@"C:\temp\SOAPRequest.xml", sSOAPRequest);
+                    File.WriteAllText(@"C:\temp\SOAPRequest.xml", sSOAPRequest);
 
                     using (Stream stream = wr.GetRequestStream())
                     {
@@ -779,16 +520,6 @@ namespace DAMBuddy2
 
         }
 
-        public static Stream GenerateStreamFromString(string s)
-        {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(s);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             InitializeApp();
@@ -837,49 +568,7 @@ namespace DAMBuddy2
             word.Documents.Open(newFilename);
         }
 
-        private void toolStripButton1_Click(object sender, EventArgs e)
-        {
-            LoadRepositoryTemplates();
-        }
 
-
-        private void FilterTemplates(string filter)
-        {
-            /*            foreach( ListViewItem a in listView1.Items)
-                        {
-                            if a.Text.Contains(filter) a.
-                        }*/
-        }
-
-        private void toolStripTextBox1_Click(object sender, EventArgs e)
-        {
-            FilterTemplates(toolStrip1.Text);
-        }
-
-        private void toolStripButton2_Click(object sender, EventArgs e)
-        {
-            OpenInWord();
-        }
-
-        private void toolStripButton1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        void TransformSelectedTemplate()
-        {
-            if (lvRepository.SelectedItems.Count > 0)
-            {
-                RunTransform(lvRepository.SelectedItems[0].Text);
-                tspTime.Text = "Generated @ " + DateTime.Now.ToString();
-            }
-
-        }
-
-        private void tsbViewDocument_Click(object sender, EventArgs e)
-        {
-            TransformSelectedTemplate();
-        }
 
         private string GetTDConfig()
         {
@@ -1037,13 +726,15 @@ namespace DAMBuddy2
                 //RunTransform();
                 string filename = lvRepository.SelectedItems[0].Text;
                 string filepath = dictFileToPath[filename];
+                RunTransform(filename);
 
 
-                string templatename = BuildDictionaries(filepath);
+
+                //string templatename = BuildDictionaries(filepath);
 
                 //TransformSelectedTemplate();
 
-                TransformSelectedRepositoryTemplate(templatename);
+                //TransformSelectedRepositoryTemplate(templatename);
             }
         }
 
@@ -1334,11 +1025,11 @@ namespace DAMBuddy2
                 string filepath = dictFileToPath[filename];
 
 
-                string templatename = BuildDictionaries(filepath);
+                //string templatename = BuildDictionaries(filepath);
 
                 //TransformSelectedTemplate();
-
-                TransformSelectedRepositoryTemplate(templatename);
+                RunTransform(filename);
+                //TransformSelectedRepositoryTemplate(templatename);
             }
         }
 
