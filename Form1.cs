@@ -21,16 +21,29 @@ using System.Runtime.InteropServices;
 using System.Xml.Schema;
 using CefSharp.WinForms;
 using System.Diagnostics;
+using System.Threading;
 //using CefSharp.Winforms;
 
 namespace DAMBuddy2
 {
+
+    public class TransformArgs
+    {
+        public delegate void DisplayCallback(string s);
+        public delegate void StatusCallback(string s); 
+        public string sTemplateName;
+        public DisplayCallback callbackDisplayHTML;
+        public StatusCallback callbackStatusUpdate;
+    }
+
     public partial class Form1 : Form
     {
         public Form1()
         {
             InitializeComponent();
         }
+
+
         private string gServerName = "http://ckcm.healthy.bewell.ca";
         private string gDAMPort = "";
         private string gFolderName = "";
@@ -42,13 +55,13 @@ namespace DAMBuddy2
         private System.Drawing.Point m_ptScrollPos;
         private string m_currentHTML;
         private string m_currentDocument = ""; // used to track whether the same document is being viewed/reviewed, if so we should keep the position
-        private string m_RepoPath = "";
+        private static string m_RepoPath = "";
         private List<ListViewItem> m_masterlist;
         // The name of the file that will store the latest version. 
         private static string latestVersionInfoFile = "Preview_version";
 
         private string m_PushDir = @"c:\temp\dambuddy2\togo";
-        private string m_OPTWebserviceUrl = ""; //@"http://wsckcmapp01/OptWs/OperationalTemplateBuilderService.asmx";
+        private static string m_OPTWebserviceUrl = ""; //@"http://wsckcmapp01/OptWs/OperationalTemplateBuilderService.asmx";
         private string m_CacheServiceURL = ""; //@"http://ckcm.healthy.bewell.ca:8091/transform_support";
 
 
@@ -64,7 +77,7 @@ namespace DAMBuddy2
             "   </soapenv:Body>\r\n" +
             "</soapenv:Envelope>";
 
-        private Dictionary<string, string> dictFileToPath;
+        private static Dictionary<string, string> dictFileToPath;
 
         private ChromiumWebBrowser m_browserUpload;
         private ChromiumWebBrowser m_browserSchedule;
@@ -73,7 +86,30 @@ namespace DAMBuddy2
         private Dictionary<string, string> dictIdName;
         private Dictionary<string, List<string>> dictIdArchetypes;
 
-        private TransformRequestBuilder m_RequestBuilder;
+        private static TransformRequestBuilder m_RequestBuilder;
+
+
+        public void DisplayTransformedDocuumentCallback(string filename)
+        {
+            
+            DisplayTransformedDocument(filename);
+        }
+
+
+        public void DisplayTransformedDocument( string filename )
+        {
+
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate { this.DisplayTransformedDocument(filename); });
+                return;
+            }
+            if (filename == null) return;
+            if (filename.Trim() == "") return;
+                        
+            wbRepositoryView.Url = new Uri(filename);
+
+        }
 
 
         public void StaleCallback(string filename) {
@@ -217,7 +253,7 @@ namespace DAMBuddy2
             return true;
         }
 
-        private string BuildSOAPRequest3(string sTemplateFilepath)
+        private static string BuildSOAPRequest3(string sTemplateFilepath)
         {
             string theRequest = "";
             m_RequestBuilder.BuildRequest(sTemplateFilepath, ref theRequest);
@@ -238,7 +274,7 @@ namespace DAMBuddy2
             return null;
         }
 
-        public HttpWebRequest CreateSOAPWebRequest()
+        public static HttpWebRequest CreateSOAPWebRequest( )
         {
             //Making Web Request  
             HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(m_OPTWebserviceUrl);
@@ -318,7 +354,7 @@ namespace DAMBuddy2
                     catch { }
 
                     count++;
-                    //if (count > 1000) break;
+                    if (count > 1000) break;
                 }
             }
             finally
@@ -329,45 +365,61 @@ namespace DAMBuddy2
             }
         }
 
-
-        private void RunTransform(string sTemplateName)
+        private void DisplayStatusUpdate( string sStatus )
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate { this.DisplayStatusUpdate(sStatus); });
+                return;
+            }
+            if (sStatus == null) return;
+            if (sStatus.Trim() == "") return;
+
+            toolStripProgressBar1.PerformStep();
+            tspStatusLabel.Text = sStatus;
+        }
+
+        private void RunThreadedTransform( string sTemplateName )
+        {
+            var args = new TransformArgs();
+            args.sTemplateName = sTemplateName;
+            args.callbackDisplayHTML = DisplayTransformedDocuumentCallback;
+            args.callbackStatusUpdate = DisplayStatusUpdate; 
+
+            toolStripProgressBar1.Step = 1;
+            toolStripProgressBar1.Value = 0;
+            toolStripProgressBar1.Minimum = 0;
+            toolStripProgressBar1.Maximum = 5;
+            toolStripProgressBar1.Visible = true;
+
+            DisplayStatusUpdate("Transforming " + m_currentDocument + ": Building SOAP Request...");
+
+            Thread thread1 = new Thread(RunTransform);
+            thread1.Start(args);
+            m_currentDocument = sTemplateName;
+        }
+
+        private static void RunTransform(object oArgs)
+        {
+            TransformArgs theArgs = (TransformArgs)oArgs;
+
+            string sTemplateName = theArgs.sTemplateName;
             //  if (tscbTransforms.Text == "") return;
             Cursor.Current = Cursors.WaitCursor;
             string sSelectedTransform = m_RepoPath + @"\XSLT\OrderItem.xsl";
-            m_currentDocument = sTemplateName;
-
+            
             if (sTemplateName.TrimEnd().EndsWith("Panel", StringComparison.OrdinalIgnoreCase) ||
+                 sTemplateName.TrimEnd().EndsWith("Protocol", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.TrimEnd().EndsWith("Set", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.TrimEnd().EndsWith("Group", StringComparison.OrdinalIgnoreCase))
             {
-
                 sSelectedTransform = m_RepoPath + @"\XSLT\OrderSet.xsl";
             }
 
             try
             {
-
-
-                m_ptScrollPos = new System.Drawing.Point(0, 0);
-
-                try
-                {
-                    if (wbRepositoryView.Document != null)
-                    {
-                        // m_ptScrollPos = webBrowser1.Document.;
-
-                    }
-
-                }
-                catch { }
-
-
-
                 string sTempHTML = @"c:\temp\" + Guid.NewGuid().ToString() + @".html";
                 string sTempXML = @"c:\temp\" + Guid.NewGuid().ToString() + @"\.xml";
-
-
 
                 if (File.Exists(@"c:\temp\generated.xml"))
                 {
@@ -380,29 +432,7 @@ namespace DAMBuddy2
 
                 try
                 {
-                    toolStripProgressBar1.Step = 1;
-                    toolStripProgressBar1.Value = 0;
-                    toolStripProgressBar1.Minimum = 0;
-                    toolStripProgressBar1.Maximum = 5;
-                    toolStripProgressBar1.Visible = true;
-
-                    toolStripProgressBar1.PerformStep();
-
-                    tspStatusLabel.Text = "Transforming " + m_currentDocument + ": Building SOAP Request...";
-                    System.Windows.Forms.Application.DoEvents();
-
-
-
-//                    string sSOAPRequest = BuildSOAPRequest3(dictIdName[sTemplateName]);
-
                     string sSOAPRequest = BuildSOAPRequest3(dictFileToPath[sTemplateName]);
-
-                    
-
-
-                    toolStripProgressBar1.PerformStep();
-                    System.Windows.Forms.Application.DoEvents();
-
                     SOAPReqBody.LoadXml(sSOAPRequest);
                     File.WriteAllText(@"C:\temp\SOAPRequest.xml", sSOAPRequest);
 
@@ -411,8 +441,12 @@ namespace DAMBuddy2
                         SOAPReqBody.Save(stream);
                     }
 
+                    /* Status Update
                     tspStatusLabel.Text = "Transforming " + m_currentDocument + ": Requesting OPT document..." + "( " + (System.Text.ASCIIEncoding.ASCII.GetByteCount(sSOAPRequest) / 1024).ToString() + "KB )";
                     toolStripProgressBar1.PerformStep();
+                    */
+                    theArgs.callbackStatusUpdate("Transforming " + sTemplateName+ ": Requesting OPT document..." + "( " + (System.Text.ASCIIEncoding.ASCII.GetByteCount(sSOAPRequest) / 1024).ToString() + "KB )" );
+
                     System.Windows.Forms.Application.DoEvents();
 
                     using (WebResponse Serviceres = wr.GetResponse())
@@ -420,11 +454,7 @@ namespace DAMBuddy2
 
                         using (StreamReader rd = new StreamReader(Serviceres.GetResponseStream()))
                         {
-                            //reading stream
                             var ServiceResult = rd.ReadToEnd();
-
-                            //String optContents = "";
-
                             optContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
                             Date now = new Date();
                             optContents += "<!--Operational template XML automatically generated by the DAM Tool at " + now + " calling the OPT Web Service-->";
@@ -437,8 +467,6 @@ namespace DAMBuddy2
                             int pTo = ServiceResult.LastIndexOf(end);
 
                             optContents += ServiceResult.Substring(pFrom, pTo - pFrom);
-                            //textBox1.Text = optContents;
-                            //System.IO.File.WriteAllText(@"c:\temp\generated.xml", optContents);
 
                         }
                     }
@@ -472,27 +500,20 @@ namespace DAMBuddy2
                     throw ex;
                 }
 
-
+                /* status update
                 toolStripProgressBar1.PerformStep();
                 tspStatusLabel.Text = "Transforming " + m_currentDocument + ": Generating Final Document...";
                 System.Windows.Forms.Application.DoEvents();
+                */
+                theArgs.callbackStatusUpdate("Transforming " + theArgs.sTemplateName + ": Generating Final Document...");
 
                 var newDocument = new XDocument();
 
                 Processor processor = new Processor(false);
-
-                //Stream XML = GenerateStreamFromString(optContents);
-
                 TextReader sr = new StringReader(optContents);
-
                 DocumentBuilder db = processor.NewDocumentBuilder();
                 db.BaseUri = new Uri(@"http://blank.org/");
                 XdmNode input = db.Build(sr);
-
-
-                //XdmNode input = processor.NewDocumentBuilder().Build(sr);
-
-                //XdmNode input = processor.NewDocumentBuilder().Build(new Uri(@"c:\temp\generated.xml"));
                 XsltTransformer transformer = processor.NewXsltCompiler().Compile(new Uri(sSelectedTransform)).Load();
                 transformer.InitialContextNode = input;
 
@@ -502,14 +523,11 @@ namespace DAMBuddy2
 
                 transformer.Run(serializer);
                 transformer.Close();
-
                 serializer.CloseAndNotify();
-
-                wbRepositoryView.Url = new Uri(sTempHTML);
-
-
-                toolStripProgressBar1.PerformStep();
-                System.Windows.Forms.Application.DoEvents();
+                
+                
+                theArgs.callbackDisplayHTML(sTempHTML);
+                theArgs.callbackStatusUpdate("");
 
             }
             finally
@@ -648,6 +666,8 @@ namespace DAMBuddy2
 
         }
 
+
+
         static public string WalkDirectoryTree(System.IO.DirectoryInfo root, ref string filename)
         {
             System.IO.FileInfo[] files = null;
@@ -726,7 +746,7 @@ namespace DAMBuddy2
                 //RunTransform();
                 string filename = lvRepository.SelectedItems[0].Text;
                 string filepath = dictFileToPath[filename];
-                RunTransform(filename);
+                RunThreadedTransform(filename);
 
 
 
@@ -741,7 +761,7 @@ namespace DAMBuddy2
         private void TransformSelectedRepositoryTemplate(string templatename)
         {
 
-            RunTransform(templatename);
+            RunThreadedTransform(templatename);
             tspTime.Text = "Generated @ " + DateTime.Now.ToString();
 
 
@@ -958,6 +978,13 @@ namespace DAMBuddy2
             UpdateWorkViewTitle();
         }
 
+
+        private void DoSearch()
+        {
+
+        }
+
+
         private void tsbRepoSearch_Click(object sender, EventArgs e)
         {
             if (tstbRepositorySearch.Text == "") return;
@@ -1028,7 +1055,7 @@ namespace DAMBuddy2
                 //string templatename = BuildDictionaries(filepath);
 
                 //TransformSelectedTemplate();
-                RunTransform(filename);
+                RunThreadedTransform(filename);
                 //TransformSelectedRepositoryTemplate(templatename);
             }
         }
