@@ -19,7 +19,8 @@ public class RepoManager
     private static string GITKEEP_UPDATE = @"\gitkeep\update";
     private static string WIP = @"\WIP";
 
-    private FileSystemWatcher m_watcher = null;
+    private FileSystemWatcher m_watcherRepo = null;
+    private FileSystemWatcher m_watcherWIP = null;
 
     private int m_intervalPull = 5000;
     private System.Threading.Timer m_timerPull = null;
@@ -28,21 +29,24 @@ public class RepoManager
     private DateTime m_dtCloneEnd;
     private Dictionary<string, string> m_dictWIPNameID;
 
+    public delegate void ModifiedCallback(string filename);
     public delegate void StaleCallback(string filename);
     public delegate void DisplayWIPCallback(string filename, string originalpath);
     public delegate void RemoveWIPCallback(string filename);
 
+    ModifiedCallback m_callbackModifiedWIP;
     RemoveWIPCallback m_callbackRemoveWIP;
     StaleCallback m_callbackStale;
     DisplayWIPCallback m_callbackDisplayWIP;
 
     public string LocalPath { get => m_LocalPath; }
 
-    public RepoManager(string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove)
+    public RepoManager(string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove, ModifiedCallback callbackModifiedWIP)
     {
         m_callbackDisplayWIP = callbackDisplay;
         m_callbackStale = callbackStale;
         m_callbackRemoveWIP = callbackRemove;
+        m_callbackModifiedWIP = callbackModifiedWIP;
 
         m_LocalPath = localpath + @"";
     }
@@ -389,17 +393,30 @@ public class RepoManager
 
         m_dictWIPNameID = new Dictionary<string, string>();
         
-        m_watcher = new FileSystemWatcher();
-        m_watcher.Path = m_LocalPath + @"\mgr\local\templates";
-        m_watcher.IncludeSubdirectories = true;
-        m_watcher.NotifyFilter = NotifyFilters.LastWrite;
-        m_watcher.Filter = "*.oet";
-        m_watcher.Created += OnChanged;
-        m_watcher.Changed += OnChanged;
+        m_watcherRepo = new FileSystemWatcher();
+        m_watcherRepo.Path = m_LocalPath + @"\mgr\local\templates";
+        m_watcherRepo.IncludeSubdirectories = true;
+        m_watcherRepo.NotifyFilter = NotifyFilters.LastWrite;
+        m_watcherRepo.Filter = "*.oet";
+        m_watcherRepo.Created += OnChangedRepo;
+        m_watcherRepo.Changed += OnChangedRepo;
 
-        m_watcher.EnableRaisingEvents = true;
+        m_watcherRepo.EnableRaisingEvents = true;
+
+        m_watcherWIP = new FileSystemWatcher();
+       
+        m_watcherWIP.Path = m_LocalPath + @"\WIP";
+        m_watcherWIP.IncludeSubdirectories = true;
+        m_watcherWIP.NotifyFilter = NotifyFilters.LastWrite;
+        m_watcherWIP.Filter = "*.oet";
+        m_watcherWIP.Created += OnChangedWIP;
+        m_watcherWIP.Changed += OnChangedWIP;
+        m_watcherWIP.EnableRaisingEvents = true;
+
 
         LoadExistingWIP();
+
+
 
     }
 
@@ -499,8 +516,21 @@ public class RepoManager
         return true;
     }
 
+    
 
-    private void OnChanged(object source, FileSystemEventArgs e)
+    private void OnChangedWIP(object source, FileSystemEventArgs e)
+    {
+
+        Console.WriteLine($"OnChangedWIP File: {e.FullPath} {e.ChangeType}");
+
+        if (m_callbackModifiedWIP != null )
+        {
+            m_callbackModifiedWIP(Path.GetFileName(e.FullPath));
+        }
+
+    }
+
+    private void OnChangedRepo(object source, FileSystemEventArgs e)
     {
 
         Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
