@@ -80,7 +80,7 @@
             this.tsPBWIPTransform = new System.Windows.Forms.ToolStripProgressBar();
             this.wbWIP = new System.Windows.Forms.WebBrowser();
             this.tpOverlapsWIP = new System.Windows.Forms.TabPage();
-            this.wbOverlapView = new System.Windows.Forms.WebBrowser();
+            this.wbWIPWUR = new System.Windows.Forms.WebBrowser();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox5 = new System.Windows.Forms.TextBox();
@@ -171,7 +171,7 @@
             this.tabControl1.Font = new System.Drawing.Font("Arial Unicode MS", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
-            this.tabControl1.Padding = new System.Drawing.Point(26, 8);
+            this.tabControl1.Padding = new System.Drawing.Point(26, 6);
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1513, 794);
             this.tabControl1.TabIndex = 21;
@@ -181,10 +181,10 @@
             this.tabPage1.Controls.Add(this.toolStrip1);
             this.tabPage1.Controls.Add(this.splitContainer1);
             this.tabPage1.ForeColor = System.Drawing.SystemColors.ActiveCaption;
-            this.tabPage1.Location = new System.Drawing.Point(4, 40);
+            this.tabPage1.Location = new System.Drawing.Point(4, 36);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1505, 750);
+            this.tabPage1.Size = new System.Drawing.Size(1505, 754);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Repository View";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -371,7 +371,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.cbTransforms);
             this.splitContainer1.Panel2.Controls.Add(this.textBox2);
             this.splitContainer1.Panel2.Controls.Add(this.textBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(1499, 683);
+            this.splitContainer1.Size = new System.Drawing.Size(1499, 687);
             this.splitContainer1.SplitterDistance = 515;
             this.splitContainer1.TabIndex = 15;
             // 
@@ -386,7 +386,7 @@
             this.tcRepoResults.Name = "tcRepoResults";
             this.tcRepoResults.Padding = new System.Drawing.Point(26, 3);
             this.tcRepoResults.SelectedIndex = 0;
-            this.tcRepoResults.Size = new System.Drawing.Size(515, 683);
+            this.tcRepoResults.Size = new System.Drawing.Size(515, 687);
             this.tcRepoResults.TabIndex = 15;
             // 
             // tpRepoAll
@@ -396,7 +396,7 @@
             this.tpRepoAll.Location = new System.Drawing.Point(4, 27);
             this.tpRepoAll.Name = "tpRepoAll";
             this.tpRepoAll.Padding = new System.Windows.Forms.Padding(3);
-            this.tpRepoAll.Size = new System.Drawing.Size(507, 652);
+            this.tpRepoAll.Size = new System.Drawing.Size(507, 656);
             this.tpRepoAll.TabIndex = 0;
             this.tpRepoAll.Text = "All";
             // 
@@ -415,7 +415,7 @@
             this.lvRepository.Location = new System.Drawing.Point(3, 3);
             this.lvRepository.MultiSelect = false;
             this.lvRepository.Name = "lvRepository";
-            this.lvRepository.Size = new System.Drawing.Size(501, 646);
+            this.lvRepository.Size = new System.Drawing.Size(501, 650);
             this.lvRepository.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvRepository.TabIndex = 15;
             this.lvRepository.UseCompatibleStateImageBehavior = false;
@@ -511,7 +511,7 @@
             this.wbRepositoryView.Location = new System.Drawing.Point(0, 42);
             this.wbRepositoryView.MinimumSize = new System.Drawing.Size(20, 20);
             this.wbRepositoryView.Name = "wbRepositoryView";
-            this.wbRepositoryView.Size = new System.Drawing.Size(980, 641);
+            this.wbRepositoryView.Size = new System.Drawing.Size(980, 645);
             this.wbRepositoryView.TabIndex = 4;
             this.wbRepositoryView.Url = new System.Uri("", System.UriKind.Relative);
             this.wbRepositoryView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
@@ -529,7 +529,7 @@
             // textBox2
             // 
             this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox2.Location = new System.Drawing.Point(571, 510);
+            this.textBox2.Location = new System.Drawing.Point(571, 514);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(244, 52);
@@ -539,7 +539,7 @@
             // textBox1
             // 
             this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox1.Location = new System.Drawing.Point(612, 527);
+            this.textBox1.Location = new System.Drawing.Point(612, 531);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(244, 52);
@@ -550,10 +550,10 @@
             // 
             this.tpWIP.Controls.Add(this.splitContainer2);
             this.tpWIP.Controls.Add(this.toolStrip2);
-            this.tpWIP.Location = new System.Drawing.Point(4, 40);
+            this.tpWIP.Location = new System.Drawing.Point(4, 36);
             this.tpWIP.Name = "tpWIP";
             this.tpWIP.Padding = new System.Windows.Forms.Padding(3);
-            this.tpWIP.Size = new System.Drawing.Size(1505, 750);
+            this.tpWIP.Size = new System.Drawing.Size(1505, 754);
             this.tpWIP.TabIndex = 1;
             this.tpWIP.Text = "Work View";
             this.tpWIP.UseVisualStyleBackColor = true;
@@ -579,7 +579,7 @@
             this.splitContainer2.Panel2.Controls.Add(this.comboBox1);
             this.splitContainer2.Panel2.Controls.Add(this.textBox4);
             this.splitContainer2.Panel2.Controls.Add(this.textBox5);
-            this.splitContainer2.Size = new System.Drawing.Size(1499, 664);
+            this.splitContainer2.Size = new System.Drawing.Size(1499, 668);
             this.splitContainer2.SplitterDistance = 611;
             this.splitContainer2.TabIndex = 20;
             // 
@@ -599,7 +599,7 @@
             this.lvWork.Location = new System.Drawing.Point(0, 0);
             this.lvWork.MultiSelect = false;
             this.lvWork.Name = "lvWork";
-            this.lvWork.Size = new System.Drawing.Size(611, 664);
+            this.lvWork.Size = new System.Drawing.Size(611, 668);
             this.lvWork.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvWork.TabIndex = 14;
             this.lvWork.UseCompatibleStateImageBehavior = false;
@@ -632,25 +632,28 @@
             // 
             // tbWIPViews
             // 
+            this.tbWIPViews.Alignment = System.Windows.Forms.TabAlignment.Left;
             this.tbWIPViews.Controls.Add(this.tpPreviewWIP);
             this.tbWIPViews.Controls.Add(this.tpOverlapsWIP);
             this.tbWIPViews.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tbWIPViews.Location = new System.Drawing.Point(0, 0);
+            this.tbWIPViews.Multiline = true;
             this.tbWIPViews.Name = "tbWIPViews";
+            this.tbWIPViews.Padding = new System.Drawing.Point(26, 6);
             this.tbWIPViews.SelectedIndex = 0;
-            this.tbWIPViews.Size = new System.Drawing.Size(884, 664);
+            this.tbWIPViews.Size = new System.Drawing.Size(884, 668);
             this.tbWIPViews.TabIndex = 17;
             // 
             // tpPreviewWIP
             // 
             this.tpPreviewWIP.Controls.Add(this.statusStrip2);
             this.tpPreviewWIP.Controls.Add(this.wbWIP);
-            this.tpPreviewWIP.Location = new System.Drawing.Point(4, 30);
+            this.tpPreviewWIP.Location = new System.Drawing.Point(38, 4);
             this.tpPreviewWIP.Name = "tpPreviewWIP";
             this.tpPreviewWIP.Padding = new System.Windows.Forms.Padding(3);
-            this.tpPreviewWIP.Size = new System.Drawing.Size(876, 630);
+            this.tpPreviewWIP.Size = new System.Drawing.Size(842, 660);
             this.tpPreviewWIP.TabIndex = 0;
-            this.tpPreviewWIP.Text = "Preview";
+            this.tpPreviewWIP.Text = "Document Preview";
             this.tpPreviewWIP.UseVisualStyleBackColor = true;
             // 
             // statusStrip2
@@ -661,7 +664,7 @@
             this.tsPBWIPTransform});
             this.statusStrip2.Location = new System.Drawing.Point(3, 3);
             this.statusStrip2.Name = "statusStrip2";
-            this.statusStrip2.Size = new System.Drawing.Size(870, 26);
+            this.statusStrip2.Size = new System.Drawing.Size(836, 26);
             this.statusStrip2.SizingGrip = false;
             this.statusStrip2.TabIndex = 22;
             this.statusStrip2.Text = "statusStrip2";
@@ -683,32 +686,35 @@
             // 
             // wbWIP
             // 
+            this.wbWIP.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.wbWIP.Location = new System.Drawing.Point(6, 32);
             this.wbWIP.MinimumSize = new System.Drawing.Size(20, 20);
             this.wbWIP.Name = "wbWIP";
-            this.wbWIP.Size = new System.Drawing.Size(864, 595);
+            this.wbWIP.Size = new System.Drawing.Size(830, 625);
             this.wbWIP.TabIndex = 5;
             this.wbWIP.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.wbWIP_DocumentCompleted);
             // 
             // tpOverlapsWIP
             // 
-            this.tpOverlapsWIP.Controls.Add(this.wbOverlapView);
-            this.tpOverlapsWIP.Location = new System.Drawing.Point(4, 30);
+            this.tpOverlapsWIP.Controls.Add(this.wbWIPWUR);
+            this.tpOverlapsWIP.Location = new System.Drawing.Point(38, 4);
             this.tpOverlapsWIP.Name = "tpOverlapsWIP";
             this.tpOverlapsWIP.Padding = new System.Windows.Forms.Padding(3);
-            this.tpOverlapsWIP.Size = new System.Drawing.Size(876, 630);
+            this.tpOverlapsWIP.Size = new System.Drawing.Size(842, 660);
             this.tpOverlapsWIP.TabIndex = 1;
             this.tpOverlapsWIP.Text = "Where Used Report";
             this.tpOverlapsWIP.UseVisualStyleBackColor = true;
             // 
-            // wbOverlapView
+            // wbWIPWUR
             // 
-            this.wbOverlapView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wbOverlapView.Location = new System.Drawing.Point(3, 3);
-            this.wbOverlapView.MinimumSize = new System.Drawing.Size(20, 20);
-            this.wbOverlapView.Name = "wbOverlapView";
-            this.wbOverlapView.Size = new System.Drawing.Size(870, 624);
-            this.wbOverlapView.TabIndex = 6;
+            this.wbWIPWUR.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wbWIPWUR.Location = new System.Drawing.Point(3, 3);
+            this.wbWIPWUR.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbWIPWUR.Name = "wbWIPWUR";
+            this.wbWIPWUR.Size = new System.Drawing.Size(836, 654);
+            this.wbWIPWUR.TabIndex = 6;
             // 
             // comboBox1
             // 
@@ -723,7 +729,7 @@
             // textBox4
             // 
             this.textBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox4.Location = new System.Drawing.Point(571, 521);
+            this.textBox4.Location = new System.Drawing.Point(571, 525);
             this.textBox4.Multiline = true;
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(244, 52);
@@ -733,7 +739,7 @@
             // textBox5
             // 
             this.textBox5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBox5.Location = new System.Drawing.Point(612, 538);
+            this.textBox5.Location = new System.Drawing.Point(612, 542);
             this.textBox5.Multiline = true;
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(244, 52);
@@ -818,6 +824,7 @@
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(52, 52);
             this.toolStripButton2.Text = "toolStripButton1";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // toolStripSeparator8
             // 
@@ -958,9 +965,9 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 40);
+            this.tabPage2.Location = new System.Drawing.Point(4, 36);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(1505, 750);
+            this.tabPage2.Size = new System.Drawing.Size(1505, 754);
             this.tabPage2.TabIndex = 6;
             this.tabPage2.Text = "Overlaps";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -968,20 +975,20 @@
             // tpUpload
             // 
             this.tpUpload.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.tpUpload.Location = new System.Drawing.Point(4, 40);
+            this.tpUpload.Location = new System.Drawing.Point(4, 36);
             this.tpUpload.Name = "tpUpload";
             this.tpUpload.Padding = new System.Windows.Forms.Padding(3);
-            this.tpUpload.Size = new System.Drawing.Size(1505, 750);
+            this.tpUpload.Size = new System.Drawing.Size(1505, 754);
             this.tpUpload.TabIndex = 3;
             this.tpUpload.Text = "Upload";
             this.tpUpload.UseVisualStyleBackColor = true;
             // 
             // tpSchedule
             // 
-            this.tpSchedule.Location = new System.Drawing.Point(4, 40);
+            this.tpSchedule.Location = new System.Drawing.Point(4, 36);
             this.tpSchedule.Name = "tpSchedule";
             this.tpSchedule.Padding = new System.Windows.Forms.Padding(0, 0, 10, 0);
-            this.tpSchedule.Size = new System.Drawing.Size(1505, 750);
+            this.tpSchedule.Size = new System.Drawing.Size(1505, 754);
             this.tpSchedule.TabIndex = 5;
             this.tpSchedule.Text = "Schedule";
             this.tpSchedule.UseVisualStyleBackColor = true;
@@ -989,10 +996,10 @@
             // tabPage5
             // 
             this.tabPage5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabPage5.Location = new System.Drawing.Point(4, 40);
+            this.tabPage5.Location = new System.Drawing.Point(4, 36);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(1505, 750);
+            this.tabPage5.Size = new System.Drawing.Size(1505, 754);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Document Review";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -1171,7 +1178,7 @@
         private System.Windows.Forms.TabPage tpPreviewWIP;
         private System.Windows.Forms.WebBrowser wbWIP;
         private System.Windows.Forms.TabPage tpOverlapsWIP;
-        private System.Windows.Forms.WebBrowser wbOverlapView;
+        private System.Windows.Forms.WebBrowser wbWIPWUR;
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel tsStatusLabel;
         private System.Windows.Forms.ToolStripProgressBar tsPBWIPTransform;

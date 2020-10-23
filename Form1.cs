@@ -261,13 +261,6 @@ namespace DAMBuddy2
             return true;
         }
 
-        private static string BuildSOAPRequest3(string sTemplateFilepath)
-        {
-            string theRequest = "";
-            m_RequestBuilder.BuildRequest(sTemplateFilepath, ref theRequest);
-            return theRequest;
-        }
-
 
 
         private static string GetLocalVersionNumber()
@@ -308,19 +301,9 @@ namespace DAMBuddy2
 
             tstbRepositoryFilter.Text = "";
 
-
-            //cbTemplateName.Items.Clear();
-
             string[] templates = Directory.GetFiles(m_RepoPath, "*.oet", SearchOption.AllDirectories);
             foreach (string template in templates)
             {
-                //Console.WriteLine(template);
-                //var title = BuildDictionaries(template);
-
-                //  cbTemplateName.Items.Add(title);
-                //  cbTemplateName.SelectedIndex = 0;
-                //listView1.Items.Add(title);
-
                 string filename = Path.GetFileName(template);
 
                 dictFileToPath[filename] = template;
@@ -330,19 +313,13 @@ namespace DAMBuddy2
 
                 m_masterlist.Add(newAsset);
             }
-
-
             DisplayTemplates();
 
         }
 
-        [DllImport("user32.dll")]
-        private static extern long LockWindowUpdate(long Handle);
-
         private void DisplayTemplates()
         {
             tstbRepositoryFilter.Focus();
-            //listView1.se
             lvRepository.Items.Clear();
             // This filters and adds your filtered items to listView1
 
@@ -463,7 +440,6 @@ namespace DAMBuddy2
             TransformArgs theArgs = (TransformArgs)oArgs;
 
             string sTemplateName = theArgs.sTemplateName;
-            //  if (tscbTransforms.Text == "") return;
             Cursor.Current = Cursors.WaitCursor;
             string sSelectedTransform = m_RepoPath + @"\XSLT\OrderItem.xsl";
             string sProcessedName = sTemplateName.Replace(".oet", "").TrimEnd();
@@ -472,7 +448,6 @@ namespace DAMBuddy2
             if (sProcessedName.EndsWith("Panel", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.EndsWith("Protocol", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.EndsWith("Set", StringComparison.OrdinalIgnoreCase) ||
-
                  sTemplateName.EndsWith("Template", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.EndsWith("Group", StringComparison.OrdinalIgnoreCase))
             {
@@ -482,12 +457,6 @@ namespace DAMBuddy2
             try
             {
                 string sTempHTML = @"c:\temp\" + Guid.NewGuid().ToString() + @".html";
-                string sTempXML = @"c:\temp\" + Guid.NewGuid().ToString() + @"\.xml";
-
-                if (File.Exists(@"c:\temp\generated.xml"))
-                {
-                    File.Delete(@"c:\temp\generated.xml");
-                }
 
                 HttpWebRequest wr = CreateSOAPWebRequest();
                 XmlDocument SOAPReqBody = new XmlDocument();
@@ -530,6 +499,9 @@ namespace DAMBuddy2
                         }
                     }
 
+                    if (String.IsNullOrEmpty(optContents) ) 
+                        return;
+
                 }
                 catch (WebException webExcp)
                 {
@@ -556,7 +528,8 @@ namespace DAMBuddy2
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Generic Exception Handler: {ex}");
-                    throw ex;
+                    return;
+                 //   throw ex;
                 }
 
                 theArgs.callbackStatusUpdate("Transforming " + theArgs.sTemplateName + ": Generating Final Document...");
@@ -591,6 +564,14 @@ namespace DAMBuddy2
             }
 
         }
+
+        private static string BuildSOAPRequest3(string sTemplateFilepath)
+        {
+            string theRequest = "";
+            m_RequestBuilder.BuildRequest(sTemplateFilepath, ref theRequest);
+            return theRequest;
+        }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -825,7 +806,9 @@ namespace DAMBuddy2
         private void LoadWUR( string filename )
         {
             //http://ckcm:8011/WhereUsed,0f3e3fc2-6dbe-4f6f-b292-e8ef0501c163
-
+            string sTID = m_RepoManager.GetTemplateID(filename);
+            wbWIPWUR.ScriptErrorsSuppressed = true;
+            wbWIPWUR.Url = new Uri( "http://ckcm:8011/WhereUsed," + sTID);
 
         }
 
@@ -865,7 +848,7 @@ namespace DAMBuddy2
 
         private void lvWork_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
-
+            
         }
 
         private void tsbWorkUpload_Click(object sender, EventArgs e)
@@ -1105,6 +1088,12 @@ namespace DAMBuddy2
         {
             SearchArgs theArgs = (SearchArgs)oArgs;
 
+            string repopath = m_RepoPath;
+            if (repopath.EndsWith(@"\") ) 
+            {
+                repopath = repopath.Remove(repopath.Length - 1);
+            }
+
             //if ( theArgs == null) return;
 
             string path = @"C:\Users\jonbeeby\source\repos\DamBuddy2\packages\grep\";
@@ -1116,7 +1105,7 @@ namespace DAMBuddy2
                     {
 
                         FileName = path + "fgrep.exe",
-                        Arguments = theArgs.sSearchTerm + " " + m_RepoPath + " -Rli",
+                        Arguments = theArgs.sSearchTerm + " " + repopath + " -Rli",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -1389,6 +1378,11 @@ namespace DAMBuddy2
             tsStatusLabel.Text = "Viewing " + m_currentDocumentWIP;
 
             tsPBWIPTransform.Visible = false;
+        }
+
+        private void toolStripButton2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
