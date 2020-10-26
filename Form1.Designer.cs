@@ -108,7 +108,7 @@
             this.tssbWorkState = new System.Windows.Forms.ToolStripSplitButton();
             this.readyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notReadyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tpOverlaps = new System.Windows.Forms.TabPage();
             this.tpUpload = new System.Windows.Forms.TabPage();
             this.tpSchedule = new System.Windows.Forms.TabPage();
             this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -120,6 +120,7 @@
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -141,6 +142,7 @@
             this.statusStrip2.SuspendLayout();
             this.tpOverlapsWIP.SuspendLayout();
             this.toolStrip2.SuspendLayout();
+            this.tpOverlaps.SuspendLayout();
             this.cmsRemove.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -163,7 +165,7 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tpWIP);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tpOverlaps);
             this.tabControl1.Controls.Add(this.tpUpload);
             this.tabControl1.Controls.Add(this.tpSchedule);
             this.tabControl1.Controls.Add(this.tabPage5);
@@ -175,6 +177,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1513, 794);
             this.tabControl1.TabIndex = 21;
+            this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
             // 
             // tabPage1
             // 
@@ -436,7 +439,7 @@
             this.tpRepoSearch.Location = new System.Drawing.Point(4, 27);
             this.tpRepoSearch.Name = "tpRepoSearch";
             this.tpRepoSearch.Padding = new System.Windows.Forms.Padding(3);
-            this.tpRepoSearch.Size = new System.Drawing.Size(507, 652);
+            this.tpRepoSearch.Size = new System.Drawing.Size(507, 656);
             this.tpRepoSearch.TabIndex = 1;
             this.tpRepoSearch.Text = "Search Results";
             // 
@@ -456,7 +459,7 @@
             this.lvRepoSearchResults.Location = new System.Drawing.Point(3, 3);
             this.lvRepoSearchResults.MultiSelect = false;
             this.lvRepoSearchResults.Name = "lvRepoSearchResults";
-            this.lvRepoSearchResults.Size = new System.Drawing.Size(501, 646);
+            this.lvRepoSearchResults.Size = new System.Drawing.Size(501, 650);
             this.lvRepoSearchResults.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvRepoSearchResults.TabIndex = 16;
             this.lvRepoSearchResults.UseCompatibleStateImageBehavior = false;
@@ -963,14 +966,15 @@
             this.notReadyToolStripMenuItem.Size = new System.Drawing.Size(157, 26);
             this.notReadyToolStripMenuItem.Text = "Not Ready";
             // 
-            // tabPage2
+            // tpOverlaps
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 36);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(1505, 754);
-            this.tabPage2.TabIndex = 6;
-            this.tabPage2.Text = "Overlaps";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tpOverlaps.Controls.Add(this.wbOverlaps);
+            this.tpOverlaps.Location = new System.Drawing.Point(4, 36);
+            this.tpOverlaps.Name = "tpOverlaps";
+            this.tpOverlaps.Size = new System.Drawing.Size(1505, 754);
+            this.tpOverlaps.TabIndex = 6;
+            this.tpOverlaps.Text = "Overlaps";
+            this.tpOverlaps.UseVisualStyleBackColor = true;
             // 
             // tpUpload
             // 
@@ -1044,6 +1048,15 @@
             this.tsmWIPRemove.Text = "Remove from WIP";
             this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
             // 
+            // wbOverlaps
+            // 
+            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wbOverlaps.Location = new System.Drawing.Point(0, 0);
+            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbOverlaps.Name = "wbOverlaps";
+            this.wbOverlaps.Size = new System.Drawing.Size(1505, 754);
+            this.wbOverlaps.TabIndex = 0;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1085,6 +1098,7 @@
             this.tpOverlapsWIP.ResumeLayout(false);
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
+            this.tpOverlaps.ResumeLayout(false);
             this.cmsRemove.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -1182,7 +1196,8 @@
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel tsStatusLabel;
         private System.Windows.Forms.ToolStripProgressBar tsPBWIPTransform;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tpOverlaps;
+        private System.Windows.Forms.WebBrowser wbOverlaps;
     }
 }
 

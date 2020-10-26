@@ -11,15 +11,24 @@ using System.Windows.Forms;
 using DAMBuddy2;
 using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
+using System.IO.Compression;
+using System.Net;
 
 public class RepoManager
 {
+    string DAM_PORT = "10091"; // DEV
+    string DAM_FOLDER = "FOLDER4";
+    string TEMP_FOLDER= @"c:\temp\dambuddy2";
+    string CACHE_NAME = "LOCAL3";
+
+
     private string m_LocalPath = "";
     private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
     private static string GITKEEP_INITIAL = @"\gitkeep\initial";
     private static string GITKEEP_UPDATE = @"\gitkeep\update";
     private static string GITKEEP_SUFFIX = ".keep";
     private static string WIP = @"\local\WIP";
+    private string gServerName = "http://ckcm.healthy.bewell.ca";
 
     private FileSystemWatcher m_watcherRepo = null;
     private FileSystemWatcher m_watcherWIP = null;
@@ -224,11 +233,53 @@ public class RepoManager
         return true;
     }
 
+    private bool WIPToServer(  )
+    {
+        bool result = false;
+
+        
+       string zipname = TEMP_FOLDER + @"\togo-wip.zip";
+        
+
+        //try
+        {
+            //string directory = gCacheDir + "\\" + gFolderName;
+
+            if (File.Exists(zipname))
+            {
+                File.Delete(zipname);
+            }
+
+            if( !File.Exists( TEMP_FOLDER ))
+            {
+                Directory.CreateDirectory(TEMP_FOLDER);
+            }
+            
+
+            ZipFile.CreateFromDirectory(m_LocalPath + WIP, zipname);
+
+            //Directory.Move(directory, directory + "-posted");
+
+            long length = new System.IO.FileInfo(zipname).Length;
+            Console.WriteLine("\nSending file length: {0}", length);
+
+            using (WebClient client = new WebClient())
+            {
+                byte[] responseArray = client.UploadFile(gServerName + ":" + DAM_PORT + "/upload," + DAM_FOLDER, "POST", zipname);
+                // Decode and display the response.
+                Console.WriteLine("\nResponse Received. The contents of the file uploaded are:\n{0}",
+                    System.Text.Encoding.ASCII.GetString(responseArray));
+            }
+            result = true;
+        }
+
+        return result;
+    }
+
+
     // prepare an asset as WIP
     public void AddWIP(string filepath)
-    {   //C:\TD\git2\1\mgr\WIP
-
-
+    {   
         string filepathWIP = m_LocalPath + WIP + @"\" + Path.GetFileName(filepath);
         File.Copy(filepath, filepathWIP);
 
@@ -241,14 +292,13 @@ public class RepoManager
         m_dictWIPName2Path[Path.GetFileName(filepath)] = filepath; // name -> filepath
         m_dictWIPID2Path[Utility.GetTemplateID(filepathWIP)] = filepathWIP; // id -> filepath
 
+        WIPToServer();
+
         SaveExistingWip();
 
-        if (m_callbackDisplayWIP != null)
-        {
-            m_callbackDisplayWIP(Path.GetFileName(filepath), filepath);
-        }
+        m_callbackDisplayWIP?.Invoke(Path.GetFileName(filepath), filepath);
 
-        //copy filepath to 
+     
     }
 
     private void SaveInitialState(string filepath)

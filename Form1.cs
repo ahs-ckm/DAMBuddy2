@@ -29,6 +29,9 @@ namespace DAMBuddy2
 
     public partial class Form1 : Form
     {
+
+        string TICKET_NAME = "CSDFK-1489";
+
         public Form1()
         {
             InitializeComponent();
@@ -94,7 +97,12 @@ namespace DAMBuddy2
             if (filename == null) return;
             if (filename.Trim() == "") return;
 
-            wbWIP.Url = new Uri(filename);
+            try
+            {
+                wbWIP.Url = new Uri(filename);
+
+            }
+            catch { }
         }
 
         public void DisplayTransformedDocumentRepo(string filename)
@@ -1383,6 +1391,14 @@ namespace DAMBuddy2
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void tabControl1_Selected(object sender, TabControlEventArgs e)
+        {
+            if( tabControl1.SelectedTab.Name == "tpOverlaps" )
+            {
+                wbOverlaps.Url = new Uri( "http://ckcm:10008/dynamic/OverlapFocus,CSDFK-1489" );
+            }
         }
     }
 
