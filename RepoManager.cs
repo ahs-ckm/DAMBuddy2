@@ -233,45 +233,21 @@ public class RepoManager
         return true;
     }
 
-    private bool WIPToServer(  )
+    private bool WIPToServer( string sTemplateName, string sTID )
     {
         bool result = false;
 
         
-       string zipname = TEMP_FOLDER + @"\togo-wip.zip";
-        
 
-        //try
+        using (WebClient client = new WebClient())
         {
-            //string directory = gCacheDir + "\\" + gFolderName;
-
-            if (File.Exists(zipname))
-            {
-                File.Delete(zipname);
-            }
-
-            if( !File.Exists( TEMP_FOLDER ))
-            {
-                Directory.CreateDirectory(TEMP_FOLDER);
-            }
-            
-
-            ZipFile.CreateFromDirectory(m_LocalPath + WIP, zipname);
-
-            //Directory.Move(directory, directory + "-posted");
-
-            long length = new System.IO.FileInfo(zipname).Length;
-            Console.WriteLine("\nSending file length: {0}", length);
-
-            using (WebClient client = new WebClient())
-            {
-                byte[] responseArray = client.UploadFile(gServerName + ":" + DAM_PORT + "/upload," + DAM_FOLDER, "POST", zipname);
-                // Decode and display the response.
-                Console.WriteLine("\nResponse Received. The contents of the file uploaded are:\n{0}",
-                    System.Text.Encoding.ASCII.GetString(responseArray));
-            }
-            result = true;
+            string theParams = $"theFolder={DAM_FOLDER}&theTemplateID={sTID}&theTemplateName={sTemplateName}";
+            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+            string response = client.UploadString(gServerName + ":" + DAM_PORT + "/WIP",  theParams);
+            Console.WriteLine(response);
         }
+        result = true;
+        
 
         return result;
     }
@@ -289,10 +265,12 @@ public class RepoManager
 
         MakeMd52(initialFile);
 
-        m_dictWIPName2Path[Path.GetFileName(filepath)] = filepath; // name -> filepath
-        m_dictWIPID2Path[Utility.GetTemplateID(filepathWIP)] = filepathWIP; // id -> filepath
+        string sTID = Utility.GetTemplateID(filepathWIP);
 
-        WIPToServer();
+        m_dictWIPName2Path[Path.GetFileName(filepath)] = filepath; // name -> filepath
+        m_dictWIPID2Path[sTID] = filepathWIP; // id -> filepath
+
+        WIPToServer(Path.GetFileName(filepath), sTID);
 
         SaveExistingWip();
 

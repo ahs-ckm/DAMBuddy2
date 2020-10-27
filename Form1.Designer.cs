@@ -109,6 +109,7 @@
             this.readyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notReadyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tpOverlaps = new System.Windows.Forms.TabPage();
+            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.tpUpload = new System.Windows.Forms.TabPage();
             this.tpSchedule = new System.Windows.Forms.TabPage();
             this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -120,7 +121,7 @@
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
-            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
+            this.chRootNode = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -592,12 +593,12 @@
             this.lvWork.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.chFilename,
             this.chStale,
-            this.chModified});
+            this.chModified,
+            this.chRootNode});
             this.lvWork.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvWork.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.lvWork.FullRowSelect = true;
             this.lvWork.GridLines = true;
-            this.lvWork.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.lvWork.HideSelection = false;
             this.lvWork.Location = new System.Drawing.Point(0, 0);
             this.lvWork.MultiSelect = false;
@@ -613,15 +614,16 @@
             // chFilename
             // 
             this.chFilename.Text = "Asset";
-            this.chFilename.Width = 420;
+            this.chFilename.Width = 100;
             // 
             // chStale
             // 
             this.chStale.Text = "Freshness";
+            this.chStale.Width = 100;
             // 
             // chModified
             // 
-            this.chModified.Text = "Changed";
+            this.chModified.Text = "Edited?";
             this.chModified.Width = 100;
             // 
             // button1
@@ -976,6 +978,15 @@
             this.tpOverlaps.Text = "Overlaps";
             this.tpOverlaps.UseVisualStyleBackColor = true;
             // 
+            // wbOverlaps
+            // 
+            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wbOverlaps.Location = new System.Drawing.Point(0, 0);
+            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbOverlaps.Name = "wbOverlaps";
+            this.wbOverlaps.Size = new System.Drawing.Size(1505, 754);
+            this.wbOverlaps.TabIndex = 0;
+            // 
             // tpUpload
             // 
             this.tpUpload.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -1048,14 +1059,10 @@
             this.tsmWIPRemove.Text = "Remove from WIP";
             this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
             // 
-            // wbOverlaps
+            // chRootNode
             // 
-            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wbOverlaps.Location = new System.Drawing.Point(0, 0);
-            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
-            this.wbOverlaps.Name = "wbOverlaps";
-            this.wbOverlaps.Size = new System.Drawing.Size(1505, 754);
-            this.wbOverlaps.TabIndex = 0;
+            this.chRootNode.Text = "Rootnode Edit?";
+            this.chRootNode.Width = 100;
             // 
             // Form1
             // 
@@ -1198,6 +1205,7 @@
         private System.Windows.Forms.ToolStripProgressBar tsPBWIPTransform;
         private System.Windows.Forms.TabPage tpOverlaps;
         private System.Windows.Forms.WebBrowser wbOverlaps;
+        private System.Windows.Forms.ColumnHeader chRootNode;
     }
 }
 

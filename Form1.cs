@@ -457,7 +457,7 @@ namespace DAMBuddy2
                  sTemplateName.EndsWith("Protocol", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.EndsWith("Set", StringComparison.OrdinalIgnoreCase) ||
                  sTemplateName.EndsWith("Template", StringComparison.OrdinalIgnoreCase) ||
-                 sTemplateName.EndsWith("Group", StringComparison.OrdinalIgnoreCase))
+                 sTemplateName.EndsWith("Groupxxxx", StringComparison.OrdinalIgnoreCase))
             {
                 sSelectedTransform = m_RepoPath + @"\XSLT\OrderSet.xsl";
             }
@@ -1214,6 +1214,7 @@ namespace DAMBuddy2
         */
         private void lvRepoSearchResults_SelectedIndexChanged(object sender, EventArgs e)
         {
+            
             if (lvRepoSearchResults.SelectedItems.Count > 0)
             {
                 string filename = lvRepoSearchResults.SelectedItems[0].Text;
