@@ -17,10 +17,11 @@ using System.Net;
 public class RepoManager
 {
     string DAM_PORT = "10091"; // DEV
+    string DAM_SCHEDULER_PORT = "10008"; 
     string DAM_FOLDER = "FOLDER4";
     string TEMP_FOLDER= @"c:\temp\dambuddy2";
     string CACHE_NAME = "LOCAL3";
-
+    string DAM_TICKET = "CSDFK-1489";
 
     private string m_LocalPath = "";
     private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
@@ -46,12 +47,14 @@ public class RepoManager
     public delegate void DisplayWIPCallback(string filename, string originalpath);
     public delegate void RemoveWIPCallback(string filename);
 
+    ModifiedCallback m_callbackTicketState;
     ModifiedCallback m_callbackModifiedWIP;
     RemoveWIPCallback m_callbackRemoveWIP;
     StaleCallback m_callbackStale;
     DisplayWIPCallback m_callbackDisplayWIP;
 
     public string LocalPath { get => m_LocalPath; }
+    public ModifiedCallback CallbackTicketState { get => m_callbackTicketState; set => m_callbackTicketState = value; }
 
     public RepoManager(string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove, ModifiedCallback callbackModifiedWIP)
     {
@@ -233,11 +236,98 @@ public class RepoManager
         return true;
     }
 
-    private bool WIPToServer( string sTemplateName, string sTID )
+    public bool SetTicketReadiness( bool bReady )
+    {
+        bool result = false;
+        string ReadyParam = "notready";
+        if( bReady )
+        {
+            ReadyParam = "ready";
+        }
+        
+        string theParams = $"theState={ReadyParam}&theFolder={DAM_FOLDER}";
+
+        try
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                string response = client.UploadString(gServerName + ":" + DAM_PORT + "/ready", theParams);
+                Console.WriteLine(response);
+
+            }
+
+        }
+        catch 
+        {
+            MessageBox.Show("Failed to set ticket to Ready");
+            return false;
+
+        }
+
+        UpdateSchedule();
+        GetTicketScheduleStatus();
+
+
+        return true;
+    }
+
+    private bool GetTicketScheduleStatus()
+    {
+
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{DAM_TICKET}" );
+        request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        using (Stream stream = response.GetResponseStream())
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            string jsonStatus = reader.ReadToEnd();
+            CallbackTicketState?.Invoke(jsonStatus);
+            
+        }
+
+        return true;
+    }
+
+    private bool UpdateSchedule()
+    {
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json" );
+        request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        using (Stream stream = response.GetResponseStream())
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            string status = reader.ReadToEnd();
+
+        }
+        
+        return true;
+    }
+
+
+    private bool WIPRemoveFromServer(string sTemplateName, string sTID)
     {
         bool result = false;
 
-        
+        using (WebClient client = new WebClient())
+        {
+            string theParams = $"theFolder={DAM_FOLDER}&theTemplateID={sTID}";
+            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+            string response = client.UploadString(gServerName + ":" + DAM_PORT + "/RemoveWIP", theParams);
+            Console.WriteLine(response);
+        }
+        result = true;
+
+
+        return result;
+    }
+
+
+    private bool WIPToServer( string sTemplateName, string sTID )
+    {
+        bool result = false;
 
         using (WebClient client = new WebClient())
         {
@@ -557,6 +647,7 @@ public class RepoManager
         string updateFile = m_LocalPath + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
         try
         {
+            WIPRemoveFromServer(filename, GetTemplateID(filename));
 
             if (File.Exists(wipFile))
             {
@@ -592,6 +683,7 @@ public class RepoManager
 
             }
 
+            
             SaveExistingWip();
         }
         catch ( Exception e )
@@ -632,5 +724,10 @@ public class RepoManager
         
     }
     
+    public class TicketScheduleState
+    {
+        public string UploadEnabled { get; set; }
+        public string ScheduleState { get; set; }
+    }
 
 }
