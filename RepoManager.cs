@@ -13,13 +13,45 @@ using LibGit2Sharp;
 using LibGit2Sharp.Handlers;
 using System.IO.Compression;
 using System.Net;
+using net.sf.saxon.trans.rules;
+using System.Diagnostics.Contracts;
+using System.Collections.ObjectModel;
+
+public static class Extensions
+{
+
+    public static IEnumerable<IEnumerable<T>> Page<T>(this IEnumerable<T> source, int pageSize)
+    {
+        Contract.Requires(source != null);
+        Contract.Requires(pageSize > 0);
+        Contract.Ensures(Contract.Result<IEnumerable<IEnumerable<T>>>() != null);
+
+        using (var enumerator = source.GetEnumerator())
+        {
+            while (enumerator.MoveNext())
+            {
+                var currentPage = new List<T>(pageSize)
+                {
+                    enumerator.Current
+                };
+
+                while (currentPage.Count < pageSize && enumerator.MoveNext())
+                {
+                    currentPage.Add(enumerator.Current);
+                }
+                yield return new ReadOnlyCollection<T>(currentPage);
+            }
+        }
+    }
+
+}
 
 public class RepoManager
 {
     string DAM_PORT = "10091"; // DEV
-    string DAM_SCHEDULER_PORT = "10008"; 
+    string DAM_SCHEDULER_PORT = "10008";
     string DAM_FOLDER = "FOLDER4";
-    string TEMP_FOLDER= @"c:\temp\dambuddy2";
+    string TEMP_FOLDER = @"c:\temp\dambuddy2";
     string CACHE_NAME = "LOCAL3";
     string DAM_TICKET = "CSDFK-1489";
 
@@ -31,6 +63,9 @@ public class RepoManager
     private static string WIP = @"\local\WIP";
     private string gServerName = "http://ckcm.healthy.bewell.ca";
 
+    private static Dictionary<string, string> dictFileToPath;
+    //    dictFileToPath
+
     private FileSystemWatcher m_watcherRepo = null;
     private FileSystemWatcher m_watcherWIP = null;
 
@@ -39,8 +74,10 @@ public class RepoManager
 
     private DateTime m_dtCloneStart;
     private DateTime m_dtCloneEnd;
+
     private Dictionary<string, string> m_dictWIPName2Path;
     private Dictionary<string, string> m_dictWIPID2Path;
+    private List<ListViewItem> m_masterlist;
 
     public delegate void ModifiedCallback(string filename);
     public delegate void StaleCallback(string filename);
@@ -55,6 +92,7 @@ public class RepoManager
 
     public string LocalPath { get => m_LocalPath; }
     public ModifiedCallback CallbackTicketState { get => m_callbackTicketState; set => m_callbackTicketState = value; }
+    public List<ListViewItem> Masterlist { get => m_masterlist; set => m_masterlist = value; }
 
     public RepoManager(string localpath, StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove, ModifiedCallback callbackModifiedWIP)
     {
@@ -65,6 +103,7 @@ public class RepoManager
 
         m_LocalPath = localpath + @"";
 
+        m_masterlist = new List<ListViewItem>();
 
         if (!File.Exists(m_LocalPath + @"\" + GITKEEP_INITIAL))
         {
@@ -181,7 +220,8 @@ public class RepoManager
             Commands.Checkout(repo, head, checkoutOptions);
             //repo.Checkout(head, checkoutOptions);
 
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Console.WriteLine(e.Message);
         }
@@ -219,7 +259,7 @@ public class RepoManager
         m_callbackDisplayWIP = callback;
     }
 
-    
+
 
     internal bool isAssetinWIPByID(string sEmbeddedId, ref string filepath)
     {
@@ -236,15 +276,15 @@ public class RepoManager
         return true;
     }
 
-    public bool SetTicketReadiness( bool bReady )
+    public bool SetTicketReadiness(bool bReady)
     {
         bool result = false;
         string ReadyParam = "notready";
-        if( bReady )
+        if (bReady)
         {
             ReadyParam = "ready";
         }
-        
+
         string theParams = $"theState={ReadyParam}&theFolder={DAM_FOLDER}";
 
         try
@@ -258,7 +298,7 @@ public class RepoManager
             }
 
         }
-        catch 
+        catch
         {
             MessageBox.Show("Failed to set ticket to Ready");
             return false;
@@ -275,7 +315,7 @@ public class RepoManager
     private bool GetTicketScheduleStatus()
     {
 
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{DAM_TICKET}" );
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{DAM_TICKET}");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
         using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -284,7 +324,7 @@ public class RepoManager
         {
             string jsonStatus = reader.ReadToEnd();
             CallbackTicketState?.Invoke(jsonStatus);
-            
+
         }
 
         return true;
@@ -292,7 +332,7 @@ public class RepoManager
 
     private bool UpdateSchedule()
     {
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json" );
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
         using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -302,7 +342,7 @@ public class RepoManager
             string status = reader.ReadToEnd();
 
         }
-        
+
         return true;
     }
 
@@ -325,7 +365,7 @@ public class RepoManager
     }
 
 
-    private bool WIPToServer( string sTemplateName, string sTID )
+    private bool WIPToServer(string sTemplateName, string sTID)
     {
         bool result = false;
 
@@ -333,19 +373,73 @@ public class RepoManager
         {
             string theParams = $"theFolder={DAM_FOLDER}&theTemplateID={sTID}&theTemplateName={sTemplateName}";
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-            string response = client.UploadString(gServerName + ":" + DAM_PORT + "/WIP",  theParams);
+            string response = client.UploadString(gServerName + ":" + DAM_PORT + "/WIP", theParams);
             Console.WriteLine(response);
         }
         result = true;
-        
+
 
         return result;
     }
 
+    public void ApplyFilter(string filtertext)
+    {
 
+        return;
+    }
+
+    public string GetTemplateFilepath(string filename)
+    {
+        string sPath;
+        bool exists = m_dictWIPName2Path.TryGetValue(Path.GetFileName(filename), out sPath);
+        if (exists) return sPath;
+
+
+        try
+        {
+            return dictFileToPath[filename];
+
+        }
+        catch { return ""; }
+
+
+
+    }
+
+
+    /*public IEnumerable<ListViewItem> GetPage( int page )
+    {
+         m_masterlist.Page(page);
+    }*/
+
+
+    public void LoadRepositoryTemplates()
+    {
+        m_masterlist.Clear();
+        ListViewItem newAsset = null;
+        if (dictFileToPath == null) dictFileToPath = new Dictionary<string, string>();
+
+
+        string[] templates = Directory.GetFiles(m_LocalPath, "*.oet", SearchOption.AllDirectories);
+        foreach (string template in templates)
+        {
+            string filename = Path.GetFileName(template);
+
+            dictFileToPath[filename] = template;
+
+            newAsset = new ListViewItem(filename);
+            newAsset.Tag = template;
+
+            m_masterlist.Add(newAsset);
+        }
+
+
+        //DisplayTemplates();
+
+    }
     // prepare an asset as WIP
     public void AddWIP(string filepath)
-    {   
+    {
         string filepathWIP = m_LocalPath + WIP + @"\" + Path.GetFileName(filepath);
         File.Copy(filepath, filepathWIP);
 
@@ -357,7 +451,7 @@ public class RepoManager
 
         string sTID = Utility.GetTemplateID(filepathWIP);
 
-        m_dictWIPName2Path[Path.GetFileName(filepath)] = filepath; // name -> filepath
+        m_dictWIPName2Path[Path.GetFileName(filepath)] = filepathWIP; // name -> filepath
         m_dictWIPID2Path[sTID] = filepathWIP; // id -> filepath
 
         WIPToServer(Path.GetFileName(filepath), sTID);
@@ -366,7 +460,7 @@ public class RepoManager
 
         m_callbackDisplayWIP?.Invoke(Path.GetFileName(filepath), filepath);
 
-     
+
     }
 
     private void SaveInitialState(string filepath)
@@ -401,10 +495,10 @@ public class RepoManager
 
         MakeMd52(gitkeepfile);
     }
-    
-    public string GetTemplateID( string filename )
+
+    public string GetTemplateID(string filename)
     {
-        if( isAssetinWIP(filename))
+        if (isAssetinWIP(filename))
         {
             return Utility.GetTemplateID(m_LocalPath + @"\" + WIP + @"\" + filename);
         }
@@ -415,10 +509,10 @@ public class RepoManager
     private bool IsStale(string asset)
     {
 
-        if (!File.Exists(m_LocalPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5")) 
+        if (!File.Exists(m_LocalPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
             return false;
 
-        if (!File.Exists(m_LocalPath + GITKEEP_UPDATE + @"\" + asset + GITKEEP_SUFFIX + ".md5")) 
+        if (!File.Exists(m_LocalPath + GITKEEP_UPDATE + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
             return false;
 
         string WIPHash = File.ReadAllText(m_LocalPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5");
@@ -486,7 +580,7 @@ public class RepoManager
 
             var bytes = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(packedasset));
             hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-           
+
         }
 
         if (File.Exists(filepath + ".md5")) File.Delete(filepath + ".md5");
@@ -504,7 +598,7 @@ public class RepoManager
 
         using (var md5 = MD5.Create())
         {
-            using( var stream = File.OpenRead(filepath))
+            using (var stream = File.OpenRead(filepath))
             {
                 var bytes = md5.ComputeHash(stream);
                 hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
@@ -522,18 +616,19 @@ public class RepoManager
         {
             Clone();
             return true;
-        } catch
+        }
+        catch
         {
             return false;
         }
 
     }
-    
-    public void Init( int PullDelay, int PullInterval )
+
+    public void Init(int PullDelay, int PullInterval)
     {
-		m_intervalPull = PullInterval;
-        
-		m_timerPull = new System.Threading.Timer(TimeToPull,null, PullDelay, m_intervalPull);
+        m_intervalPull = PullInterval;
+
+        m_timerPull = new System.Threading.Timer(TimeToPull, null, PullDelay, m_intervalPull);
 
         m_dictWIPName2Path = new Dictionary<string, string>();
         m_dictWIPID2Path = new Dictionary<string, string>();
@@ -549,7 +644,7 @@ public class RepoManager
         m_watcherRepo.EnableRaisingEvents = true;
 
         m_watcherWIP = new FileSystemWatcher();
-       
+
         m_watcherWIP.Path = m_LocalPath + WIP;
         m_watcherWIP.IncludeSubdirectories = true;
         m_watcherWIP.NotifyFilter = NotifyFilters.LastWrite;
@@ -592,7 +687,7 @@ public class RepoManager
         File.WriteAllText(m_LocalPath + @"\" + WIP + @"\WIPID.csv", csv);
     }
 
-    public void DisplayWIP( string filename, string originalpath)
+    public void DisplayWIP(string filename, string originalpath)
     {
         if (m_callbackDisplayWIP != null)
         {
@@ -606,13 +701,13 @@ public class RepoManager
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
-            
+
             while (!reader.EndOfStream)
             {
                 var line = reader.ReadLine();
                 if (line == "") break;
                 var values = line.Split(',');
-                
+
                 m_dictWIPName2Path.Add(values[0], values[1]);
                 DisplayWIP(values[0], values[1]);
             }
@@ -631,19 +726,19 @@ public class RepoManager
                 var values = line.Split(',');
 
                 m_dictWIPID2Path.Add(values[0], values[1]);
-            }           
+            }
         }
     }
 
-    public bool RemoveWIP( string filename, string gitpath )
+    public bool RemoveWIP(string filename, string gitpath)
     {
         // if modified message the user
 
         // delete file in WIP
-        
+
 
         string wipFile = m_LocalPath + @"\" + WIP + @"\" + filename;
-        string initialFile = m_LocalPath + @"\" + GITKEEP_INITIAL+ @"\" + filename + GITKEEP_SUFFIX;
+        string initialFile = m_LocalPath + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
         string updateFile = m_LocalPath + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
         try
         {
@@ -655,12 +750,12 @@ public class RepoManager
                 m_dictWIPName2Path.Remove(Utility.GetTemplateID(wipFile));
 
                 File.Delete(wipFile);
-                if( File.Exists(wipFile + ".md5"))
+                if (File.Exists(wipFile + ".md5"))
                 {
                     File.Delete(wipFile + ".md5");
                 }
 
-                
+
             }
 
             // move inital/update file back to repo path
@@ -674,27 +769,27 @@ public class RepoManager
             {
                 File.Move(initialFile, gitpath);
                 if (File.Exists(initialFile + ".md5")) File.Delete(initialFile + ".md5");
-            
+
             }
 
-            if ( m_callbackRemoveWIP != null)
+            if (m_callbackRemoveWIP != null)
             {
                 m_callbackRemoveWIP(filename);
 
             }
 
-            
+
             SaveExistingWip();
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
-            
+
         }
 
         return true;
     }
 
-    
+
 
     private void OnChangedWIP(object source, FileSystemEventArgs e)
     {
@@ -704,7 +799,7 @@ public class RepoManager
         // TODO:
         // should check whether the md5 of the file is actually different to the initial md5
 
-        if (m_callbackModifiedWIP != null )
+        if (m_callbackModifiedWIP != null)
         {
             m_callbackModifiedWIP(Path.GetFileName(e.FullPath));
         }
@@ -715,15 +810,15 @@ public class RepoManager
     {
 
         Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
-        
-        if( isAssetinWIP(e.Name) )
+
+        if (isAssetinWIP(e.Name))
         {
             UpdateOnWIP(e.FullPath);
         }
 
-        
+
     }
-    
+
     public class TicketScheduleState
     {
         public string UploadEnabled { get; set; }

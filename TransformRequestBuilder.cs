@@ -34,6 +34,10 @@ namespace DAMBuddy2
 
         void ExtractArchetypesAndTemplates( ref List<string> listIdArchetypes, ref List<string> listEmbeddedTemplates, string sTemplateXML)
         {
+            System.Diagnostics.Contracts.Contract.Requires(!String.IsNullOrEmpty(sTemplateXML));
+
+            if (String.IsNullOrEmpty(sTemplateXML)) return;
+
             System.Xml.Linq.XDocument xtemplate = null;
             try
             {

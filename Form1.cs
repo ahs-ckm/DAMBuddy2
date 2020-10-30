@@ -47,6 +47,9 @@ namespace DAMBuddy2
         private string gCacheDir = "";
         private RepoManager m_RepoManager;
 
+        private int mCurrentPage;
+        private int mTotalItems;
+        private int mPageSize = 200;
 
         private delegate void ControlCallback(string s);
         private System.Drawing.Point m_ptScrollPos;
@@ -54,7 +57,7 @@ namespace DAMBuddy2
         private string m_currentDocumentWIP = "";
         private string m_currentDocumentRepo = ""; // used to track whether the same document is being viewed/reviewed, if so we should keep the position
         private static string m_RepoPath = "";
-        private List<ListViewItem> m_masterlist;
+        //private List<ListViewItem> m_masterlist;
         // The name of the file that will store the latest version. 
         private static string latestVersionInfoFile = "Preview_version";
 
@@ -75,7 +78,7 @@ namespace DAMBuddy2
             "   </soapenv:Body>\r\n" +
             "</soapenv:Envelope>";
 
-        private static Dictionary<string, string> dictFileToPath;
+        //private static Dictionary<string, string> dictFileToPath;
 
         private ChromiumWebBrowser m_browserUpload;
         private ChromiumWebBrowser m_browserSchedule;
@@ -213,7 +216,7 @@ namespace DAMBuddy2
                 //listView1.LostFocus += (s, e) => listView1.SelectedIndices.Clear();
                 AppSettingsSection settings = (AppSettingsSection)ConfigurationManager.GetSection("PreviewView.Properties.Settings");
 
-
+                mCurrentPage = 0;
 
                 m_RepoManager = new RepoManager(m_RepoPath, StaleCallback, DisplayWIPCallback, RemoveWIPCallback, WIPModifiedCallback);
                 m_RepoManager.Init(30000 * 1, 60000 * 1);
@@ -223,8 +226,10 @@ namespace DAMBuddy2
                 tpUpload.Controls.Add(m_browserUpload);
                 tpSchedule.Controls.Add(m_browserSchedule);
 
+
+                tstbRepositoryFilter.Text = "";
                 m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
-                m_masterlist = new List<ListViewItem>();
+                //m_masterlist = new List<ListViewItem>();
                 this.Text = "BuildBuddy v" + GetLocalVersionNumber();
 
                 m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
@@ -239,6 +244,8 @@ namespace DAMBuddy2
                 PrepareTransformSupport();
 
                 LoadRepositoryTemplates();
+                //m_RepoManager.LoadRepositoryTemplates();
+                //DisplayTemplates2();
                 //LoadTransforms();
                 //            webBrowser1.Url =
 
@@ -322,7 +329,7 @@ namespace DAMBuddy2
         }
 
 
-        private void LoadRepositoryTemplates()
+/*        private void LoadRepositoryTemplates()
         {
             m_masterlist.Clear();
             ListViewItem newAsset = null;
@@ -388,6 +395,81 @@ namespace DAMBuddy2
             }
 
         }
+*/
+
+        private void DisplayTemplates2()
+        {
+
+            tstbRepositoryFilter.Focus();
+            lvRepository.Items.Clear();
+            lblPageCount.Text = "";
+            // This filters and adds your filtered items to listView1
+
+            int availablePages = -1;
+
+            try
+            {
+                //lvRepository.SuspendLayout();
+                
+                int count = 0;
+                //    ..LockWindowUpdate(this.Handle);
+                //foreach (ListViewItem item in m_masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())))
+                //var aPage = m_RepoManager.Masterlist.Page(mCurrentPage);
+
+                int numberOfObjectsPerPage = 200;
+                int pageNumber = mCurrentPage;
+                mTotalItems  = m_RepoManager.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Count();
+
+
+            
+                availablePages = mTotalItems / mPageSize;
+                lblPageCount.Text = $"{mCurrentPage + 1}/{availablePages + 1}";
+
+                var RepoPage = m_RepoManager.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
+
+                //var RepoPage = m_RepoManager.Masterlist.Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
+
+                Console.WriteLine($"count {RepoPage.Count()}");
+
+                //foreach ( var page in aPage)
+                {
+                    foreach (var item in RepoPage)
+                       // foreach ( var item in page.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())))
+                    {
+
+                        try
+                        {
+                            lvRepository.Items.Add(item);
+
+                            // clbRepository.Items.Add(item.Text);
+                        }
+                        catch { }
+
+                        count++;
+                        //if (count > 1000) break;
+                    }
+                }
+           }
+            finally
+            {
+                //  LockWindowUpdate(0);
+                //lvRepository.ResumeLayout();
+                lvRepository.Columns[0].Width = -1;
+            }
+
+            if (mCurrentPage == 0) btnPrev.Visible = false;
+
+            if( mCurrentPage == availablePages )
+            {
+                btnNext.Visible = false;
+                
+            }
+            else
+            {
+                btnNext.Visible = true;
+            }
+
+        }
 
         private void DisplayRepoStatusUpdateCallback(string sStatus)
         {
@@ -423,6 +505,7 @@ namespace DAMBuddy2
 
             var args = new TransformArgs();
             args.sTemplateName = sTemplateName;
+            args.sTemplateFilepath = m_RepoManager.GetTemplateFilepath(sTemplateName);
             args.callbackDisplayHTML = DisplayTransformedDocumentWIP;
             args.callbackStatusUpdate = DisplayWIPStatusUpdateCallback;
             tsPBWIPTransform.Step = 1;
@@ -443,6 +526,7 @@ namespace DAMBuddy2
         {
             var args = new TransformArgs();
             args.sTemplateName = sTemplateName;
+            args.sTemplateFilepath = m_RepoManager.GetTemplateFilepath(sTemplateName);
             args.callbackDisplayHTML = DisplayRepoTransformedDocumentCallback;
             args.callbackStatusUpdate = DisplayRepoStatusUpdateCallback;
             toolStripProgressBar2.Step = 1;
@@ -494,7 +578,8 @@ namespace DAMBuddy2
 
                 try
                 {
-                    string sSOAPRequest = BuildSOAPRequest3(dictFileToPath[sTemplateName]);
+                    //string sSOAPRequest = BuildSOAPRequest3(dictFileToPath[sTemplateName]);
+                    string sSOAPRequest = BuildSOAPRequest3(theArgs.sTemplateFilepath);
                     SOAPReqBody.LoadXml(sSOAPRequest);
                     //File.WriteAllText(@"C:\temp\SOAPRequest.xml", sSOAPRequest);
 
@@ -506,29 +591,33 @@ namespace DAMBuddy2
                     theArgs.callbackStatusUpdate("Transforming " + sTemplateName + ": Requesting OPT document..." + "( " + (System.Text.ASCIIEncoding.ASCII.GetByteCount(sSOAPRequest) / 1024).ToString() + "KB )");
 
                     System.Windows.Forms.Application.DoEvents();
-
-                    using (WebResponse Serviceres = wr.GetResponse())
+                    try
                     {
 
-                        using (StreamReader rd = new StreamReader(Serviceres.GetResponseStream()))
+
+                        using (WebResponse Serviceres = wr.GetResponse())
                         {
-                            var ServiceResult = rd.ReadToEnd();
-                            optContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-                            Date now = new Date();
-                            optContents += "<!--Operational template XML automatically generated by the DAM Tool at " + now + " calling the OPT Web Service-->";
-                            optContents += "<template xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openehr.org/v1\">";
 
-                            string beginning = "<template xmlns=\"http://schemas.openehr.org/v1\">";
-                            string end = "</BuildOperationalTemplateResponse>";
+                            using (StreamReader rd = new StreamReader(Serviceres.GetResponseStream()))
+                            {
+                                var ServiceResult = rd.ReadToEnd();
+                                optContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+                                Date now = new Date();
+                                optContents += "<!--Operational template XML automatically generated by the DAM Tool at " + now + " calling the OPT Web Service-->";
+                                optContents += "<template xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openehr.org/v1\">";
 
-                            int pFrom = ServiceResult.IndexOf(beginning) + beginning.Length;
-                            int pTo = ServiceResult.LastIndexOf(end);
+                                string beginning = "<template xmlns=\"http://schemas.openehr.org/v1\">";
+                                string end = "</BuildOperationalTemplateResponse>";
 
-                            optContents += ServiceResult.Substring(pFrom, pTo - pFrom);
+                                int pFrom = ServiceResult.IndexOf(beginning) + beginning.Length;
+                                int pTo = ServiceResult.LastIndexOf(end);
 
+                                optContents += ServiceResult.Substring(pFrom, pTo - pFrom);
+
+                            }
                         }
                     }
-
+                    catch { return; }
                     if (String.IsNullOrEmpty(optContents))
                         return;
 
@@ -818,7 +907,8 @@ namespace DAMBuddy2
             if (lvRepository.SelectedItems.Count > 0)
             {
                 string filename = lvRepository.SelectedItems[0].Text;
-                string filepath = dictFileToPath[filename];
+                //string filepath = dictFileToPath[filename];
+                string filepath = m_RepoManager.GetTemplateFilepath( filename );
                 RunThreadedTransformRepo(filename);
             }
         }
@@ -858,7 +948,7 @@ namespace DAMBuddy2
             if (lvWork.SelectedItems.Count > 0)
             {
                 string filename = lvWork.SelectedItems[0].Text;
-                string filepath = dictFileToPath[filename];
+                //string filepath = m_RepoManager.GetTemplateFilepath(filename);//dictFileToPath[filename];
                 RunThreadedTransformWIP(filename);
                 LoadWUR(filename);
             }
@@ -934,7 +1024,7 @@ namespace DAMBuddy2
 
                 foreach (ListViewItem item in lvWork.Items)
                 {
-                    filepath = dictFileToPath[item.Text];
+                    filepath = m_RepoManager.GetTemplateFilepath(item.Text);//dictFileToPath[item.Text];
                     File.Copy(filepath, m_PushDir + @"\" + Path.GetFileName(filepath));
                 }
             }
@@ -990,7 +1080,18 @@ namespace DAMBuddy2
         private void timer2_Tick(object sender, EventArgs e)
         {
             timerRepoFilter.Enabled = false;
-            DisplayTemplates();
+            string filter = tstbRepositoryFilter.Text;
+
+
+            m_RepoManager.ApplyFilter(filter);
+            
+            if( string.IsNullOrEmpty(filter ))
+            {
+                lblFilter.Text = "";
+            } 
+            else   lblFilter.Text = $"Filter: Name contains {filter}";
+            mCurrentPage = 0;
+            DisplayTemplates2();
 
         }
 
@@ -1250,7 +1351,7 @@ namespace DAMBuddy2
             if (lvRepoSearchResults.SelectedItems.Count > 0)
             {
                 string filename = lvRepoSearchResults.SelectedItems[0].Text;
-                string filepath = dictFileToPath[filename];
+                string filepath = m_RepoManager.GetTemplateFilepath(filename);//dictFileToPath[filename];
                 RunThreadedTransformRepo(filename);
             }
         }
@@ -1405,6 +1506,13 @@ namespace DAMBuddy2
 
         }
 
+        private void LoadRepositoryTemplates()
+        {
+            m_RepoManager.LoadRepositoryTemplates();
+            mCurrentPage = 0;
+            DisplayTemplates2();
+        }
+
         private void tsbRepositoryReload_Click(object sender, EventArgs e)
         {
             LoadRepositoryTemplates();
@@ -1481,17 +1589,33 @@ namespace DAMBuddy2
             public delegate void DisplayCallback(string s);
             public delegate void StatusCallback(string s);
             public string sTemplateName;
+            public string sTemplateFilepath;
             public DisplayCallback callbackDisplayHTML;
             public StatusCallback callbackStatusUpdate;
         }
 
         private void tsbRepositoryViewDocument_Click(object sender, EventArgs e)
         {
-            if (lvRepository.SelectedItems.Count > 0)
+            if( tcRepoResults.SelectedTab == tcRepoResults.TabPages[0] )
             {
-                string filename = lvRepository.SelectedItems[0].Text;
-                string filepath = dictFileToPath[filename];
-                RunThreadedTransformRepo(filename);
+
+                if (lvRepository.SelectedItems.Count > 0)
+                {
+                    string filename = lvRepository.SelectedItems[0].Text;
+                    string filepath = m_RepoManager.GetTemplateFilepath(filename); //dictFileToPath[filename];
+                    RunThreadedTransformRepo(filename);
+                }
+
+            } else
+            {
+
+                if (lvRepoSearchResults.SelectedItems.Count > 0)
+                {
+                    string filename = lvRepoSearchResults.SelectedItems[0].Text;
+                    string filepath = m_RepoManager.GetTemplateFilepath(filename); //dictFileToPath[filename];
+                    RunThreadedTransformRepo(filename);
+                }
+
             }
 
         }
@@ -1526,6 +1650,23 @@ namespace DAMBuddy2
             tsddbReady.Text = "Not Ready";
             tsddbReady.Image = tsmiNotReady.Image;
 
+
+        }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            mCurrentPage++;
+            if (mCurrentPage > 0) btnPrev.Visible = true;
+            lblPageCount.Text = $"{mCurrentPage+1}";
+            DisplayTemplates2();
+        }
+
+        private void btnPrev_Click(object sender, EventArgs e)
+        {
+            mCurrentPage--;
+            if (mCurrentPage == 0) btnPrev.Visible = false;
+            lblPageCount.Text = $"{mCurrentPage + 1}";
+            DisplayTemplates2();
 
         }
     }
