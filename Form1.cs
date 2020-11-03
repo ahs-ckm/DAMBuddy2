@@ -114,16 +114,22 @@ namespace DAMBuddy2
 
         public void DisplayTransformedDocumentRepo(string filename)
         {
-
-            if (InvokeRequired)
+            try
             {
-                BeginInvoke((MethodInvoker)delegate { this.DisplayTransformedDocumentRepo(filename); });
-                return;
-            }
-            if (filename == null) return;
-            if (filename.Trim() == "") return;
+                if (InvokeRequired)
+                {
+                    BeginInvoke((MethodInvoker)delegate { this.DisplayTransformedDocumentRepo(filename); });
+                    return;
+                }
+                if (filename == null) return;
+                if (filename.Trim() == "") return;
 
-            wbRepositoryView.Url = new Uri(filename);
+                wbRepositoryView.Url = new Uri(filename);
+
+            } catch (Exception e )
+            {
+                Console.WriteLine($"DisplayTransformedDocumentRepo() : {e.Message}");
+            }
 
         }
 

@@ -59,6 +59,7 @@ public class RepoManager
     private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
     private static string GITKEEP_INITIAL = @"\gitkeep\initial";
     private static string GITKEEP_UPDATE = @"\gitkeep\update";
+    private static string KEEP_TRASH = @"\trash";
     private static string GITKEEP_SUFFIX = ".keep";
     private static string WIP = @"\local\WIP";
     private string gServerName = "http://ckcm.healthy.bewell.ca";
@@ -550,65 +551,81 @@ public class RepoManager
         Pull2();
     }
 
-    private string PackAsset2(string filepath)
+    private string ReadAsset(string filepath)
     {
-        string contents = File.ReadAllText(filepath);
+       
+
+        int retrycount = 0;
+        bool opened = false;
+        string contents = "";
+
+        while (retrycount < 10 && !opened)
+        {
+            try // this needs to be retried because of race conditions between the file copy to WIP and the file change event handler for WIP
+            {
+                contents = File.ReadAllText(filepath);
+                opened = true;
+            }
+            catch
+            {
+                retrycount++;
+                Console.WriteLine($"PackAsset2: Retrying {retrycount} on {filepath}");
+                Thread.Sleep(1000);
+            }
+            opened = true;
+        }
+        
+        if (!opened)
+        {
+            throw new Exception($"PackAsset2() Failed to open file {filepath}");
+        }
+        /*
         string packed = System.Text.RegularExpressions.Regex.Replace(contents, @"\s+", String.Empty);
         packed = System.Text.RegularExpressions.Regex.Replace(packed, @"\s\n", String.Empty);
-        return packed;
+        return packed;*/
+        return contents;
     }
 
-    private void PackAsset(string filepath)
-    {
-        string contents = File.ReadAllText(filepath);
-        string packed = System.Text.RegularExpressions.Regex.Replace(contents, @"\s+", String.Empty);
-        packed = System.Text.RegularExpressions.Regex.Replace(packed, @"\s\n", String.Empty);
 
-
-        File.WriteAllText(filepath, packed);
-
-    }
 
     private void MakeMd52(string filepath)
     {
         // strip all spaces and write md5 to asset.oet.md5
-        string packedasset = PackAsset2(filepath);
+        string assetcontent = ReadAsset(filepath);
         string hashvalue = "";
+        byte[] hashBytes = { };
 
         using (var md5 = MD5.Create())
         {
 
-            var bytes = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(packedasset));
-            hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+            hashBytes = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(assetcontent));
+            //hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 
         }
 
         if (File.Exists(filepath + ".md5")) File.Delete(filepath + ".md5");
+        string hex = BitConverter.ToString(hashBytes);
+        //File.WriteAllBytes(filepath + ".md5", hashBytes);
+        File.WriteAllText(filepath + ".md5", hex);
 
-        File.WriteAllText(filepath + ".md5", hashvalue);
 
-    }
-
-
-    private void MakeMd5(string filepath)
-    {
-        // strip all spaces and write md5 to asset.oet.md5
-        PackAsset(filepath);
-        string hashvalue = "";
-
+        /*
+        string unpackedasset = File.ReadAllText(filepath);
         using (var md5 = MD5.Create())
         {
-            using (var stream = File.OpenRead(filepath))
-            {
-                var bytes = md5.ComputeHash(stream);
-                hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-            }
+
+            hashBytes = md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(unpackedasset));
+            //hashvalue = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+
         }
 
-        if (File.Exists(filepath + ".md5")) File.Delete(filepath + ".md5");
-
-        File.WriteAllText(filepath + ".md5", hashvalue);
+        hex = BitConverter.ToString(hashBytes);
+        File.WriteAllText(filepath + ".unpacked.md5", hex);
+        //File.WriteAllText(filepath + ".md5", hashvalue);
+        */
     }
+
+
 
     public bool DoClone()
     {
@@ -649,7 +666,7 @@ public class RepoManager
         m_watcherWIP.IncludeSubdirectories = true;
         m_watcherWIP.NotifyFilter = NotifyFilters.LastWrite;
         m_watcherWIP.Filter = "*.oet";
-        m_watcherWIP.Created += OnChangedWIP;
+        //m_watcherWIP.Created += OnChangedWIP;
         m_watcherWIP.Changed += OnChangedWIP;
         m_watcherWIP.EnableRaisingEvents = true;
 
@@ -697,6 +714,7 @@ public class RepoManager
 
     public void LoadExistingWIP()
     {
+
         string filepath = m_LocalPath + @"\" + WIP + @"\WIP.csv";
         if (File.Exists(filepath))
         {
@@ -707,9 +725,14 @@ public class RepoManager
                 var line = reader.ReadLine();
                 if (line == "") break;
                 var values = line.Split(',');
+                string filename = values[0];
+                string originalpath = values[1];
+                m_dictWIPName2Path.Add(filename, originalpath);
+                DisplayWIP(filename, originalpath);
 
-                m_dictWIPName2Path.Add(values[0], values[1]);
-                DisplayWIP(values[0], values[1]);
+                string filepathWIP = m_LocalPath + WIP + @"\" + filename;
+
+                CompareWIP2Initial( filepathWIP); // to ensure tracking of modifications
             }
         }
 
@@ -740,16 +763,29 @@ public class RepoManager
         string wipFile = m_LocalPath + @"\" + WIP + @"\" + filename;
         string initialFile = m_LocalPath + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
         string updateFile = m_LocalPath + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
+        string trashDir = m_LocalPath + KEEP_TRASH;
         try
         {
             WIPRemoveFromServer(filename, GetTemplateID(filename));
 
             if (File.Exists(wipFile))
             {
+                string sTID = Utility.GetTemplateID(wipFile);
                 m_dictWIPName2Path.Remove(filename);
-                m_dictWIPName2Path.Remove(Utility.GetTemplateID(wipFile));
+                m_dictWIPName2Path.Remove(sTID);
+                m_dictWIPID2Path.Remove(sTID);
 
-                File.Delete(wipFile);
+                if( File.Exists(wipFile))
+                {
+                    if (!File.Exists(trashDir))
+                        Directory.CreateDirectory(trashDir);
+
+                    if (File.Exists( trashDir + filename + ".old"))
+                        File.Delete(trashDir + filename + ".old");
+
+                    File.Move(wipFile, trashDir + "\\" + filename + ".old");
+
+                }
                 if (File.Exists(wipFile + ".md5"))
                 {
                     File.Delete(wipFile + ".md5");
@@ -757,6 +793,9 @@ public class RepoManager
 
 
             }
+            else
+            {
+                Console.WriteLine($"RemoveWIP() : {wipFile} doesn't exist");            }
 
             // move inital/update file back to repo path
             if (File.Exists(updateFile))
@@ -784,26 +823,70 @@ public class RepoManager
         catch (Exception e)
         {
 
+            Console.WriteLine( "RemoveWIP() : " + e.Message);
         }
 
         return true;
     }
 
+    private void CompareWIP2Initial ( string filepath )
+    {
 
+        string asset = Path.GetFileName(filepath);
+
+        string initialasset = m_LocalPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX;
+        byte[] WIPHashBytes = new byte[16];
+
+        string WIPHashHex = "";
+
+        string wipContents = ReadAsset(filepath);
+        string initialContents = ReadAsset(initialasset);
+
+        if (string.IsNullOrEmpty(initialContents))
+            return;
+
+        if (String.IsNullOrEmpty(wipContents))
+            return;
+
+        if (!wipContents.Equals(initialContents))
+        {
+
+            m_callbackModifiedWIP?.Invoke(asset);
+
+        }
+
+    }
 
     private void OnChangedWIP(object source, FileSystemEventArgs e)
     {
-
         Console.WriteLine($"OnChangedWIP File: {e.FullPath} {e.ChangeType}");
-
-        // TODO:
-        // should check whether the md5 of the file is actually different to the initial md5
-
-        if (m_callbackModifiedWIP != null)
+        CompareWIP2Initial(e.FullPath);
+        
+/*
+        using (var md5 = MD5.Create())
         {
-            m_callbackModifiedWIP(Path.GetFileName(e.FullPath));
+            WIPHashBytes= md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(wipContents));
+            WIPHashHex = BitConverter.ToString(WIPHashBytes);
         }
 
+
+
+
+        if (!File.Exists(m_LocalPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
+            return ;
+
+        if (String.IsNullOrEmpty(initialHashHex)) 
+            return;
+
+        if( initialHashHex != WIPHashHex)
+        {
+            m_callbackModifiedWIP?.Invoke(asset);
+
+        }*/
+        //if (! WIPHashBytes.SequenceEqual(initialHashBytes))
+        //    m_callbackModifiedWIP?.Invoke(asset);
+
+        // should check whether the md5 of the file is actually different to the initial md5
     }
 
     private void OnChangedRepo(object source, FileSystemEventArgs e)
