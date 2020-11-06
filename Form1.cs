@@ -138,6 +138,11 @@ namespace DAMBuddy2
 
             //MessageBox.Show(state.ScheduleState + ": Upload " + state.UploadEnabled);
 
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate { this.TicketStateChangeCallback(jsonStatus); });
+                return;
+            }
             RepoManager.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoManager.TicketScheduleState>(jsonStatus);
 
             if (state.UploadEnabled == "true")
@@ -146,7 +151,24 @@ namespace DAMBuddy2
             }
             else { tsbWorkUpload.Enabled = false; }
 
-            tslScheduleStatus.Text = state.ScheduleState;
+            tslScheduleStatus2.Text = state.ScheduleState;
+
+            if (state.ScheduleState == "In Progress")
+            {
+                toolStrip2.BackColor = Color.FromArgb(0, 185, 97);
+                foreach (ToolStripItem c in toolStrip2.Items)
+                {
+                    c.ForeColor = Color.White;
+
+                }
+            }
+            if (state.ScheduleState == "Blocked")
+            {
+
+                toolStrip2.BackColor = Color.FromArgb(244, 206, 70);
+                
+            }
+
 
         }
 
@@ -192,10 +214,10 @@ namespace DAMBuddy2
             //tpWIP.Text = "Work View (" + lvWork.Items.Count.ToString() + ")";
         }
 
-        public void DisplayWIPCallback(string filename, string originalpath)
+        public void DisplayWIPCallback(string filename)//, string originalpath)
         {
             ListViewItem newitem = new ListViewItem(filename);
-            newitem.Tag = originalpath;
+            //newitem.Tag = originalpath;
             newitem.SubItems.Add("Fresh");
             newitem.SubItems.Add("Unchanged");
             lvWork.Items.Add(newitem);
@@ -235,6 +257,8 @@ namespace DAMBuddy2
 
                 tstbRepositoryFilter.Text = "";
                 m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
+                m_RepoManager.GetTicketScheduleStatus();
+
                 //m_masterlist = new List<ListViewItem>();
                 this.Text = "BuildBuddy v" + GetLocalVersionNumber();
 
@@ -335,73 +359,6 @@ namespace DAMBuddy2
         }
 
 
-/*        private void LoadRepositoryTemplates()
-        {
-            m_masterlist.Clear();
-            ListViewItem newAsset = null;
-            if (dictFileToPath == null) dictFileToPath = new Dictionary<string, string>();
-
-            tstbRepositoryFilter.Text = "";
-
-            string[] templates = Directory.GetFiles(m_RepoPath, "*.oet", SearchOption.AllDirectories);
-            foreach (string template in templates)
-            {
-                string filename = Path.GetFileName(template);
-
-                dictFileToPath[filename] = template;
-
-                newAsset = new ListViewItem(filename);
-                newAsset.Tag = template;
-
-                m_masterlist.Add(newAsset);
-            }
-            DisplayTemplates();
-
-        }
-
-        private void DisplayTemplates()
-        {
-            tstbRepositoryFilter.Focus();
-            lvRepository.Items.Clear();
-            // This filters and adds your filtered items to listView1
-
-            try
-            {
-                lvRepository.SuspendLayout();
-                int count = 0;
-                //    ..LockWindowUpdate(this.Handle);
-                foreach (ListViewItem item in m_masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())))
-                {
-                    try
-                    {
-                        lvRepository.Items.Add(item);
-
-                        // clbRepository.Items.Add(item.Text);
-                    }
-                    catch { }
-
-                    count++;
-                    if (count > 1000) break;
-                }
-            }
-            finally
-            {
-                //  LockWindowUpdate(0);
-                lvRepository.ResumeLayout();
-                lvRepository.Columns[0].Width = -1;
-            }
-
-            if (tstbRepositoryFilter.Text.Trim() == "")
-            {
-                tpRepoAll.Text = "All (" + m_masterlist.Count.ToString() + ")";
-            }
-            {
-                tpRepoAll.Text = "All (" + lvRepository.Items.Count.ToString() + "/" + m_masterlist.Count.ToString() + ")";
-
-            }
-
-        }
-*/
 
         private void DisplayTemplates2()
         {
@@ -489,6 +446,9 @@ namespace DAMBuddy2
 
 
             toolStripProgressBar2.PerformStep();
+
+
+
             tspStatusLabel.Text = sStatus;
         }
 
@@ -502,7 +462,7 @@ namespace DAMBuddy2
             //            if (sStatus == null) return;
             //            if (sStatus.Trim() == "") return;
 
-            tsPBWIPTransform.PerformStep();
+            //tsPBWIPTransform.PerformStep();
             tsStatusLabel.Text = sStatus;
         }
 
@@ -916,6 +876,7 @@ namespace DAMBuddy2
                 //string filepath = dictFileToPath[filename];
                 string filepath = m_RepoManager.GetTemplateFilepath( filename );
                 RunThreadedTransformRepo(filename);
+                LoadRepoWUR(filename);
             }
         }
 
@@ -939,12 +900,21 @@ namespace DAMBuddy2
         }
 
 
-        private void LoadWUR(string filename)
+        private void LoadWURWIP(string filename)
         {
             //http://ckcm:8011/WhereUsed,0f3e3fc2-6dbe-4f6f-b292-e8ef0501c163
             string sTID = m_RepoManager.GetTemplateID(filename);
             wbWIPWUR.ScriptErrorsSuppressed = true;
             wbWIPWUR.Url = new Uri("http://ckcm:8011/WhereUsed," + sTID);
+
+        }
+
+        private void LoadRepoWUR(string filename)
+        {
+            //http://ckcm:8011/WhereUsed,0f3e3fc2-6dbe-4f6f-b292-e8ef0501c163
+            string sTID = m_RepoManager.GetTemplateID(filename);
+            wbRepoWUR.ScriptErrorsSuppressed = true;
+            wbRepoWUR.Url = new Uri("http://ckcm:8011/WhereUsed," + sTID);
 
         }
 
@@ -956,7 +926,7 @@ namespace DAMBuddy2
                 string filename = lvWork.SelectedItems[0].Text;
                 //string filepath = m_RepoManager.GetTemplateFilepath(filename);//dictFileToPath[filename];
                 RunThreadedTransformWIP(filename);
-                LoadWUR(filename);
+                LoadWURWIP(filename);
             }
 
 
@@ -1403,7 +1373,7 @@ namespace DAMBuddy2
 
             if (items.Length > 1)
             {
-                m_RepoManager.RemoveWIP(items[0], items[1]);
+                m_RepoManager.RemoveWIP(items[0]);//, items[1]);
             }
             /*string filename = itemData.Substring(0, seperator);
             string originalpath = itemData.Substring( seperator + 1, itemData.Length - seperator);
@@ -1646,7 +1616,7 @@ namespace DAMBuddy2
 
             m_RepoManager.SetTicketReadiness(true);
             tsddbReady.Text = "Ready";
-            tsddbReady.Image = tsmiNotReady.Image;
+            tsddbReady.Image = tsmiReady.Image;
 
         }
 
@@ -1658,6 +1628,9 @@ namespace DAMBuddy2
 
 
         }
+
+
+
 
         private void btnNext_Click(object sender, EventArgs e)
         {

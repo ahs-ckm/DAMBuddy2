@@ -76,13 +76,14 @@ public class RepoManager
     private DateTime m_dtCloneStart;
     private DateTime m_dtCloneEnd;
 
+    private Dictionary<string, string> m_dictID2Gitpath;
     private Dictionary<string, string> m_dictWIPName2Path;
     private Dictionary<string, string> m_dictWIPID2Path;
     private List<ListViewItem> m_masterlist;
 
     public delegate void ModifiedCallback(string filename);
     public delegate void StaleCallback(string filename);
-    public delegate void DisplayWIPCallback(string filename, string originalpath);
+    public delegate void DisplayWIPCallback(string filename);//, string originalpath);
     public delegate void RemoveWIPCallback(string filename);
 
     ModifiedCallback m_callbackTicketState;
@@ -313,7 +314,7 @@ public class RepoManager
         return true;
     }
 
-    private bool GetTicketScheduleStatus()
+    public bool GetTicketScheduleStatus()
     {
 
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{DAM_TICKET}");
@@ -439,29 +440,29 @@ public class RepoManager
 
     }
     // prepare an asset as WIP
-    public void AddWIP(string filepath)
+    public void AddWIP(string gitfilepath)
     {
-        string filepathWIP = m_LocalPath + WIP + @"\" + Path.GetFileName(filepath);
-        File.Copy(filepath, filepathWIP);
 
-        string initialFile = m_LocalPath + GITKEEP_INITIAL + @"\" + Path.GetFileName(filepath) + GITKEEP_SUFFIX;
+        string filename = Path.GetFileName(gitfilepath);
+        string filepathWIP = m_LocalPath + WIP + @"\" + filename;
+        string initialFile = m_LocalPath + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
 
-        File.Move(filepath, initialFile);
+        File.Copy(gitfilepath, filepathWIP);
+        File.Move(gitfilepath, initialFile);
 
         MakeMd52(initialFile);
 
         string sTID = Utility.GetTemplateID(filepathWIP);
 
-        m_dictWIPName2Path[Path.GetFileName(filepath)] = filepathWIP; // name -> filepath
+        m_dictID2Gitpath[sTID] = gitfilepath; // id -> original directory in git repo
+        m_dictWIPName2Path[filename] = filepathWIP; // name -> filepath
         m_dictWIPID2Path[sTID] = filepathWIP; // id -> filepath
 
-        WIPToServer(Path.GetFileName(filepath), sTID);
+        WIPToServer(filename, sTID);
 
         SaveExistingWip();
 
-        m_callbackDisplayWIP?.Invoke(Path.GetFileName(filepath), filepath);
-
-
+        m_callbackDisplayWIP?.Invoke(filename);//;, gitfilepath);  // TODO - needs to be git filepath
     }
 
     private void SaveInitialState(string filepath)
@@ -504,7 +505,9 @@ public class RepoManager
             return Utility.GetTemplateID(m_LocalPath + @"\" + WIP + @"\" + filename);
         }
 
-        return "";
+        return Utility.GetTemplateID( m_dictWIPName2Path[filename] );
+
+        //return "";
     }
 
     private bool IsStale(string asset)
@@ -549,6 +552,7 @@ public class RepoManager
         Console.WriteLine("TimeToPull()");
         //Pull();
         Pull2();
+        GetTicketScheduleStatus();
     }
 
     private string ReadAsset(string filepath)
@@ -647,6 +651,7 @@ public class RepoManager
 
         m_timerPull = new System.Threading.Timer(TimeToPull, null, PullDelay, m_intervalPull);
 
+        m_dictID2Gitpath = new Dictionary<string, string>();
         m_dictWIPName2Path = new Dictionary<string, string>();
         m_dictWIPID2Path = new Dictionary<string, string>();
 
@@ -691,8 +696,19 @@ public class RepoManager
         File.WriteAllText(m_LocalPath + @"\" + WIP + @"\WIP.csv", csv);
 
 
-
         csv = "";
+        foreach (KeyValuePair<string, string> kvp in m_dictID2Gitpath)
+        {
+            csv += kvp.Key;
+            csv += ",";
+            csv += kvp.Value;
+            csv += "\n"; //newline to represent new pair
+        }
+
+        File.WriteAllText(m_LocalPath + @"\" + WIP + @"\ID2Gitpath.csv", csv);
+    
+
+    csv = "";
         foreach (KeyValuePair<string, string> kvp in m_dictWIPID2Path)
         {
             csv += kvp.Key;
@@ -704,11 +720,11 @@ public class RepoManager
         File.WriteAllText(m_LocalPath + @"\" + WIP + @"\WIPID.csv", csv);
     }
 
-    public void DisplayWIP(string filename, string originalpath)
+    public void DisplayWIP(string filename)//, string originalpath)
     {
         if (m_callbackDisplayWIP != null)
         {
-            m_callbackDisplayWIP(filename, originalpath);
+            m_callbackDisplayWIP(filename);//, originalpath);
         }
     }
 
@@ -726,9 +742,9 @@ public class RepoManager
                 if (line == "") break;
                 var values = line.Split(',');
                 string filename = values[0];
-                string originalpath = values[1];
-                m_dictWIPName2Path.Add(filename, originalpath);
-                DisplayWIP(filename, originalpath);
+                string wippath = values[1];
+                m_dictWIPName2Path.Add(filename, wippath);
+                DisplayWIP(filename);//, originalpath);
 
                 string filepathWIP = m_LocalPath + WIP + @"\" + filename;
 
@@ -736,6 +752,21 @@ public class RepoManager
             }
         }
 
+
+        filepath = m_LocalPath + @"\" + WIP + @"\ID2Gitpath.csv";
+        if (File.Exists(filepath))
+        {
+            var reader = new StreamReader(File.OpenRead(filepath));
+
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                if (line == "") break;
+                var values = line.Split(',');
+
+                m_dictID2Gitpath.Add(values[0], values[1]);
+            }
+        }
 
         filepath = m_LocalPath + @"\" + WIP + @"\WIPID.csv";
         if (File.Exists(filepath))
@@ -753,14 +784,21 @@ public class RepoManager
         }
     }
 
-    public bool RemoveWIP(string filename, string gitpath)
+    public bool RemoveWIP(string filename)//, string gitpath)
     {
+        string wipFile = m_LocalPath + @"\" + WIP + @"\" + filename;
+
+        if (!File.Exists(wipFile))
+        {
+            Console.WriteLine($"RemoveWIP() : {wipFile} doesn't exist");
+            return false;
+        }
+
         // if modified message the user
 
         // delete file in WIP
-
-
-        string wipFile = m_LocalPath + @"\" + WIP + @"\" + filename;
+        string sTID = Utility.GetTemplateID(wipFile);
+        string gitpath = m_dictID2Gitpath[sTID];
         string initialFile = m_LocalPath + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
         string updateFile = m_LocalPath + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
         string trashDir = m_LocalPath + KEEP_TRASH;
@@ -768,20 +806,20 @@ public class RepoManager
         {
             WIPRemoveFromServer(filename, GetTemplateID(filename));
 
-            if (File.Exists(wipFile))
-            {
-                string sTID = Utility.GetTemplateID(wipFile);
+            //    string sTID = Utility.GetTemplateID(wipFile);
                 m_dictWIPName2Path.Remove(filename);
                 m_dictWIPName2Path.Remove(sTID);
                 m_dictWIPID2Path.Remove(sTID);
+                m_dictID2Gitpath.Remove(sTID);
+
 
                 if( File.Exists(wipFile))
                 {
                     if (!File.Exists(trashDir))
                         Directory.CreateDirectory(trashDir);
 
-                    if (File.Exists( trashDir + filename + ".old"))
-                        File.Delete(trashDir + filename + ".old");
+                    if (File.Exists( trashDir + "\\" + filename + ".old"))
+                        File.Delete(trashDir + "\\" + filename + ".old");
 
                     File.Move(wipFile, trashDir + "\\" + filename + ".old");
 
@@ -792,11 +830,7 @@ public class RepoManager
                 }
 
 
-            }
-            else
-            {
-                Console.WriteLine($"RemoveWIP() : {wipFile} doesn't exist");            }
-
+            
             // move inital/update file back to repo path
             if (File.Exists(updateFile))
             {

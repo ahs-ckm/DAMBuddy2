@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -53,16 +54,16 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tcRepoResults = new System.Windows.Forms.TabControl();
             this.tpRepoAll = new System.Windows.Forms.TabPage();
+            this.lblPageCount = new System.Windows.Forms.Label();
+            this.lblFilter = new System.Windows.Forms.Label();
+            this.btnPrev = new System.Windows.Forms.Button();
+            this.btnNext = new System.Windows.Forms.Button();
             this.lvRepository = new System.Windows.Forms.ListView();
             this.Asset = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tpRepoSearch = new System.Windows.Forms.TabPage();
             this.lvRepoSearchResults = new System.Windows.Forms.ListView();
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.button2 = new System.Windows.Forms.Button();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.tspStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripProgressBar2 = new System.Windows.Forms.ToolStripProgressBar();
-            this.wbRepositoryView = new System.Windows.Forms.WebBrowser();
             this.cbTransforms = new System.Windows.Forms.ComboBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -92,7 +93,7 @@
             this.tsddbReady = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsmiReady = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiNotReady = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
+            this.tslScheduleStatus2 = new System.Windows.Forms.ToolStripLabel();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
             this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -117,10 +118,15 @@
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnNext = new System.Windows.Forms.Button();
-            this.btnPrev = new System.Windows.Forms.Button();
-            this.lblFilter = new System.Windows.Forms.Label();
-            this.lblPageCount = new System.Windows.Forms.Label();
+            this.tcRepository = new System.Windows.Forms.TabControl();
+            this.tpRepoPreview = new System.Windows.Forms.TabPage();
+            this.tpWUR = new System.Windows.Forms.TabPage();
+            this.wbRepositoryView = new System.Windows.Forms.WebBrowser();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.tspStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar2 = new System.Windows.Forms.ToolStripProgressBar();
+            this.wbRepoWUR = new System.Windows.Forms.WebBrowser();
+            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -131,7 +137,6 @@
             this.tcRepoResults.SuspendLayout();
             this.tpRepoAll.SuspendLayout();
             this.tpRepoSearch.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.tpWIP.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -144,6 +149,10 @@
             this.toolStrip2.SuspendLayout();
             this.tpOverlaps.SuspendLayout();
             this.cmsRemove.SuspendLayout();
+            this.tcRepository.SuspendLayout();
+            this.tpRepoPreview.SuspendLayout();
+            this.tpWUR.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox3
@@ -224,10 +233,10 @@
             // 
             // tslRepositoryRepo
             // 
-            this.tslRepositoryRepo.Font = new System.Drawing.Font("Arial Unicode MS", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
+            this.tslRepositoryRepo.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
             this.tslRepositoryRepo.ForeColor = System.Drawing.Color.Black;
             this.tslRepositoryRepo.Name = "tslRepositoryRepo";
-            this.tslRepositoryRepo.Size = new System.Drawing.Size(22, 42);
+            this.tslRepositoryRepo.Size = new System.Drawing.Size(20, 42);
             this.tslRepositoryRepo.Text = "``";
             // 
             // tsbRepositoryReload
@@ -262,7 +271,7 @@
             this.tstbRepositoryFilter.ForeColor = System.Drawing.SystemColors.ControlText;
             this.tstbRepositoryFilter.Name = "tstbRepositoryFilter";
             this.tstbRepositoryFilter.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.tstbRepositoryFilter.Size = new System.Drawing.Size(180, 45);
+            this.tstbRepositoryFilter.Size = new System.Drawing.Size(170, 45);
             this.tstbRepositoryFilter.Text = "Filter text";
             this.tstbRepositoryFilter.ToolTipText = "Narrow down the assets";
             this.tstbRepositoryFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tstbRepositoryFilter_KeyDown);
@@ -379,8 +388,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.statusStrip1);
-            this.splitContainer1.Panel2.Controls.Add(this.wbRepositoryView);
+            this.splitContainer1.Panel2.Controls.Add(this.tcRepository);
             this.splitContainer1.Panel2.Controls.Add(this.cbTransforms);
             this.splitContainer1.Panel2.Controls.Add(this.textBox2);
             this.splitContainer1.Panel2.Controls.Add(this.textBox1);
@@ -417,6 +425,53 @@
             this.tpRepoAll.TabIndex = 0;
             this.tpRepoAll.Text = "All";
             // 
+            // lblPageCount
+            // 
+            this.lblPageCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblPageCount.AutoSize = true;
+            this.lblPageCount.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.lblPageCount.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.lblPageCount.Location = new System.Drawing.Point(467, 8);
+            this.lblPageCount.Name = "lblPageCount";
+            this.lblPageCount.Size = new System.Drawing.Size(15, 16);
+            this.lblPageCount.TabIndex = 19;
+            this.lblPageCount.Text = "1";
+            // 
+            // lblFilter
+            // 
+            this.lblFilter.AutoSize = true;
+            this.lblFilter.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
+            this.lblFilter.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.lblFilter.Location = new System.Drawing.Point(7, 9);
+            this.lblFilter.Name = "lblFilter";
+            this.lblFilter.Size = new System.Drawing.Size(48, 16);
+            this.lblFilter.TabIndex = 18;
+            this.lblFilter.Text = "label1";
+            // 
+            // btnPrev
+            // 
+            this.btnPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPrev.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.btnPrev.Location = new System.Drawing.Point(407, 6);
+            this.btnPrev.Name = "btnPrev";
+            this.btnPrev.Size = new System.Drawing.Size(46, 23);
+            this.btnPrev.TabIndex = 17;
+            this.btnPrev.Text = "<";
+            this.btnPrev.UseVisualStyleBackColor = true;
+            this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
+            // 
+            // btnNext
+            // 
+            this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnNext.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.btnNext.Location = new System.Drawing.Point(501, 6);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(46, 23);
+            this.btnNext.TabIndex = 16;
+            this.btnNext.Text = ">";
+            this.btnNext.UseVisualStyleBackColor = true;
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            // 
             // lvRepository
             // 
             this.lvRepository.Activation = System.Windows.Forms.ItemActivation.OneClick;
@@ -451,10 +506,10 @@
             // 
             this.tpRepoSearch.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.tpRepoSearch.Controls.Add(this.lvRepoSearchResults);
-            this.tpRepoSearch.Location = new System.Drawing.Point(4, 27);
+            this.tpRepoSearch.Location = new System.Drawing.Point(4, 25);
             this.tpRepoSearch.Name = "tpRepoSearch";
             this.tpRepoSearch.Padding = new System.Windows.Forms.Padding(3);
-            this.tpRepoSearch.Size = new System.Drawing.Size(553, 656);
+            this.tpRepoSearch.Size = new System.Drawing.Size(553, 658);
             this.tpRepoSearch.TabIndex = 1;
             this.tpRepoSearch.Text = "Search Results";
             // 
@@ -473,7 +528,7 @@
             this.lvRepoSearchResults.Location = new System.Drawing.Point(3, 3);
             this.lvRepoSearchResults.MultiSelect = false;
             this.lvRepoSearchResults.Name = "lvRepoSearchResults";
-            this.lvRepoSearchResults.Size = new System.Drawing.Size(547, 650);
+            this.lvRepoSearchResults.Size = new System.Drawing.Size(547, 652);
             this.lvRepoSearchResults.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvRepoSearchResults.TabIndex = 16;
             this.lvRepoSearchResults.UseCompatibleStateImageBehavior = false;
@@ -493,46 +548,6 @@
             this.button2.TabIndex = 6;
             this.button2.Text = "Refresh Templates";
             this.button2.UseVisualStyleBackColor = true;
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip1.BackColor = System.Drawing.Color.White;
-            this.statusStrip1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tspStatusLabel,
-            this.toolStripProgressBar2});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 0);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1070, 26);
-            this.statusStrip1.SizingGrip = false;
-            this.statusStrip1.TabIndex = 21;
-            this.statusStrip1.Text = "statusStrip1";
-            // 
-            // tspStatusLabel
-            // 
-            this.tspStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.tspStatusLabel.Image = global::DAMBuddy2.Properties.Resources.icons8_refresh_document_48;
-            this.tspStatusLabel.Name = "tspStatusLabel";
-            this.tspStatusLabel.Size = new System.Drawing.Size(16, 21);
-            // 
-            // toolStripProgressBar2
-            // 
-            this.toolStripProgressBar2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripProgressBar2.Name = "toolStripProgressBar2";
-            this.toolStripProgressBar2.Size = new System.Drawing.Size(200, 20);
-            // 
-            // wbRepositoryView
-            // 
-            this.wbRepositoryView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.wbRepositoryView.Location = new System.Drawing.Point(0, 42);
-            this.wbRepositoryView.MinimumSize = new System.Drawing.Size(20, 20);
-            this.wbRepositoryView.Name = "wbRepositoryView";
-            this.wbRepositoryView.Size = new System.Drawing.Size(1070, 645);
-            this.wbRepositoryView.TabIndex = 4;
-            this.wbRepositoryView.Url = new System.Uri("", System.UriKind.Relative);
-            this.wbRepositoryView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
             // 
             // cbTransforms
             // 
@@ -685,6 +700,7 @@
             // 
             // statusStrip2
             // 
+            this.statusStrip2.BackColor = System.Drawing.Color.White;
             this.statusStrip2.Dock = System.Windows.Forms.DockStyle.Top;
             this.statusStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsStatusLabel,
@@ -777,6 +793,7 @@
             // 
             this.toolStrip2.AutoSize = false;
             this.toolStrip2.BackColor = System.Drawing.Color.Khaki;
+            this.toolStrip2.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
             this.toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(48, 48);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -784,8 +801,7 @@
             this.tsWorkReload,
             this.toolStripSeparator3,
             this.tsddbReady,
-            this.toolStripLabel4,
-            this.tslScheduleStatus,
+            this.tslScheduleStatus2,
             this.tsbWorkUpload,
             this.toolStripSeparator5,
             this.toolStripLabel6,
@@ -795,18 +811,20 @@
             this.tstbWorkFilter,
             this.tsWorkFilterClear,
             this.tsWorkViewDocument,
-            this.tsbWordWIP});
+            this.tsbWordWIP,
+            this.toolStripButton3});
             this.toolStrip2.Location = new System.Drawing.Point(3, 3);
             this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             this.toolStrip2.Size = new System.Drawing.Size(1635, 43);
             this.toolStrip2.TabIndex = 19;
             this.toolStrip2.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip2_ItemClicked);
             // 
             // tslWorkRepository
             // 
-            this.tslWorkRepository.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
+            this.tslWorkRepository.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
             this.tslWorkRepository.Name = "tslWorkRepository";
-            this.tslWorkRepository.Size = new System.Drawing.Size(108, 40);
+            this.tslWorkRepository.Size = new System.Drawing.Size(132, 40);
             this.tslWorkRepository.Text = "<no repository>";
             // 
             // tsWorkReload
@@ -831,7 +849,7 @@
             this.tsddbReady.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiReady,
             this.tsmiNotReady});
-            this.tsddbReady.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.tsddbReady.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
             this.tsddbReady.Image = global::DAMBuddy2.Properties.Resources.icons8_decision_48__2_;
             this.tsddbReady.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsddbReady.Name = "tsddbReady";
@@ -840,9 +858,10 @@
             // 
             // tsmiReady
             // 
+            this.tsmiReady.Font = new System.Drawing.Font("Segoe UI Semibold", 12F);
             this.tsmiReady.Image = global::DAMBuddy2.Properties.Resources.icons8_approve_48__1_;
             this.tsmiReady.Name = "tsmiReady";
-            this.tsmiReady.Size = new System.Drawing.Size(134, 22);
+            this.tsmiReady.Size = new System.Drawing.Size(212, 54);
             this.tsmiReady.Text = "Ready";
             this.tsmiReady.Click += new System.EventHandler(this.tsmiReady_Click);
             // 
@@ -850,15 +869,16 @@
             // 
             this.tsmiNotReady.Image = global::DAMBuddy2.Properties.Resources.icons8_decision_48__2_;
             this.tsmiNotReady.Name = "tsmiNotReady";
-            this.tsmiNotReady.Size = new System.Drawing.Size(134, 22);
+            this.tsmiNotReady.Size = new System.Drawing.Size(212, 54);
             this.tsmiNotReady.Text = "Not Ready";
             this.tsmiNotReady.Click += new System.EventHandler(this.tsmiNotReady_Click);
             // 
-            // toolStripLabel4
+            // tslScheduleStatus2
             // 
-            this.toolStripLabel4.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripLabel4.Name = "toolStripLabel4";
-            this.toolStripLabel4.Size = new System.Drawing.Size(0, 40);
+            this.tslScheduleStatus2.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tslScheduleStatus2.Name = "tslScheduleStatus2";
+            this.tslScheduleStatus2.Size = new System.Drawing.Size(123, 40);
+            this.tslScheduleStatus2.Text = "< Unknown >";
             // 
             // tslScheduleStatus
             // 
@@ -892,6 +912,7 @@
             // 
             // toolStripLabel6
             // 
+            this.toolStripLabel6.BackColor = System.Drawing.Color.Khaki;
             this.toolStripLabel6.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.toolStripLabel6.ForeColor = System.Drawing.Color.Black;
             this.toolStripLabel6.Name = "toolStripLabel6";
@@ -918,6 +939,7 @@
             // 
             // toolStripLabel3
             // 
+            this.toolStripLabel3.BackColor = System.Drawing.Color.Lavender;
             this.toolStripLabel3.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.toolStripLabel3.ForeColor = System.Drawing.Color.Black;
             this.toolStripLabel3.Name = "toolStripLabel3";
@@ -1053,52 +1075,101 @@
             this.tsmWIPRemove.Text = "Remove from WIP";
             this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
             // 
-            // btnNext
+            // tcRepository
             // 
-            this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNext.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnNext.Location = new System.Drawing.Point(501, 6);
-            this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(46, 23);
-            this.btnNext.TabIndex = 16;
-            this.btnNext.Text = ">";
-            this.btnNext.UseVisualStyleBackColor = true;
-            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            this.tcRepository.Alignment = System.Windows.Forms.TabAlignment.Left;
+            this.tcRepository.Controls.Add(this.tpRepoPreview);
+            this.tcRepository.Controls.Add(this.tpWUR);
+            this.tcRepository.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tcRepository.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.tcRepository.Location = new System.Drawing.Point(0, 0);
+            this.tcRepository.Multiline = true;
+            this.tcRepository.Name = "tcRepository";
+            this.tcRepository.Padding = new System.Drawing.Point(26, 6);
+            this.tcRepository.SelectedIndex = 0;
+            this.tcRepository.Size = new System.Drawing.Size(1070, 687);
+            this.tcRepository.TabIndex = 22;
             // 
-            // btnPrev
+            // tpRepoPreview
             // 
-            this.btnPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPrev.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnPrev.Location = new System.Drawing.Point(407, 6);
-            this.btnPrev.Name = "btnPrev";
-            this.btnPrev.Size = new System.Drawing.Size(46, 23);
-            this.btnPrev.TabIndex = 17;
-            this.btnPrev.Text = "<";
-            this.btnPrev.UseVisualStyleBackColor = true;
-            this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
+            this.tpRepoPreview.Controls.Add(this.statusStrip1);
+            this.tpRepoPreview.Controls.Add(this.wbRepositoryView);
+            this.tpRepoPreview.Location = new System.Drawing.Point(32, 4);
+            this.tpRepoPreview.Name = "tpRepoPreview";
+            this.tpRepoPreview.Padding = new System.Windows.Forms.Padding(3);
+            this.tpRepoPreview.Size = new System.Drawing.Size(1034, 679);
+            this.tpRepoPreview.TabIndex = 0;
+            this.tpRepoPreview.Text = "Document Preview";
+            this.tpRepoPreview.UseVisualStyleBackColor = true;
             // 
-            // lblFilter
+            // tpWUR
             // 
-            this.lblFilter.AutoSize = true;
-            this.lblFilter.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
-            this.lblFilter.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.lblFilter.Location = new System.Drawing.Point(7, 9);
-            this.lblFilter.Name = "lblFilter";
-            this.lblFilter.Size = new System.Drawing.Size(48, 16);
-            this.lblFilter.TabIndex = 18;
-            this.lblFilter.Text = "label1";
+            this.tpWUR.Controls.Add(this.wbRepoWUR);
+            this.tpWUR.Location = new System.Drawing.Point(32, 4);
+            this.tpWUR.Name = "tpWUR";
+            this.tpWUR.Padding = new System.Windows.Forms.Padding(3);
+            this.tpWUR.Size = new System.Drawing.Size(1034, 679);
+            this.tpWUR.TabIndex = 1;
+            this.tpWUR.Text = "Where Used Report";
+            this.tpWUR.UseVisualStyleBackColor = true;
             // 
-            // lblPageCount
+            // wbRepositoryView
             // 
-            this.lblPageCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblPageCount.AutoSize = true;
-            this.lblPageCount.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.lblPageCount.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.lblPageCount.Location = new System.Drawing.Point(467, 8);
-            this.lblPageCount.Name = "lblPageCount";
-            this.lblPageCount.Size = new System.Drawing.Size(15, 16);
-            this.lblPageCount.TabIndex = 19;
-            this.lblPageCount.Text = "1";
+            this.wbRepositoryView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.wbRepositoryView.Location = new System.Drawing.Point(3, 32);
+            this.wbRepositoryView.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbRepositoryView.Name = "wbRepositoryView";
+            this.wbRepositoryView.Size = new System.Drawing.Size(1025, 641);
+            this.wbRepositoryView.TabIndex = 5;
+            this.wbRepositoryView.Url = new System.Uri("", System.UriKind.Relative);
+            this.wbRepositoryView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.BackColor = System.Drawing.Color.White;
+            this.statusStrip1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tspStatusLabel,
+            this.toolStripProgressBar2});
+            this.statusStrip1.Location = new System.Drawing.Point(3, 3);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(1028, 26);
+            this.statusStrip1.SizingGrip = false;
+            this.statusStrip1.TabIndex = 22;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // tspStatusLabel
+            // 
+            this.tspStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tspStatusLabel.Image = global::DAMBuddy2.Properties.Resources.icons8_refresh_document_48;
+            this.tspStatusLabel.Name = "tspStatusLabel";
+            this.tspStatusLabel.Size = new System.Drawing.Size(16, 21);
+            // 
+            // toolStripProgressBar2
+            // 
+            this.toolStripProgressBar2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripProgressBar2.Name = "toolStripProgressBar2";
+            this.toolStripProgressBar2.Size = new System.Drawing.Size(200, 20);
+            // 
+            // wbRepoWUR
+            // 
+            this.wbRepoWUR.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wbRepoWUR.Location = new System.Drawing.Point(3, 3);
+            this.wbRepoWUR.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbRepoWUR.Name = "wbRepoWUR";
+            this.wbRepoWUR.Size = new System.Drawing.Size(1028, 673);
+            this.wbRepoWUR.TabIndex = 0;
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
+            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(52, 40);
+            this.toolStripButton3.Text = "toolStripButton3";
             // 
             // Form1
             // 
@@ -1124,8 +1195,6 @@
             this.tpRepoAll.ResumeLayout(false);
             this.tpRepoAll.PerformLayout();
             this.tpRepoSearch.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.tpWIP.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
@@ -1142,6 +1211,12 @@
             this.toolStrip2.PerformLayout();
             this.tpOverlaps.ResumeLayout(false);
             this.cmsRemove.ResumeLayout(false);
+            this.tcRepository.ResumeLayout(false);
+            this.tpRepoPreview.ResumeLayout(false);
+            this.tpRepoPreview.PerformLayout();
+            this.tpWUR.ResumeLayout(false);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1154,7 +1229,6 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.WebBrowser wbRepositoryView;
         private System.Windows.Forms.ComboBox cbTransforms;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox1;
@@ -1182,7 +1256,7 @@
         private System.Windows.Forms.ToolStripButton tsWorkFilterClear;
         private System.Windows.Forms.ToolStripButton tsWorkViewDocument;
         private System.Windows.Forms.ToolStripButton tsbWordWIP;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel4;
+        private System.Windows.Forms.ToolStripLabel tslScheduleStatus2;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.ListView lvWork;
         private System.Windows.Forms.ColumnHeader chFilename;
@@ -1219,9 +1293,6 @@
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ColumnHeader chModified;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel tspStatusLabel;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar2;
         private System.Windows.Forms.TabControl tbWIPViews;
         private System.Windows.Forms.TabPage tpPreviewWIP;
         private System.Windows.Forms.WebBrowser wbWIP;
@@ -1240,6 +1311,15 @@
         private System.Windows.Forms.Button btnPrev;
         private System.Windows.Forms.Button btnNext;
         private System.Windows.Forms.Label lblPageCount;
+        private System.Windows.Forms.TabControl tcRepository;
+        private System.Windows.Forms.TabPage tpRepoPreview;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel tspStatusLabel;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar2;
+        private System.Windows.Forms.WebBrowser wbRepositoryView;
+        private System.Windows.Forms.TabPage tpWUR;
+        private System.Windows.Forms.WebBrowser wbRepoWUR;
+        private System.Windows.Forms.ToolStripButton toolStripButton3;
     }
 }
 
