@@ -186,6 +186,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
+    <None Include="Resources\outline_info_black_24dp.png" />
+    <None Include="Resources\outline_pause_circle_outline_black_24dp.png" />
+    <None Include="Resources\outline_cloud_upload_black_24dp.png" />
+    <None Include="Resources\outline_play_circle_outline_black_24dp.png" />
+    <None Include="Resources\outline_stop_circle_black_24dp.png" />
+    <None Include="Resources\outline_preview_black_24dp.png" />
+    <None Include="Resources\outline_text_snippet_black_24dp.png" />
+    <None Include="Resources\outline_search_black_24dp.png" />
+    <None Include="Resources\outline_backspace_black_24dp.png" />
+    <None Include="Resources\outline_cached_black_24dp.png" />
+    <None Include="Resources\outline_cached_black_36dp.png" />
+    <None Include="Resources\outline_stop_white_36dp.png" />
     <None Include="Resources\icons8-search-48.png" />
     <None Include="Resources\icons8-google-web-search-64.png" />
     <None Include="Resources\icons8-venn-diagram-48.png" />

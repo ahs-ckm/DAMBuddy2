@@ -1604,8 +1604,8 @@ namespace DAMBuddy2
         private void tsddbNotReady_Click(object sender, EventArgs e)
         {
             m_RepoManager.SetTicketReadiness(true);
-            tsddbReady.Text = "Not Ready";
-            tsddbReady.Image = tsmiNotReady.Image;
+            //tsddbReady.Text = "Not Ready";
+            //tsddbReady.Image = tsmiNotReady.Image;
 
         }
 
@@ -1615,16 +1615,16 @@ namespace DAMBuddy2
             
 
             m_RepoManager.SetTicketReadiness(true);
-            tsddbReady.Text = "Ready";
-            tsddbReady.Image = tsmiReady.Image;
+           // tsddbReady.Text = "Ready";
+           // tsddbReady.Image = tsmiReady.Image;
 
         }
 
         private void tsmiNotReady_Click(object sender, EventArgs e)
         {
             m_RepoManager.SetTicketReadiness(true);
-            tsddbReady.Text = "Not Ready";
-            tsddbReady.Image = tsmiNotReady.Image;
+            //tsddbReady.Text = "Not Ready";
+            //tsddbReady.Image = tsmiNotReady.Image;
 
 
         }

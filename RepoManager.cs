@@ -63,9 +63,7 @@ public class RepoManager
     private static string GITKEEP_SUFFIX = ".keep";
     private static string WIP = @"\local\WIP";
     private string gServerName = "http://ckcm.healthy.bewell.ca";
-
-    private static Dictionary<string, string> dictFileToPath;
-    //    dictFileToPath
+//    dictFileToPath
 
     private FileSystemWatcher m_watcherRepo = null;
     private FileSystemWatcher m_watcherWIP = null;
@@ -76,6 +74,8 @@ public class RepoManager
     private DateTime m_dtCloneStart;
     private DateTime m_dtCloneEnd;
 
+
+    private static Dictionary<string, string> m_dictFileToPath;
     private Dictionary<string, string> m_dictID2Gitpath;
     private Dictionary<string, string> m_dictWIPName2Path;
     private Dictionary<string, string> m_dictWIPID2Path;
@@ -399,7 +399,7 @@ public class RepoManager
 
         try
         {
-            return dictFileToPath[filename];
+            return m_dictFileToPath[filename];
 
         }
         catch { return ""; }
@@ -419,7 +419,7 @@ public class RepoManager
     {
         m_masterlist.Clear();
         ListViewItem newAsset = null;
-        if (dictFileToPath == null) dictFileToPath = new Dictionary<string, string>();
+        if (m_dictFileToPath == null) m_dictFileToPath = new Dictionary<string, string>();
 
 
         string[] templates = Directory.GetFiles(m_LocalPath, "*.oet", SearchOption.AllDirectories);
@@ -427,7 +427,7 @@ public class RepoManager
         {
             string filename = Path.GetFileName(template);
 
-            dictFileToPath[filename] = template;
+            m_dictFileToPath[filename] = template;
 
             newAsset = new ListViewItem(filename);
             newAsset.Tag = template;
@@ -505,7 +505,9 @@ public class RepoManager
             return Utility.GetTemplateID(m_LocalPath + @"\" + WIP + @"\" + filename);
         }
 
-        return Utility.GetTemplateID( m_dictWIPName2Path[filename] );
+        return Utility.GetTemplateID(m_dictFileToPath[filename]);
+
+        //return Utility.GetTemplateID( m_dictWIPName2Path[filename] );
 
         //return "";
     }
