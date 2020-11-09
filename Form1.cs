@@ -133,14 +133,30 @@ namespace DAMBuddy2
 
         }
 
-        public void TicketStateChangeCallback(string jsonStatus)
+        public void TicketStateChangeCallback(string ready)
+        {
+            if (ready == "True")
+            {
+                tslReadyState.Text = "Work: Ready";
+                tsbPause.Enabled = true;
+                tsbStart.Enabled = false;
+            }
+            else
+            {
+                tslReadyState.Text = "Work: Paused";
+                tsbStart.Enabled = true;
+                tsbPause.Enabled = false;
+            }
+        }
+            
+        public void ScheduleStateChangeCallback(string jsonStatus)
         {
 
             //MessageBox.Show(state.ScheduleState + ": Upload " + state.UploadEnabled);
 
             if (InvokeRequired)
             {
-                BeginInvoke((MethodInvoker)delegate { this.TicketStateChangeCallback(jsonStatus); });
+                BeginInvoke((MethodInvoker)delegate { this.ScheduleStateChangeCallback(jsonStatus); });
                 return;
             }
             RepoManager.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoManager.TicketScheduleState>(jsonStatus);
@@ -158,6 +174,11 @@ namespace DAMBuddy2
                 toolStrip2.BackColor = Color.FromArgb(0, 185, 97);
                 foreach (ToolStripItem c in toolStrip2.Items)
                 {
+                    Type sType = c.GetType();
+                    if ( sType.Name == "ToolStripTextBox"  )
+                    {
+                        continue;
+                    }
                     c.ForeColor = Color.White;
 
                 }
@@ -169,6 +190,17 @@ namespace DAMBuddy2
                 
             }
 
+            if (state.ScheduleState == "Not Yet Ready")
+            {
+
+                toolStrip2.BackColor = Color.FromArgb(197, 196, 193);
+
+                foreach (ToolStripItem c in toolStrip2.Items)
+                {
+                    c.ForeColor = Color.Black;
+
+                }
+            }
 
         }
 
@@ -237,56 +269,42 @@ namespace DAMBuddy2
         private void InitializeApp()
         {
             if (SetCurrentRepo() != "")
-            //if (true)
             {
-                //listView1.SelectedIndexChanged += listView1_SelectedIndexChanged();
                 var appsettings = ConfigurationManager.AppSettings;
-                //listView1.LostFocus += (s, e) => listView1.SelectedIndices.Clear();
                 AppSettingsSection settings = (AppSettingsSection)ConfigurationManager.GetSection("PreviewView.Properties.Settings");
 
                 mCurrentPage = 0;
+                tsbStart.Enabled = true;
+                tsbPause.Enabled = false;
+                tsbWord.Enabled = false;
+                tstbRepositoryFilter.Text = "";
 
                 m_RepoManager = new RepoManager(m_RepoPath, StaleCallback, DisplayWIPCallback, RemoveWIPCallback, WIPModifiedCallback);
-                m_RepoManager.Init(30000 * 1, 60000 * 1);
-
+                m_RepoManager.CallbackScheduleState = ScheduleStateChangeCallback;
+                m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
                 m_browserSchedule = new ChromiumWebBrowser("http://ckcm:10008/scheduler-plan.html"); // TODO:Fix port
                 m_browserUpload = new ChromiumWebBrowser("about:blank");
                 tpUpload.Controls.Add(m_browserUpload);
                 tpSchedule.Controls.Add(m_browserSchedule);
-
-
-                tstbRepositoryFilter.Text = "";
-                m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
-                m_RepoManager.GetTicketScheduleStatus();
-
-                //m_masterlist = new List<ListViewItem>();
-                this.Text = "BuildBuddy v" + GetLocalVersionNumber();
-
                 m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
                 m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
 
 
+
+                m_RepoManager.Init(30000 * 1, 60000 * 1);
+                m_RepoManager.GetTicketScheduleStatus();
+
+                this.Text = "BuildBuddy v" + GetLocalVersionNumber();
+
                 m_RequestBuilder = new TransformRequestBuilder(m_RepoManager, appsettings["QueryServiceUrl"] ?? "App Settings not found");
 
-                //string test = settings.Settings["CacheServiceUrl"] ?? "";
-
-
                 PrepareTransformSupport();
-
                 LoadRepositoryTemplates();
-                //m_RepoManager.LoadRepositoryTemplates();
-                //DisplayTemplates2();
-                //LoadTransforms();
-                //            webBrowser1.Url =
-
-                tsbWord.Enabled = false;
-                //webBrowser1.Url = new Uri(@"C:\TD\Blank.html");
             }
             else
             {
                 MessageBox.Show("No repository detected - is DamBuddy running?");
             }
-
         }
 
 
@@ -1596,38 +1614,6 @@ namespace DAMBuddy2
 
         }
 
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tsddbNotReady_Click(object sender, EventArgs e)
-        {
-            m_RepoManager.SetTicketReadiness(true);
-            //tsddbReady.Text = "Not Ready";
-            //tsddbReady.Image = tsmiNotReady.Image;
-
-        }
-
-        private void tsmiReady_Click(object sender, EventArgs e)
-        {
-
-            
-
-            m_RepoManager.SetTicketReadiness(true);
-           // tsddbReady.Text = "Ready";
-           // tsddbReady.Image = tsmiReady.Image;
-
-        }
-
-        private void tsmiNotReady_Click(object sender, EventArgs e)
-        {
-            m_RepoManager.SetTicketReadiness(true);
-            //tsddbReady.Text = "Not Ready";
-            //tsddbReady.Image = tsmiNotReady.Image;
-
-
-        }
 
 
 
@@ -1647,6 +1633,29 @@ namespace DAMBuddy2
             lblPageCount.Text = $"{mCurrentPage + 1}";
             DisplayTemplates2();
 
+        }
+
+        private void tsbStart_Click(object sender, EventArgs e)
+        {
+            tslReadyState.Text = "Work: Ready";
+
+            tsbStart.Enabled = false;
+            tsbPause.Enabled = true;
+            m_RepoManager.SetTicketReadiness(true);
+        }
+
+        private void tsbPause_Click(object sender, EventArgs e)
+        {
+            tslReadyState.Text = "Work: Paused";
+
+            tsbStart.Enabled = true;
+            tsbPause.Enabled = false;
+            m_RepoManager.SetTicketReadiness(false);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            m_RepoManager.SaveExistingWip();
         }
     }
 }

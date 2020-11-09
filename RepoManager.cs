@@ -54,7 +54,9 @@ public class RepoManager
     string TEMP_FOLDER = @"c:\temp\dambuddy2";
     string CACHE_NAME = "LOCAL3";
     string DAM_TICKET = "CSDFK-1489";
-
+    
+    bool m_ReadyStateSetByUser = false;
+    
     private string m_LocalPath = "";
     private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
     private static string GITKEEP_INITIAL = @"\gitkeep\initial";
@@ -86,6 +88,7 @@ public class RepoManager
     public delegate void DisplayWIPCallback(string filename);//, string originalpath);
     public delegate void RemoveWIPCallback(string filename);
 
+    ModifiedCallback m_callbackScheduleState;
     ModifiedCallback m_callbackTicketState;
     ModifiedCallback m_callbackModifiedWIP;
     RemoveWIPCallback m_callbackRemoveWIP;
@@ -93,6 +96,7 @@ public class RepoManager
     DisplayWIPCallback m_callbackDisplayWIP;
 
     public string LocalPath { get => m_LocalPath; }
+    public ModifiedCallback CallbackScheduleState { get => m_callbackScheduleState; set => m_callbackScheduleState = value; }
     public ModifiedCallback CallbackTicketState { get => m_callbackTicketState; set => m_callbackTicketState = value; }
     public List<ListViewItem> Masterlist { get => m_masterlist; set => m_masterlist = value; }
 
@@ -280,6 +284,7 @@ public class RepoManager
 
     public bool SetTicketReadiness(bool bReady)
     {
+        m_ReadyStateSetByUser = bReady;
         bool result = false;
         string ReadyParam = "notready";
         if (bReady)
@@ -325,7 +330,7 @@ public class RepoManager
         using (StreamReader reader = new StreamReader(stream))
         {
             string jsonStatus = reader.ReadToEnd();
-            CallbackTicketState?.Invoke(jsonStatus);
+            CallbackScheduleState?.Invoke(jsonStatus);
 
         }
 
@@ -708,18 +713,22 @@ public class RepoManager
         }
 
         File.WriteAllText(m_LocalPath + @"\" + WIP + @"\ID2Gitpath.csv", csv);
-    
 
-    csv = "";
+
+        csv = "";
         foreach (KeyValuePair<string, string> kvp in m_dictWIPID2Path)
         {
             csv += kvp.Key;
-            csv += ",";
+            csv += ", ";
             csv += kvp.Value;
             csv += "\n"; //newline to represent new pair
         }
 
         File.WriteAllText(m_LocalPath + @"\" + WIP + @"\WIPID.csv", csv);
+
+
+        File.WriteAllText(m_LocalPath + @"\" + WIP + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
+
     }
 
     public void DisplayWIP(string filename)//, string originalpath)
@@ -784,6 +793,19 @@ public class RepoManager
                 m_dictWIPID2Path.Add(values[0], values[1]);
             }
         }
+
+        filepath = m_LocalPath + @"\" + WIP + @"\ReadyState.txt";
+
+        if (File.Exists(filepath))
+        {
+            var reader = new StreamReader(File.OpenRead(filepath));
+
+            var line = reader.ReadLine();
+            if( line == "True" ) { m_ReadyStateSetByUser = true; }
+            SetTicketReadiness(m_ReadyStateSetByUser);
+            m_callbackTicketState?.Invoke(line);
+        }
+
     }
 
     public bool RemoveWIP(string filename)//, string gitpath)
