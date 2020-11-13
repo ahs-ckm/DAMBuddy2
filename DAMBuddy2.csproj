@@ -153,6 +153,7 @@
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
     <Compile Include="JiraService.cs" />
+    <Compile Include="OceanUtils.cs" />
     <Compile Include="RepoManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -203,6 +204,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
+    <None Include="Resources\outline_confirmation_number_black_24dp.png" />
+    <None Include="Resources\outline_face_black_24dp.png" />
+    <None Include="Resources\outline_account_tree_black_18dp.png" />
     <None Include="Resources\outline_settings_black_24dp.png" />
     <None Include="Resources\outline_info_black_24dp.png" />
     <None Include="Resources\outline_pause_circle_outline_black_24dp.png" />

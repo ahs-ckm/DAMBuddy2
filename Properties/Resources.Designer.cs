@@ -223,6 +223,16 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap outline_account_tree_black_18dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_account_tree_black_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap outline_backspace_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_backspace_black_24dp", resourceCulture);
@@ -256,6 +266,26 @@ namespace DAMBuddy2.Properties {
         internal static System.Drawing.Bitmap outline_cloud_upload_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_cloud_upload_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_confirmation_number_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_confirmation_number_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_face_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_face_black_24dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -1,6 +1,6 @@
 ﻿namespace DAMBuddy2
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,13 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tslRepositoryRepo = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.tstbRepositoryFilter = new System.Windows.Forms.ToolStripTextBox();
@@ -117,14 +116,18 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbLaunch2 = new System.Windows.Forms.ToolStripButton();
             this.tsbRepositoryReload = new System.Windows.Forms.ToolStripButton();
             this.tsbRepositoryFilterClear = new System.Windows.Forms.ToolStripButton();
             this.tsbRepoSearch = new System.Windows.Forms.ToolStripButton();
             this.tsbRepositoryViewDocument = new System.Windows.Forms.ToolStripButton();
             this.tsbWord = new System.Windows.Forms.ToolStripButton();
-            this.tsbConfig = new System.Windows.Forms.ToolStripButton();
+            this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsmiUserAccount = new System.Windows.Forms.ToolStripMenuItem();
+            this.setupNewTicketToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tspStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsbLaunchTD = new System.Windows.Forms.ToolStripButton();
             this.tsWorkReload = new System.Windows.Forms.ToolStripButton();
             this.tsWorkFilterClear = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
@@ -134,6 +137,12 @@
             this.tsbStart = new System.Windows.Forms.ToolStripButton();
             this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
+            this.tsmiLog = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsddbRepository = new System.Windows.Forms.ToolStripDropDownButton();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
+            this.cSDFK1988ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cSDKFK1989ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -213,11 +222,12 @@
             // 
             this.toolStrip1.AutoSize = false;
             this.toolStrip1.BackColor = System.Drawing.Color.PowderBlue;
-            this.toolStrip1.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.toolStrip1.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(48, 48);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tslRepositoryRepo,
+            this.tsddbRepository,
+            this.tsbLaunch2,
             this.tsbRepositoryReload,
             this.toolStripSeparator6,
             this.toolStripLabel1,
@@ -232,19 +242,12 @@
             this.tspTime,
             this.tsbWord,
             this.toolStripProgressBar1,
-            this.tsbConfig});
+            this.toolStripDropDownButton2});
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1635, 45);
             this.toolStrip1.TabIndex = 18;
             this.toolStrip1.Text = "toolStrip1";
-            // 
-            // tslRepositoryRepo
-            // 
-            this.tslRepositoryRepo.ForeColor = System.Drawing.Color.Black;
-            this.tslRepositoryRepo.Name = "tslRepositoryRepo";
-            this.tslRepositoryRepo.Size = new System.Drawing.Size(132, 42);
-            this.tslRepositoryRepo.Text = "<no repository>";
             // 
             // toolStripSeparator6
             // 
@@ -284,7 +287,6 @@
             // 
             // toolStripLabel5
             // 
-            this.toolStripLabel5.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
             this.toolStripLabel5.ForeColor = System.Drawing.Color.Black;
             this.toolStripLabel5.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
             this.toolStripLabel5.Name = "toolStripLabel5";
@@ -816,6 +818,7 @@
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(48, 48);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslWorkRepository,
+            this.tsbLaunchTD,
             this.tsWorkReload,
             this.toolStripSeparator3,
             this.toolStripLabel3,
@@ -1061,6 +1064,18 @@
             this.configToolStripMenuItem.Text = "Config";
             this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
             // 
+            // tsbLaunch2
+            // 
+            this.tsbLaunch2.AutoSize = false;
+            this.tsbLaunch2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbLaunch2.Image = global::DAMBuddy2.Properties.Resources.outline_account_tree_black_18dp;
+            this.tsbLaunch2.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbLaunch2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLaunch2.Name = "tsbLaunch2";
+            this.tsbLaunch2.Size = new System.Drawing.Size(52, 40);
+            this.tsbLaunch2.Text = "toolStripButton1";
+            this.tsbLaunch2.Click += new System.EventHandler(this.toolStripButton1_Click);
+            // 
             // tsbRepositoryReload
             // 
             this.tsbRepositoryReload.AutoSize = false;
@@ -1112,26 +1127,49 @@
             // 
             // tsbWord
             // 
+            this.tsbWord.AutoSize = false;
             this.tsbWord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.tsbWord.Image = global::DAMBuddy2.Properties.Resources.outline_text_snippet_black_24dp;
             this.tsbWord.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbWord.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbWord.Name = "tsbWord";
-            this.tsbWord.Size = new System.Drawing.Size(28, 42);
+            this.tsbWord.Size = new System.Drawing.Size(52, 42);
             this.tsbWord.Text = "Open In Word";
             // 
-            // tsbConfig
+            // toolStripDropDownButton2
             // 
-            this.tsbConfig.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.tsbConfig.AutoSize = false;
-            this.tsbConfig.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbConfig.Image = global::DAMBuddy2.Properties.Resources.outline_settings_black_24dp;
-            this.tsbConfig.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbConfig.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbConfig.Name = "tsbConfig";
-            this.tsbConfig.Size = new System.Drawing.Size(52, 42);
-            this.tsbConfig.Text = "toolStripButton1";
-            this.tsbConfig.Click += new System.EventHandler(this.tsbConfig_Click);
+            this.toolStripDropDownButton2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripDropDownButton2.AutoSize = false;
+            this.toolStripDropDownButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripDropDownButton2.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setupNewTicketToolStripMenuItem,
+            this.tsmiUserAccount,
+            this.tsmiLog});
+            this.toolStripDropDownButton2.Image = global::DAMBuddy2.Properties.Resources.outline_settings_black_24dp;
+            this.toolStripDropDownButton2.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripDropDownButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton2.Name = "toolStripDropDownButton2";
+            this.toolStripDropDownButton2.Size = new System.Drawing.Size(52, 42);
+            this.toolStripDropDownButton2.Text = "toolStripDropDownButton2";
+            // 
+            // tsmiUserAccount
+            // 
+            this.tsmiUserAccount.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.tsmiUserAccount.Image = global::DAMBuddy2.Properties.Resources.outline_face_black_24dp;
+            this.tsmiUserAccount.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsmiUserAccount.Name = "tsmiUserAccount";
+            this.tsmiUserAccount.Size = new System.Drawing.Size(199, 30);
+            this.tsmiUserAccount.Text = "User Account...";
+            // 
+            // setupNewTicketToolStripMenuItem
+            // 
+            this.setupNewTicketToolStripMenuItem.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.setupNewTicketToolStripMenuItem.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
+            this.setupNewTicketToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.setupNewTicketToolStripMenuItem.Name = "setupNewTicketToolStripMenuItem";
+            this.setupNewTicketToolStripMenuItem.Size = new System.Drawing.Size(199, 30);
+            this.setupNewTicketToolStripMenuItem.Text = "Setup New Ticket...";
+            this.setupNewTicketToolStripMenuItem.Click += new System.EventHandler(this.setupNewTicketToolStripMenuItem_Click);
             // 
             // tspStatusLabel
             // 
@@ -1139,7 +1177,7 @@
             this.tspStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.tspStatusLabel.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
             this.tspStatusLabel.Name = "tspStatusLabel";
-            this.tspStatusLabel.Size = new System.Drawing.Size(16, 16);
+            this.tspStatusLabel.Size = new System.Drawing.Size(16, 21);
             // 
             // tsStatusLabel
             // 
@@ -1147,8 +1185,20 @@
             this.tsStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.tsStatusLabel.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
             this.tsStatusLabel.Name = "tsStatusLabel";
-            this.tsStatusLabel.Size = new System.Drawing.Size(62, 18);
+            this.tsStatusLabel.Size = new System.Drawing.Size(62, 21);
             this.tsStatusLabel.Text = "Status";
+            // 
+            // tsbLaunchTD
+            // 
+            this.tsbLaunchTD.AutoSize = false;
+            this.tsbLaunchTD.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbLaunchTD.Image = global::DAMBuddy2.Properties.Resources.outline_account_tree_black_18dp;
+            this.tsbLaunchTD.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbLaunchTD.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLaunchTD.Name = "tsbLaunchTD";
+            this.tsbLaunchTD.Size = new System.Drawing.Size(52, 40);
+            this.tsbLaunchTD.Text = "toolStripButton1";
+            this.tsbLaunchTD.Click += new System.EventHandler(this.tsbLaunchTD_Click);
             // 
             // tsWorkReload
             // 
@@ -1263,7 +1313,61 @@
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // Form1
+            // tsmiLog
+            // 
+            this.tsmiLog.Name = "tsmiLog";
+            this.tsmiLog.Size = new System.Drawing.Size(199, 30);
+            this.tsmiLog.Text = "Log...";
+            // 
+            // tsddbRepository
+            // 
+            this.tsddbRepository.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cSDFK1988ToolStripMenuItem,
+            this.cSDKFK1989ToolStripMenuItem,
+            this.toolStripSeparator10,
+            this.toolStripMenuItem2});
+            this.tsddbRepository.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tsddbRepository.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tsddbRepository.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
+            this.tsddbRepository.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsddbRepository.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddbRepository.Name = "tsddbRepository";
+            this.tsddbRepository.Size = new System.Drawing.Size(192, 42);
+            this.tsddbRepository.Text = "< no repository >";
+            this.tsddbRepository.ToolTipText = "The current ticket being worked on, click to change.";
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.toolStripMenuItem2.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
+            this.toolStripMenuItem2.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(208, 30);
+            this.toolStripMenuItem2.Text = "Setup New Ticket...";
+            // 
+            // toolStripSeparator10
+            // 
+            this.toolStripSeparator10.Name = "toolStripSeparator10";
+            this.toolStripSeparator10.Size = new System.Drawing.Size(205, 6);
+            // 
+            // cSDFK1988ToolStripMenuItem
+            // 
+            this.cSDFK1988ToolStripMenuItem.Checked = true;
+            this.cSDFK1988ToolStripMenuItem.CheckOnClick = true;
+            this.cSDFK1988ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cSDFK1988ToolStripMenuItem.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.cSDFK1988ToolStripMenuItem.Name = "cSDFK1988ToolStripMenuItem";
+            this.cSDFK1988ToolStripMenuItem.Size = new System.Drawing.Size(203, 30);
+            this.cSDFK1988ToolStripMenuItem.Text = "CSDFK-1988";
+            // 
+            // cSDKFK1989ToolStripMenuItem
+            // 
+            this.cSDKFK1989ToolStripMenuItem.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.cSDKFK1989ToolStripMenuItem.Name = "cSDKFK1989ToolStripMenuItem";
+            this.cSDKFK1989ToolStripMenuItem.Size = new System.Drawing.Size(203, 30);
+            this.cSDKFK1989ToolStripMenuItem.Text = "CSDFK-1989";
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -1272,7 +1376,7 @@
             this.Controls.Add(this.statusForm);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.textBox3);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "DAMBuddy2 vDraft";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -1332,7 +1436,6 @@
         private System.Windows.Forms.TabPage tpUpload;
         private System.Windows.Forms.TabPage tabPage5;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripLabel tslRepositoryRepo;
         private System.Windows.Forms.ToolStripButton tsbRepositoryReload;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
@@ -1422,7 +1525,17 @@
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configToolStripMenuItem;
-        private System.Windows.Forms.ToolStripButton tsbConfig;
+        private System.Windows.Forms.ToolStripButton tsbLaunchTD;
+        private System.Windows.Forms.ToolStripButton tsbLaunch2;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton2;
+        private System.Windows.Forms.ToolStripMenuItem tsmiUserAccount;
+        private System.Windows.Forms.ToolStripMenuItem setupNewTicketToolStripMenuItem;
+        private System.Windows.Forms.ToolStripDropDownButton tsddbRepository;
+        private System.Windows.Forms.ToolStripMenuItem cSDFK1988ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cSDKFK1989ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem tsmiLog;
     }
 }
 

@@ -127,6 +127,12 @@ public class RepoManager
 
     }
 
+    private void CreateFolderStructure( string ticketname )
+    {
+        Directory.CreateDirectory(m_LocalPath + ticketname);
+
+    }
+
     public void Pull2()
     {
 

@@ -29,12 +29,11 @@ using System.Text;
 namespace DAMBuddy2
 {
 
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
 
-        string TICKET_NAME = "CSDFK-1489";
-
-        public Form1()
+        
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -792,7 +791,8 @@ namespace DAMBuddy2
                             {
 
                                 m_RepoPath = theElement.InnerText.Replace("Templates", "");
-                                tslRepositoryRepo.Text = TicketDir;
+                                //tslRepositoryRepo.Text = TicketDir;
+                                tsddbRepository.Text = TicketDir;
                                 tslWorkRepository.Text = TicketDir;
                             }
                         }
@@ -1665,12 +1665,71 @@ namespace DAMBuddy2
 
         private void tsbConfig_Click(object sender, EventArgs e)
         {
+
+            
+        }
+
+        private void tsbLaunchTD_Click(object sender, EventArgs e)
+        {
+            // setup config
+
+            // start process
+            LaunchTD();
+
+        }
+
+
+        private void LaunchTD()
+        {
+            //timer1.Enabled = false;
+
+            //SetupTDConfig();
+
+
+            try
+            {
+
+                if (true)
+                {
+
+                    // Start the process.
+                    using (Process myProcess = new Process())
+                    {
+                        myProcess.StartInfo.UseShellExecute = false;
+                        string prgdir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+                        myProcess.StartInfo.FileName = prgdir + "\\Ocean Informatics\\Template Designer\\TemplateDesigner.exe";
+                        myProcess.StartInfo.CreateNoWindow = true;
+                        myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
+
+                        myProcess.Start();
+
+   
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            LaunchTD();
+        }
+
+
+
+        private void setupNewTicketToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             SetupTicketForm ticketform = new SetupTicketForm();
             if (ticketform.ShowDialog() == DialogResult.OK)
             {
                 m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON);
             };
-            
         }
     }
+
+
 }
