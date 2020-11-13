@@ -1657,5 +1657,20 @@ namespace DAMBuddy2
         {
             m_RepoManager.SaveExistingWip();
         }
+
+        private void configToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //m_RepoManager.TestJira( "CKCMFK-1989");
+        }
+
+        private void tsbConfig_Click(object sender, EventArgs e)
+        {
+            SetupTicketForm ticketform = new SetupTicketForm();
+            if (ticketform.ShowDialog() == DialogResult.OK)
+            {
+                m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON);
+            };
+            
+        }
     }
 }

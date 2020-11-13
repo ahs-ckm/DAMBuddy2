@@ -65,7 +65,6 @@ public class RepoManager
     private static string GITKEEP_SUFFIX = ".keep";
     private static string WIP = @"\local\WIP";
     private string gServerName = "http://ckcm.healthy.bewell.ca";
-//    dictFileToPath
 
     private FileSystemWatcher m_watcherRepo = null;
     private FileSystemWatcher m_watcherWIP = null;
@@ -317,6 +316,19 @@ public class RepoManager
 
 
         return true;
+    }
+
+    public bool PrepareNewTicket( string theTicketJSON )
+    {
+        // set it up on the server
+        // get the server folder back?
+
+        // create directory structure
+        // move pre-prepared git folder
+
+        // switch context.
+
+        return false;
     }
 
     public bool GetTicketScheduleStatus()
@@ -964,6 +976,14 @@ public class RepoManager
     {
         public string UploadEnabled { get; set; }
         public string ScheduleState { get; set; }
+    }
+
+
+    public void TestJira(string ticket)
+    {
+        JiraService.GetJiraIssue(ticket);
+
+        //JiraService.getItems(JiraService.jqlCKCMTickets);
     }
 
 }

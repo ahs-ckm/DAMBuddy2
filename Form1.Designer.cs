@@ -36,19 +36,14 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tslRepositoryRepo = new System.Windows.Forms.ToolStripLabel();
-            this.tsbRepositoryReload = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.tstbRepositoryFilter = new System.Windows.Forms.ToolStripTextBox();
-            this.tsbRepositoryFilterClear = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel5 = new System.Windows.Forms.ToolStripLabel();
             this.tstbRepositorySearch = new System.Windows.Forms.ToolStripTextBox();
-            this.tsbRepoSearch = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbRepositoryViewDocument = new System.Windows.Forms.ToolStripButton();
             this.tspTime = new System.Windows.Forms.ToolStripLabel();
-            this.tsbWord = new System.Windows.Forms.ToolStripButton();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tcRepoResults = new System.Windows.Forms.TabControl();
@@ -66,7 +61,6 @@
             this.tcRepository = new System.Windows.Forms.TabControl();
             this.tpRepoPreview = new System.Windows.Forms.TabPage();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.tspStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar2 = new System.Windows.Forms.ToolStripProgressBar();
             this.wbRepositoryView = new System.Windows.Forms.WebBrowser();
             this.tpWUR = new System.Windows.Forms.TabPage();
@@ -85,7 +79,6 @@
             this.tbWIPViews = new System.Windows.Forms.TabControl();
             this.tpPreviewWIP = new System.Windows.Forms.TabPage();
             this.statusStrip2 = new System.Windows.Forms.StatusStrip();
-            this.tsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsPBWIPTransform = new System.Windows.Forms.ToolStripProgressBar();
             this.wbWIP = new System.Windows.Forms.WebBrowser();
             this.tpOverlapsWIP = new System.Windows.Forms.TabPage();
@@ -95,25 +88,17 @@
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.tslWorkRepository = new System.Windows.Forms.ToolStripLabel();
-            this.tsWorkReload = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.tstbWorkFilter = new System.Windows.Forms.ToolStripTextBox();
-            this.tsWorkFilterClear = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel6 = new System.Windows.Forms.ToolStripLabel();
             this.tstbWIPSearch = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsWorkViewDocument = new System.Windows.Forms.ToolStripButton();
-            this.tsbWordWIP = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.tslReadyState = new System.Windows.Forms.ToolStripLabel();
-            this.tsbPause = new System.Windows.Forms.ToolStripButton();
-            this.tsbStart = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.tslScheduleStatus2 = new System.Windows.Forms.ToolStripLabel();
-            this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
             this.tpOverlaps = new System.Windows.Forms.TabPage();
             this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.tpUpload = new System.Windows.Forms.TabPage();
@@ -127,12 +112,28 @@
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmWIPRemove = new System.Windows.Forms.ToolStripMenuItem();
-            this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
             this.statusForm = new System.Windows.Forms.StatusStrip();
             this.tslMainStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbRepositoryReload = new System.Windows.Forms.ToolStripButton();
+            this.tsbRepositoryFilterClear = new System.Windows.Forms.ToolStripButton();
+            this.tsbRepoSearch = new System.Windows.Forms.ToolStripButton();
+            this.tsbRepositoryViewDocument = new System.Windows.Forms.ToolStripButton();
+            this.tsbWord = new System.Windows.Forms.ToolStripButton();
+            this.tsbConfig = new System.Windows.Forms.ToolStripButton();
+            this.tspStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsWorkReload = new System.Windows.Forms.ToolStripButton();
+            this.tsWorkFilterClear = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.tsWorkViewDocument = new System.Windows.Forms.ToolStripButton();
+            this.tsbWordWIP = new System.Windows.Forms.ToolStripButton();
+            this.tsbPause = new System.Windows.Forms.ToolStripButton();
+            this.tsbStart = new System.Windows.Forms.ToolStripButton();
+            this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
+            this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -230,7 +231,8 @@
             this.tsbRepositoryViewDocument,
             this.tspTime,
             this.tsbWord,
-            this.toolStripProgressBar1});
+            this.toolStripProgressBar1,
+            this.tsbConfig});
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1635, 45);
@@ -243,18 +245,6 @@
             this.tslRepositoryRepo.Name = "tslRepositoryRepo";
             this.tslRepositoryRepo.Size = new System.Drawing.Size(132, 42);
             this.tslRepositoryRepo.Text = "<no repository>";
-            // 
-            // tsbRepositoryReload
-            // 
-            this.tsbRepositoryReload.AutoSize = false;
-            this.tsbRepositoryReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRepositoryReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
-            this.tsbRepositoryReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbRepositoryReload.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRepositoryReload.Name = "tsbRepositoryReload";
-            this.tsbRepositoryReload.Size = new System.Drawing.Size(48, 42);
-            this.tsbRepositoryReload.Text = "Reload Available Assets";
-            this.tsbRepositoryReload.Click += new System.EventHandler(this.tsbRepositoryReload_Click);
             // 
             // toolStripSeparator6
             // 
@@ -284,18 +274,6 @@
             this.tstbRepositoryFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tstbRepositoryFilter_KeyDown);
             this.tstbRepositoryFilter.TextChanged += new System.EventHandler(this.tstbFilter_TextChanged);
             // 
-            // tsbRepositoryFilterClear
-            // 
-            this.tsbRepositoryFilterClear.AutoSize = false;
-            this.tsbRepositoryFilterClear.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRepositoryFilterClear.Image = global::DAMBuddy2.Properties.Resources.outline_backspace_black_24dp;
-            this.tsbRepositoryFilterClear.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbRepositoryFilterClear.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRepositoryFilterClear.Name = "tsbRepositoryFilterClear";
-            this.tsbRepositoryFilterClear.Size = new System.Drawing.Size(48, 42);
-            this.tsbRepositoryFilterClear.Text = "Clear Filter";
-            this.tsbRepositoryFilterClear.Click += new System.EventHandler(this.tsbRepositoryFilterClear_Click);
-            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.BackColor = System.Drawing.Color.Olive;
@@ -322,51 +300,16 @@
             this.tstbRepositorySearch.Size = new System.Drawing.Size(175, 45);
             this.tstbRepositorySearch.ToolTipText = "Search within assets";
             // 
-            // tsbRepoSearch
-            // 
-            this.tsbRepoSearch.AutoSize = false;
-            this.tsbRepoSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRepoSearch.Image = global::DAMBuddy2.Properties.Resources.outline_search_black_24dp;
-            this.tsbRepoSearch.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbRepoSearch.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRepoSearch.Name = "tsbRepoSearch";
-            this.tsbRepoSearch.Size = new System.Drawing.Size(48, 42);
-            this.tsbRepoSearch.Text = "toolStripButton1";
-            this.tsbRepoSearch.ToolTipText = "Search Asset Contents";
-            this.tsbRepoSearch.Click += new System.EventHandler(this.tsbRepoSearch_Click);
-            // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 45);
-            // 
-            // tsbRepositoryViewDocument
-            // 
-            this.tsbRepositoryViewDocument.AutoSize = false;
-            this.tsbRepositoryViewDocument.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRepositoryViewDocument.Image = global::DAMBuddy2.Properties.Resources.outline_preview_black_24dp;
-            this.tsbRepositoryViewDocument.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbRepositoryViewDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRepositoryViewDocument.Name = "tsbRepositoryViewDocument";
-            this.tsbRepositoryViewDocument.Size = new System.Drawing.Size(48, 42);
-            this.tsbRepositoryViewDocument.Text = "Refresh Transform";
-            this.tsbRepositoryViewDocument.Click += new System.EventHandler(this.tsbRepositoryViewDocument_Click);
             // 
             // tspTime
             // 
             this.tspTime.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.tspTime.Name = "tspTime";
             this.tspTime.Size = new System.Drawing.Size(0, 42);
-            // 
-            // tsbWord
-            // 
-            this.tsbWord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbWord.Image = global::DAMBuddy2.Properties.Resources.outline_text_snippet_black_24dp;
-            this.tsbWord.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbWord.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbWord.Name = "tsbWord";
-            this.tsbWord.Size = new System.Drawing.Size(28, 42);
-            this.tsbWord.Text = "Open In Word";
             // 
             // toolStripProgressBar1
             // 
@@ -594,14 +537,6 @@
             this.statusStrip1.TabIndex = 22;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // tspStatusLabel
-            // 
-            this.tspStatusLabel.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
-            this.tspStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.tspStatusLabel.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
-            this.tspStatusLabel.Name = "tspStatusLabel";
-            this.tspStatusLabel.Size = new System.Drawing.Size(16, 21);
-            // 
             // toolStripProgressBar2
             // 
             this.toolStripProgressBar2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -804,15 +739,6 @@
             this.statusStrip2.TabIndex = 22;
             this.statusStrip2.Text = "statusStrip2";
             // 
-            // tsStatusLabel
-            // 
-            this.tsStatusLabel.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
-            this.tsStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.tsStatusLabel.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
-            this.tsStatusLabel.Name = "tsStatusLabel";
-            this.tsStatusLabel.Size = new System.Drawing.Size(62, 21);
-            this.tsStatusLabel.Text = "Status";
-            // 
             // tsPBWIPTransform
             // 
             this.tsPBWIPTransform.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -923,18 +849,6 @@
             this.tslWorkRepository.Size = new System.Drawing.Size(132, 42);
             this.tslWorkRepository.Text = "<no repository>";
             // 
-            // tsWorkReload
-            // 
-            this.tsWorkReload.AutoSize = false;
-            this.tsWorkReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsWorkReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
-            this.tsWorkReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsWorkReload.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsWorkReload.Name = "tsWorkReload";
-            this.tsWorkReload.Size = new System.Drawing.Size(48, 42);
-            this.tsWorkReload.Text = "Reload Available Assets";
-            this.tsWorkReload.Click += new System.EventHandler(this.tsWorkReload_Click);
-            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
@@ -956,17 +870,6 @@
             this.tstbWorkFilter.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.tstbWorkFilter.Name = "tstbWorkFilter";
             this.tstbWorkFilter.Size = new System.Drawing.Size(175, 45);
-            // 
-            // tsWorkFilterClear
-            // 
-            this.tsWorkFilterClear.AutoSize = false;
-            this.tsWorkFilterClear.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsWorkFilterClear.Image = global::DAMBuddy2.Properties.Resources.outline_backspace_black_24dp;
-            this.tsWorkFilterClear.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsWorkFilterClear.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsWorkFilterClear.Name = "tsWorkFilterClear";
-            this.tsWorkFilterClear.Size = new System.Drawing.Size(52, 52);
-            this.tsWorkFilterClear.Text = "Clear Filter";
             // 
             // toolStripSeparator5
             // 
@@ -991,45 +894,10 @@
             this.tstbWIPSearch.Name = "tstbWIPSearch";
             this.tstbWIPSearch.Size = new System.Drawing.Size(175, 45);
             // 
-            // toolStripButton2
-            // 
-            this.toolStripButton2.AutoSize = false;
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::DAMBuddy2.Properties.Resources.outline_search_black_24dp;
-            this.toolStripButton2.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(48, 42);
-            this.toolStripButton2.Text = "toolStripButton1";
-            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
-            // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(6, 45);
-            // 
-            // tsWorkViewDocument
-            // 
-            this.tsWorkViewDocument.AutoSize = false;
-            this.tsWorkViewDocument.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsWorkViewDocument.Image = global::DAMBuddy2.Properties.Resources.outline_preview_black_24dp;
-            this.tsWorkViewDocument.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsWorkViewDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsWorkViewDocument.Name = "tsWorkViewDocument";
-            this.tsWorkViewDocument.Size = new System.Drawing.Size(48, 42);
-            this.tsWorkViewDocument.Text = "Refresh Transform";
-            // 
-            // tsbWordWIP
-            // 
-            this.tsbWordWIP.AutoSize = false;
-            this.tsbWordWIP.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbWordWIP.Enabled = false;
-            this.tsbWordWIP.Image = global::DAMBuddy2.Properties.Resources.outline_text_snippet_black_24dp;
-            this.tsbWordWIP.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbWordWIP.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbWordWIP.Name = "tsbWordWIP";
-            this.tsbWordWIP.Size = new System.Drawing.Size(48, 42);
-            this.tsbWordWIP.Text = "Open In Word";
             // 
             // toolStripSeparator7
             // 
@@ -1046,34 +914,6 @@
             this.tslReadyState.Text = "Work: Paused";
             this.tslReadyState.ToolTipText = "Whether the work is ready for scheduling";
             // 
-            // tsbPause
-            // 
-            this.tsbPause.AutoSize = false;
-            this.tsbPause.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbPause.Enabled = false;
-            this.tsbPause.Image = global::DAMBuddy2.Properties.Resources.outline_pause_circle_outline_black_24dp;
-            this.tsbPause.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbPause.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbPause.Name = "tsbPause";
-            this.tsbPause.Size = new System.Drawing.Size(52, 40);
-            this.tsbPause.Text = "toolStripButton3";
-            this.tsbPause.ToolTipText = "Pause Work";
-            this.tsbPause.Click += new System.EventHandler(this.tsbPause_Click);
-            // 
-            // tsbStart
-            // 
-            this.tsbStart.AutoSize = false;
-            this.tsbStart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbStart.Enabled = false;
-            this.tsbStart.Image = global::DAMBuddy2.Properties.Resources.outline_play_circle_outline_black_24dp;
-            this.tsbStart.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbStart.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbStart.Name = "tsbStart";
-            this.tsbStart.Size = new System.Drawing.Size(52, 40);
-            this.tsbStart.Text = "toolStripButton3";
-            this.tsbStart.ToolTipText = "Start Work";
-            this.tsbStart.Click += new System.EventHandler(this.tsbStart_Click);
-            // 
             // toolStripSeparator8
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
@@ -1088,20 +928,6 @@
             this.tslScheduleStatus2.Size = new System.Drawing.Size(148, 72);
             this.tslScheduleStatus2.Text = "< Unknown >";
             this.tslScheduleStatus2.ToolTipText = "Position in the Scheduler";
-            // 
-            // tsbWorkUpload
-            // 
-            this.tsbWorkUpload.AutoSize = false;
-            this.tsbWorkUpload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbWorkUpload.Enabled = false;
-            this.tsbWorkUpload.Image = global::DAMBuddy2.Properties.Resources.outline_cloud_upload_black_24dp;
-            this.tsbWorkUpload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbWorkUpload.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbWorkUpload.Name = "tsbWorkUpload";
-            this.tsbWorkUpload.Size = new System.Drawing.Size(48, 42);
-            this.tsbWorkUpload.Text = "toolStripButton6";
-            this.tsbWorkUpload.ToolTipText = "Upload to Repository";
-            this.tsbWorkUpload.Click += new System.EventHandler(this.tsbWorkUpload_Click);
             // 
             // tpOverlaps
             // 
@@ -1194,19 +1020,6 @@
             this.tsmWIPRemove.Text = "Remove from WIP";
             this.tsmWIPRemove.Click += new System.EventHandler(this.tsmWIPRemove_Click);
             // 
-            // tslScheduleStatus
-            // 
-            this.tslScheduleStatus.AutoSize = false;
-            this.tslScheduleStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tslScheduleStatus.Font = new System.Drawing.Font("Arial Unicode MS", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.tslScheduleStatus.Image = global::DAMBuddy2.Properties.Resources.icons8_word_48;
-            this.tslScheduleStatus.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tslScheduleStatus.ImageTransparentColor = System.Drawing.Color.Transparent;
-            this.tslScheduleStatus.Name = "tslScheduleStatus";
-            this.tslScheduleStatus.Size = new System.Drawing.Size(180, 52);
-            this.tslScheduleStatus.Text = "<unknown>";
-            this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
             // statusForm
             // 
             this.statusForm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1235,17 +1048,220 @@
             this.toolStripDropDownButton1.Size = new System.Drawing.Size(29, 20);
             this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
             // 
-            // configToolStripMenuItem
-            // 
-            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
-            this.configToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.configToolStripMenuItem.Text = "Config";
-            // 
             // logToolStripMenuItem
             // 
             this.logToolStripMenuItem.Name = "logToolStripMenuItem";
-            this.logToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.logToolStripMenuItem.Text = "Log";
+            // 
+            // configToolStripMenuItem
+            // 
+            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.configToolStripMenuItem.Text = "Config";
+            this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
+            // 
+            // tsbRepositoryReload
+            // 
+            this.tsbRepositoryReload.AutoSize = false;
+            this.tsbRepositoryReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRepositoryReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
+            this.tsbRepositoryReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbRepositoryReload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRepositoryReload.Name = "tsbRepositoryReload";
+            this.tsbRepositoryReload.Size = new System.Drawing.Size(48, 42);
+            this.tsbRepositoryReload.Text = "Reload Available Assets";
+            this.tsbRepositoryReload.Click += new System.EventHandler(this.tsbRepositoryReload_Click);
+            // 
+            // tsbRepositoryFilterClear
+            // 
+            this.tsbRepositoryFilterClear.AutoSize = false;
+            this.tsbRepositoryFilterClear.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRepositoryFilterClear.Image = global::DAMBuddy2.Properties.Resources.outline_backspace_black_24dp;
+            this.tsbRepositoryFilterClear.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbRepositoryFilterClear.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRepositoryFilterClear.Name = "tsbRepositoryFilterClear";
+            this.tsbRepositoryFilterClear.Size = new System.Drawing.Size(48, 42);
+            this.tsbRepositoryFilterClear.Text = "Clear Filter";
+            this.tsbRepositoryFilterClear.Click += new System.EventHandler(this.tsbRepositoryFilterClear_Click);
+            // 
+            // tsbRepoSearch
+            // 
+            this.tsbRepoSearch.AutoSize = false;
+            this.tsbRepoSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRepoSearch.Image = global::DAMBuddy2.Properties.Resources.outline_search_black_24dp;
+            this.tsbRepoSearch.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbRepoSearch.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRepoSearch.Name = "tsbRepoSearch";
+            this.tsbRepoSearch.Size = new System.Drawing.Size(48, 42);
+            this.tsbRepoSearch.Text = "toolStripButton1";
+            this.tsbRepoSearch.ToolTipText = "Search Asset Contents";
+            this.tsbRepoSearch.Click += new System.EventHandler(this.tsbRepoSearch_Click);
+            // 
+            // tsbRepositoryViewDocument
+            // 
+            this.tsbRepositoryViewDocument.AutoSize = false;
+            this.tsbRepositoryViewDocument.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRepositoryViewDocument.Image = global::DAMBuddy2.Properties.Resources.outline_preview_black_24dp;
+            this.tsbRepositoryViewDocument.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbRepositoryViewDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRepositoryViewDocument.Name = "tsbRepositoryViewDocument";
+            this.tsbRepositoryViewDocument.Size = new System.Drawing.Size(48, 42);
+            this.tsbRepositoryViewDocument.Text = "Refresh Transform";
+            this.tsbRepositoryViewDocument.Click += new System.EventHandler(this.tsbRepositoryViewDocument_Click);
+            // 
+            // tsbWord
+            // 
+            this.tsbWord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbWord.Image = global::DAMBuddy2.Properties.Resources.outline_text_snippet_black_24dp;
+            this.tsbWord.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbWord.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWord.Name = "tsbWord";
+            this.tsbWord.Size = new System.Drawing.Size(28, 42);
+            this.tsbWord.Text = "Open In Word";
+            // 
+            // tsbConfig
+            // 
+            this.tsbConfig.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsbConfig.AutoSize = false;
+            this.tsbConfig.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbConfig.Image = global::DAMBuddy2.Properties.Resources.outline_settings_black_24dp;
+            this.tsbConfig.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbConfig.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbConfig.Name = "tsbConfig";
+            this.tsbConfig.Size = new System.Drawing.Size(52, 42);
+            this.tsbConfig.Text = "toolStripButton1";
+            this.tsbConfig.Click += new System.EventHandler(this.tsbConfig_Click);
+            // 
+            // tspStatusLabel
+            // 
+            this.tspStatusLabel.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.tspStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tspStatusLabel.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
+            this.tspStatusLabel.Name = "tspStatusLabel";
+            this.tspStatusLabel.Size = new System.Drawing.Size(16, 16);
+            // 
+            // tsStatusLabel
+            // 
+            this.tsStatusLabel.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.tsStatusLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tsStatusLabel.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
+            this.tsStatusLabel.Name = "tsStatusLabel";
+            this.tsStatusLabel.Size = new System.Drawing.Size(62, 18);
+            this.tsStatusLabel.Text = "Status";
+            // 
+            // tsWorkReload
+            // 
+            this.tsWorkReload.AutoSize = false;
+            this.tsWorkReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsWorkReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
+            this.tsWorkReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsWorkReload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsWorkReload.Name = "tsWorkReload";
+            this.tsWorkReload.Size = new System.Drawing.Size(48, 42);
+            this.tsWorkReload.Text = "Reload Available Assets";
+            this.tsWorkReload.Click += new System.EventHandler(this.tsWorkReload_Click);
+            // 
+            // tsWorkFilterClear
+            // 
+            this.tsWorkFilterClear.AutoSize = false;
+            this.tsWorkFilterClear.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsWorkFilterClear.Image = global::DAMBuddy2.Properties.Resources.outline_backspace_black_24dp;
+            this.tsWorkFilterClear.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsWorkFilterClear.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsWorkFilterClear.Name = "tsWorkFilterClear";
+            this.tsWorkFilterClear.Size = new System.Drawing.Size(52, 52);
+            this.tsWorkFilterClear.Text = "Clear Filter";
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.AutoSize = false;
+            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButton2.Image = global::DAMBuddy2.Properties.Resources.outline_search_black_24dp;
+            this.toolStripButton2.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(48, 42);
+            this.toolStripButton2.Text = "toolStripButton1";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
+            // 
+            // tsWorkViewDocument
+            // 
+            this.tsWorkViewDocument.AutoSize = false;
+            this.tsWorkViewDocument.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsWorkViewDocument.Image = global::DAMBuddy2.Properties.Resources.outline_preview_black_24dp;
+            this.tsWorkViewDocument.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsWorkViewDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsWorkViewDocument.Name = "tsWorkViewDocument";
+            this.tsWorkViewDocument.Size = new System.Drawing.Size(48, 42);
+            this.tsWorkViewDocument.Text = "Refresh Transform";
+            // 
+            // tsbWordWIP
+            // 
+            this.tsbWordWIP.AutoSize = false;
+            this.tsbWordWIP.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbWordWIP.Enabled = false;
+            this.tsbWordWIP.Image = global::DAMBuddy2.Properties.Resources.outline_text_snippet_black_24dp;
+            this.tsbWordWIP.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbWordWIP.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWordWIP.Name = "tsbWordWIP";
+            this.tsbWordWIP.Size = new System.Drawing.Size(48, 42);
+            this.tsbWordWIP.Text = "Open In Word";
+            // 
+            // tsbPause
+            // 
+            this.tsbPause.AutoSize = false;
+            this.tsbPause.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbPause.Enabled = false;
+            this.tsbPause.Image = global::DAMBuddy2.Properties.Resources.outline_pause_circle_outline_black_24dp;
+            this.tsbPause.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbPause.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbPause.Name = "tsbPause";
+            this.tsbPause.Size = new System.Drawing.Size(52, 40);
+            this.tsbPause.Text = "toolStripButton3";
+            this.tsbPause.ToolTipText = "Pause Work";
+            this.tsbPause.Click += new System.EventHandler(this.tsbPause_Click);
+            // 
+            // tsbStart
+            // 
+            this.tsbStart.AutoSize = false;
+            this.tsbStart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbStart.Enabled = false;
+            this.tsbStart.Image = global::DAMBuddy2.Properties.Resources.outline_play_circle_outline_black_24dp;
+            this.tsbStart.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbStart.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbStart.Name = "tsbStart";
+            this.tsbStart.Size = new System.Drawing.Size(52, 40);
+            this.tsbStart.Text = "toolStripButton3";
+            this.tsbStart.ToolTipText = "Start Work";
+            this.tsbStart.Click += new System.EventHandler(this.tsbStart_Click);
+            // 
+            // tsbWorkUpload
+            // 
+            this.tsbWorkUpload.AutoSize = false;
+            this.tsbWorkUpload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbWorkUpload.Enabled = false;
+            this.tsbWorkUpload.Image = global::DAMBuddy2.Properties.Resources.outline_cloud_upload_black_24dp;
+            this.tsbWorkUpload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbWorkUpload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWorkUpload.Name = "tsbWorkUpload";
+            this.tsbWorkUpload.Size = new System.Drawing.Size(48, 42);
+            this.tsbWorkUpload.Text = "toolStripButton6";
+            this.tsbWorkUpload.ToolTipText = "Upload to Repository";
+            this.tsbWorkUpload.Click += new System.EventHandler(this.tsbWorkUpload_Click);
+            // 
+            // tslScheduleStatus
+            // 
+            this.tslScheduleStatus.AutoSize = false;
+            this.tslScheduleStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tslScheduleStatus.Font = new System.Drawing.Font("Arial Unicode MS", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.tslScheduleStatus.Image = global::DAMBuddy2.Properties.Resources.icons8_word_48;
+            this.tslScheduleStatus.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tslScheduleStatus.ImageTransparentColor = System.Drawing.Color.Transparent;
+            this.tslScheduleStatus.Name = "tslScheduleStatus";
+            this.tslScheduleStatus.Size = new System.Drawing.Size(180, 52);
+            this.tslScheduleStatus.Text = "<unknown>";
+            this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
             // Form1
             // 
@@ -1406,6 +1422,7 @@
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton tsbConfig;
     }
 }
 
