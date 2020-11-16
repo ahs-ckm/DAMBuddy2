@@ -20,6 +20,28 @@ namespace DAMBuddy2
         static string filename;
         static DateTime lastwrite;
 
+        public static void LaunchTD()
+        {
+            try
+            {
+
+                // Start the process.
+                using (Process myProcess = new Process())
+                {
+                    myProcess.StartInfo.UseShellExecute = false;
+                    string prgdir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+                    myProcess.StartInfo.FileName = prgdir + "\\Ocean Informatics\\Template Designer\\TemplateDesigner.exe";
+                    myProcess.StartInfo.CreateNoWindow = true;
+                    myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
+
+                    myProcess.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
         public static void AddUpdateAppSettings(string key, string value)
         {
@@ -45,7 +67,7 @@ namespace DAMBuddy2
         }
 
 
-        public static bool ReapplyDefaults(string filepath, ref System.Collections.Generic.SortedDictionary<string, string> annotationDefaults)
+        private static bool ReapplyDefaults(string filepath, ref System.Collections.Generic.SortedDictionary<string, string> annotationDefaults)
         {
             System.Xml.XmlDocument AnnotationsDoc = new XmlDocument();
             AnnotationsDoc.Load(filepath);
@@ -167,7 +189,7 @@ namespace DAMBuddy2
             DAMConfigDoc.LoadXml(DAMConfig);
 
 
-            XmlNode name = DAMConfigDoc.DocumentElement.SelectSingleNode("/DAM/RepositoryData");
+            //XmlNode name = DAMConfigDoc.DocumentElement.SelectSingleNode("/DAM/RepositoryData");
             XmlNode TDRepositoryData = TDConfigDoc.DocumentElement.SelectSingleNode("/configuration/userSettings/TemplateTool.Properties.Settings/setting[@name='RepositoryList']/value/ArrayOfRepositoryData");
 
             //            string thename = name.FirstChild.InnerText;
@@ -303,49 +325,20 @@ namespace DAMBuddy2
             return true;
         }
 
-
-/*        public static bool WriteConfig(string[] args, ref string messages, ref string RepoName)
+        public static bool ConfigureTD( string Ticket, string TicketConfig )
         {
 
-            string text = "";
-
-            if (args.Length < 1)
-            {
-
-                messages += ("Configuration updated. Nothing more to do.\n");
-
-                return true;
-            }
-
-            messages += (args[0]) + "\n";
-
-            if (File.Exists(args[0]))
-            {
-                text = System.IO.File.ReadAllText(@args[0]);
-            }
-            else
-            {
-                messages += ("Can't find " + args[0] + " can't do anything :(" + "\n");
-
-                return false;
-            }
-
-            // support for the new samba share.
-            text = text.Replace("Q:\\DAM\\TST", "\\\\UXCKCM01\\DAM\\TST");
-
+            string messages = "";
             string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string Ocean = appdata + OceanDir;
 
-            messages += (appdata) + "\n" + "\n";
             DirectoryInfo diOcean = new DirectoryInfo(Ocean);
             WalkDirectoryTree(diOcean, ref messages);
 
-            messages += (text) + "\n";
-            messages += ("Storing config in " + filename + "\n");
 
             try
             {
-                RepoName = AddConfig(filename, text);
+                string RepoName = AddConfig(filename, TicketConfig);
                 messages += ("Added OK! :-)");
 
             }
@@ -358,7 +351,9 @@ namespace DAMBuddy2
 
 
             return true;
-        }*/
+
+        }
+
 
         static string AddConfig(string TDConfigFile, string DAMConfig)
         {
@@ -420,8 +415,6 @@ namespace DAMBuddy2
             {
                 selectedrepo.FirstChild.Value = thename;
             }
-
-
 
 
             TDConfigDoc.Save(TDConfigFile);

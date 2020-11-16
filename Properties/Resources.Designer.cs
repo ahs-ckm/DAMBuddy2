@@ -293,6 +293,16 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap outline_help_outline_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_help_outline_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap outline_info_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_info_black_24dp", resourceCulture);
