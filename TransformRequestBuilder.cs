@@ -137,7 +137,7 @@ namespace DAMBuddy2
             {
                 if (!sAllArchetypesXML.Contains(sArchID))
                 {
-                    sTempXML = File.ReadAllText(m_repoManager.LocalPath + @"\ArchetypeXML\" + sArchID + ".xml");
+                    sTempXML = File.ReadAllText(m_repoManager.TicketFolder + @"\ArchetypeXML\" + sArchID + ".xml");
 
                     sTempXML = sTempXML.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                     sTempXML = sTempXML.Replace("<archetype xmlns=\"http://schemas.openehr.org/v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">", "");
@@ -164,7 +164,7 @@ namespace DAMBuddy2
                     } else
                     {
                         sRelPath = GetTemplatePathFromID(sEmbeddedId);
-                        sTemplateFilePath = m_repoManager.LocalPath + sRelPath;
+                        sTemplateFilePath = m_repoManager.TicketFolder + sRelPath;
 
                     }
 

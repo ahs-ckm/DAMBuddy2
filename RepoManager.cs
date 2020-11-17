@@ -54,7 +54,7 @@ public class RepoManager
     private static string DAM_FOLDER = "FOLDER04";
     private static string CACHE_NAME = "LOCAL3";
     private static string DAM_TICKET = "CSDFK-1489";
-
+    private static string CURRENT_REPO = "CURRENT_REPO";
     private static string FOLDER_ROOT = @"c:\TD";
 
     private static string BIN_DIR = @"C:\Users\jonbeeby\source\repos\DamBuddy2\packages\PortableGit\bin\";
@@ -65,17 +65,31 @@ public class RepoManager
     private static string GITKEEP_UPDATE = @"\gitkeep\update";
     private static string KEEP_TRASH = @"\trash";
     private static string GITKEEP_SUFFIX = ".keep";
-    private static string WIP = @"\local\WIP";
-    private string gServerName = "http://ckcm.healthy.bewell.ca";
-
+    //private static string WIP = @"\local\WIP";
+    private static string ASSETS = @"\local";
+    private static string WIP = @"\" + ASSETS + @"\WIP";
     
 
-/// <summary>
-/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// </summary>
+    private string gServerName = "http://ckcm.healthy.bewell.ca";
 
-    private string m_RepoPath = "";
+    /// <summary>
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// </summary>
+
+    public string WIPPath
+    {
+        get => m_ticketBaseFolder + WIP;
+    }
+
+    public string AssetPath
+    {
+        get => m_ticketBaseFolder + ASSETS;
+    }
+
+
+    private string m_ticketBaseFolder = "";
     private List<ListViewItem> m_masterlist;
+    
 
     private FileSystemWatcher m_watcherRepo = null;
     private FileSystemWatcher m_watcherWIP = null;
@@ -91,7 +105,9 @@ public class RepoManager
     private Dictionary<string, string> m_dictID2Gitpath;
     private Dictionary<string, string> m_dictWIPName2Path;
     private Dictionary<string, string> m_dictWIPID2Path;
-    
+
+    private Dictionary<string, string> m_dictRepoState;
+
     public delegate void ModifiedCallback(string filename);
     public delegate void StaleCallback(string filename);
     public delegate void DisplayWIPCallback(string filename);//, string originalpath);
@@ -104,7 +120,7 @@ public class RepoManager
     StaleCallback m_callbackStale;
     DisplayWIPCallback m_callbackDisplayWIP;
 
-    public string LocalPath { get => m_RepoPath; }
+    public string TicketFolder { get => m_ticketBaseFolder; }
     public ModifiedCallback CallbackScheduleState { get => m_callbackScheduleState; set => m_callbackScheduleState = value; }
     public ModifiedCallback CallbackTicketState { get => m_callbackTicketState; set => m_callbackTicketState = value; }
     public List<ListViewItem> Masterlist { get => m_masterlist; set => m_masterlist = value; }
@@ -116,25 +132,29 @@ public class RepoManager
         m_callbackRemoveWIP = callbackRemove;
         m_callbackModifiedWIP = callbackModifiedWIP;
 
-        string localpath = GetCurrentRepository();
+        LoadRepositoryState();
 
-        m_RepoPath = FOLDER_ROOT + @"\" + localpath + @"";
+
+        string repoFolder = GetCurrentRepository();
+
+        m_ticketBaseFolder = FOLDER_ROOT + @"\" + repoFolder + @"";
 
         m_masterlist = new List<ListViewItem>();
 
-        if (!File.Exists(m_RepoPath + @"\" + GITKEEP_INITIAL))
+
+        if (!File.Exists(m_ticketBaseFolder + @"\" + GITKEEP_INITIAL))
         {
-            Directory.CreateDirectory(m_RepoPath + @"\" + GITKEEP_INITIAL);
+            Directory.CreateDirectory(m_ticketBaseFolder + @"\" + GITKEEP_INITIAL);
         }
 
-        if (!File.Exists(m_RepoPath + @"\" + GITKEEP_UPDATE))
+        if (!File.Exists(m_ticketBaseFolder + @"\" + GITKEEP_UPDATE))
         {
-            Directory.CreateDirectory(m_RepoPath + @"\" + GITKEEP_UPDATE);
+            Directory.CreateDirectory(m_ticketBaseFolder + @"\" + GITKEEP_UPDATE);
         }
 
-        if (!File.Exists(m_RepoPath + @"\" + WIP))
+        if (!File.Exists(m_ticketBaseFolder + @"\" + WIP))
         {
-            Directory.CreateDirectory(m_RepoPath + @"\" + WIP);
+            Directory.CreateDirectory(m_ticketBaseFolder + @"\" + WIP);
         }
 
     }
@@ -147,25 +167,70 @@ public class RepoManager
         OceanUtils.LaunchTD();
     }
 
+    private void LoadRepositoryState()
+    {
+        m_dictRepoState = new Dictionary<string, string>();
+
+        string filepath = FOLDER_ROOT + @"\" + "repostate.csv";
+        if (File.Exists(filepath))
+        {
+            var reader = new StreamReader(File.OpenRead(filepath));
+
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                if (line == "") break;
+                var values = line.Split(',');
+
+                m_dictRepoState.Add(values[0], values[1]);
+            }
+        }
+
+    }
+
+
+    private void SaveepositoryState()
+    {
+        string filepath = FOLDER_ROOT + @"\" + "repostate.csv";
+        string csv = "";
+        foreach (KeyValuePair<string, string> kvp in m_dictRepoState)
+        {
+            csv += kvp.Key;
+            csv += ",";
+            csv += kvp.Value;
+            csv += "\n"; //newline to represent new pair
+        }
+
+        File.WriteAllText(filepath, csv);
+
+    }
+
+
     public string GetCurrentRepository()
     {
-        return "CSDFK-1988";
+        return m_dictRepoState[CURRENT_REPO];
+        //return "CSDFK-1988";
     }
 
     public List<string> GetAvailableRepositories()
     {
         List<string> repos = new List<string>();
 
-        repos.Add("CSDFK-1988");
-        repos.Add("CSDFK-1488");
-        repos.Add("CSDFK-1489");
+        foreach (var item in m_dictRepoState.Keys)
+        {
+            if (item == CURRENT_REPO) continue;
+            repos.Add(item);
+
+        }
+      ///  repos.Add("CSDFK-1488");
+       // repos.Add("CSDFK-1489");
 
         return repos;
     }
 
     public bool SetCurrentRepository(string RepoName)
     {
-        m_RepoPath= RepoName;
+        m_ticketBaseFolder= RepoName;
 
         return true;
     }
@@ -174,7 +239,7 @@ public class RepoManager
 
     private void CreateFolderStructure( string ticketname )
     {
-        Directory.CreateDirectory(m_RepoPath + ticketname);
+        // path wrong : Directory.CreateDirectory(m_RepoPath + ticketname);
 
     }
 
@@ -182,18 +247,16 @@ public class RepoManager
     {
         string description = "the description";
         string ticket = GetCurrentRepository() ;
-        string ticketpath = m_RepoPath + @"\local";
-
-        string config = $@"<DAM><RepositoryData><RepositoryName>{ticket}</RepositoryName><Description>{description}</Description><TemplatesPath>{ticketpath}\templates</TemplatesPath><ArchetypesPath>{ticketpath}\archetypes</ArchetypesPath><WorkingArchetypesPath/><CkmApiUrl>https://ahsckm.ca/ckm/rest/v1/</CkmApiUrl><CkmApiBatchSize>300</CkmApiBatchSize></RepositoryData></DAM>";
+        
+        string config = $@"<DAM><RepositoryData><RepositoryName>{ticket}</RepositoryName><Description>{description}</Description><TemplatesPath>{AssetPath}\templates</TemplatesPath><ArchetypesPath>{AssetPath}\archetypes</ArchetypesPath><WorkingArchetypesPath/><CkmApiUrl>https://ahsckm.ca/ckm/rest/v1/</CkmApiUrl><CkmApiBatchSize>300</CkmApiBatchSize></RepositoryData></DAM>";
 
         return config;
     }
 
     public void Pull2()
     {
-
         string path = BIN_DIR;
-        //C: \Users\jonbeeby\source\repos\DamBuddy2\packages\PortableGit\bin\
+        
         try
         {
             var process = new Process
@@ -202,7 +265,7 @@ public class RepoManager
                 {
 
                     FileName = path + "git.exe",
-                    WorkingDirectory = m_RepoPath,
+                    WorkingDirectory = m_ticketBaseFolder,
                     Arguments = "pull",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -248,7 +311,7 @@ public class RepoManager
         options.MergeOptions.MergeFileFavor = MergeFileFavor.Theirs;
         options.MergeOptions.FileConflictStrategy = CheckoutFileConflictStrategy.Theirs;
   
-        Repository repo = new Repository(m_RepoPath);
+        Repository repo = new Repository(m_ticketBaseFolder);
 
         FetchOptions fetchoptions = new FetchOptions();
         var remote = repo.Network.Remotes["origin"];
@@ -292,12 +355,12 @@ public class RepoManager
         options.OnTransferProgress = TransferProgress;
 
 
-        if (!File.Exists(m_RepoPath))
+        if (!File.Exists(m_ticketBaseFolder))
         {
-            Directory.CreateDirectory(m_RepoPath);
+            Directory.CreateDirectory(m_ticketBaseFolder);
         }
 
-        Repository.Clone(m_GitRepositoryURI, m_RepoPath, options);
+        Repository.Clone(m_GitRepositoryURI, m_ticketBaseFolder, options);
 
         m_dtCloneEnd = DateTime.Now;
 
@@ -476,7 +539,7 @@ public class RepoManager
         if (m_dictFileToPath == null) m_dictFileToPath = new Dictionary<string, string>();
 
 
-        string[] templates = Directory.GetFiles(m_RepoPath, "*.oet", SearchOption.AllDirectories);
+        string[] templates = Directory.GetFiles(m_ticketBaseFolder, "*.oet", SearchOption.AllDirectories);
         foreach (string template in templates)
         {
             string filename = Path.GetFileName(template);
@@ -496,8 +559,8 @@ public class RepoManager
     {
 
         string filename = Path.GetFileName(gitfilepath);
-        string filepathWIP = m_RepoPath + WIP + @"\" + filename;
-        string initialFile = m_RepoPath + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
+        string filepathWIP = m_ticketBaseFolder + WIP + @"\" + filename;
+        string initialFile = m_ticketBaseFolder + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
 
         File.Copy(gitfilepath, filepathWIP);
         File.Move(gitfilepath, initialFile);
@@ -521,7 +584,7 @@ public class RepoManager
     {
         // copy to git
         string filename = Path.GetFileName(filepath);
-        string gitinitpath = m_RepoPath + @"\" + GITKEEP_INITIAL;
+        string gitinitpath = m_ticketBaseFolder + @"\" + GITKEEP_INITIAL;
         File.Move(filepath, gitinitpath);
 
         MakeMd52(gitinitpath);
@@ -539,7 +602,7 @@ public class RepoManager
     {
         // copy to git
         string filename = Path.GetFileName(filepath);
-        string gitpath = m_RepoPath + @"\" + GITKEEP_UPDATE;
+        string gitpath = m_ticketBaseFolder + @"\" + GITKEEP_UPDATE;
         string gitkeepfile = gitpath + @"\" + filename + GITKEEP_SUFFIX;
         if (File.Exists(gitkeepfile))
         {
@@ -554,7 +617,7 @@ public class RepoManager
     {
         if (isAssetinWIP(filename))
         {
-            return Utility.GetTemplateID(m_RepoPath + @"\" + WIP + @"\" + filename);
+            return Utility.GetTemplateID(m_ticketBaseFolder + @"\" + WIP + @"\" + filename);
         }
 
         return Utility.GetTemplateID(m_dictFileToPath[filename]);
@@ -563,15 +626,15 @@ public class RepoManager
     private bool IsStale(string asset)
     {
 
-        if (!File.Exists(m_RepoPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
+        if (!File.Exists(m_ticketBaseFolder + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
             return false;
 
-        if (!File.Exists(m_RepoPath + GITKEEP_UPDATE + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
+        if (!File.Exists(m_ticketBaseFolder + GITKEEP_UPDATE + @"\" + asset + GITKEEP_SUFFIX + ".md5"))
             return false;
 
-        string WIPHash = File.ReadAllText(m_RepoPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5");
+        string WIPHash = File.ReadAllText(m_ticketBaseFolder + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX + ".md5");
 
-        string UpdateHash = File.ReadAllText(m_RepoPath + GITKEEP_UPDATE + @"\" + asset + GITKEEP_SUFFIX + ".md5");
+        string UpdateHash = File.ReadAllText(m_ticketBaseFolder + GITKEEP_UPDATE + @"\" + asset + GITKEEP_SUFFIX + ".md5");
 
         if (String.Compare(WIPHash, UpdateHash) == 0)
         {
@@ -679,7 +742,7 @@ public class RepoManager
         m_dictWIPID2Path = new Dictionary<string, string>();
 
         m_watcherRepo = new FileSystemWatcher();
-        m_watcherRepo.Path = m_RepoPath + @"\local\templates";
+        m_watcherRepo.Path = m_ticketBaseFolder + @"\" + ASSETS + @"\templates";
         m_watcherRepo.IncludeSubdirectories = true;
         m_watcherRepo.NotifyFilter = NotifyFilters.LastWrite;
         m_watcherRepo.Filter = "*.oet";
@@ -690,7 +753,7 @@ public class RepoManager
 
         m_watcherWIP = new FileSystemWatcher();
 
-        m_watcherWIP.Path = m_RepoPath + WIP;
+        m_watcherWIP.Path = m_ticketBaseFolder + WIP;
         m_watcherWIP.IncludeSubdirectories = true;
         m_watcherWIP.NotifyFilter = NotifyFilters.LastWrite;
         m_watcherWIP.Filter = "*.oet";
@@ -711,7 +774,7 @@ public class RepoManager
         //try
         {
             //string directory = gCacheDir + "\\" + DAM_FOLDER;
-            string directory = m_RepoPath + WIP;
+            string directory = m_ticketBaseFolder + WIP;
 
             if (File.Exists(zipname))
             {
@@ -738,7 +801,13 @@ public class RepoManager
         return result;
     }
 
-    public void SaveExistingWip()
+    public void Closedown()
+    {
+        SaveExistingWip();
+        SaveepositoryState();
+    }
+
+    private void SaveExistingWip()
     {
         string csv = "";
         foreach (KeyValuePair<string, string> kvp in m_dictWIPName2Path)
@@ -749,7 +818,7 @@ public class RepoManager
             csv += "\n"; //newline to represent new pair
         }
 
-        File.WriteAllText(m_RepoPath + @"\" + WIP + @"\WIP.csv", csv);
+        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\WIP.csv", csv);
 
 
         csv = "";
@@ -761,7 +830,7 @@ public class RepoManager
             csv += "\n"; //newline to represent new pair
         }
 
-        File.WriteAllText(m_RepoPath + @"\" + WIP + @"\ID2Gitpath.csv", csv);
+        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\ID2Gitpath.csv", csv);
 
 
         csv = "";
@@ -773,8 +842,8 @@ public class RepoManager
             csv += "\n"; //newline to represent new pair
         }
 
-        File.WriteAllText(m_RepoPath + @"\" + WIP + @"\WIPID.csv", csv);
-        File.WriteAllText(m_RepoPath + @"\" + WIP + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
+        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\WIPID.csv", csv);
+        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
     }
 
     public void DisplayWIP(string filename)//, string originalpath)
@@ -788,7 +857,7 @@ public class RepoManager
     public void LoadExistingWIP()
     {
 
-        string filepath = m_RepoPath + @"\" + WIP + @"\WIP.csv";
+        string filepath = m_ticketBaseFolder + @"\" + WIP + @"\WIP.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -803,14 +872,14 @@ public class RepoManager
                 m_dictWIPName2Path.Add(filename, wippath);
                 DisplayWIP(filename);//, originalpath);
 
-                string filepathWIP = m_RepoPath + WIP + @"\" + filename;
+                string filepathWIP = m_ticketBaseFolder + WIP + @"\" + filename;
 
                 CompareWIP2Initial( filepathWIP); // to ensure tracking of modifications
             }
         }
 
 
-        filepath = m_RepoPath + @"\" + WIP + @"\ID2Gitpath.csv";
+        filepath = m_ticketBaseFolder + @"\" + WIP + @"\ID2Gitpath.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -825,7 +894,7 @@ public class RepoManager
             }
         }
 
-        filepath = m_RepoPath + @"\" + WIP + @"\WIPID.csv";
+        filepath = m_ticketBaseFolder + @"\" + WIP + @"\WIPID.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -840,7 +909,7 @@ public class RepoManager
             }
         }
 
-        filepath = m_RepoPath + @"\" + WIP + @"\ReadyState.txt";
+        filepath = m_ticketBaseFolder + @"\" + WIP + @"\ReadyState.txt";
 
         if (File.Exists(filepath))
         {
@@ -856,7 +925,7 @@ public class RepoManager
 
     public bool RemoveWIP(string filename)//, string gitpath)
     {
-        string wipFile = m_RepoPath + @"\" + WIP + @"\" + filename;
+        string wipFile = m_ticketBaseFolder + @"\" + WIP + @"\" + filename;
 
         if (!File.Exists(wipFile))
         {
@@ -869,9 +938,9 @@ public class RepoManager
         // delete file in WIP
         string sTID = Utility.GetTemplateID(wipFile);
         string gitpath = m_dictID2Gitpath[sTID];
-        string initialFile = m_RepoPath + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
-        string updateFile = m_RepoPath + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
-        string trashDir = m_RepoPath + KEEP_TRASH;
+        string initialFile = m_ticketBaseFolder + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
+        string updateFile = m_ticketBaseFolder + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
+        string trashDir = m_ticketBaseFolder + KEEP_TRASH;
         try
         {
             WIPRemoveFromServer(filename, GetTemplateID(filename));
@@ -933,7 +1002,7 @@ public class RepoManager
 
         string asset = Path.GetFileName(filepath);
 
-        string initialasset = m_RepoPath + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX;
+        string initialasset = m_ticketBaseFolder + GITKEEP_INITIAL + @"\" + asset + GITKEEP_SUFFIX;
         byte[] WIPHashBytes = new byte[16];
 
         string WIPHashHex = "";

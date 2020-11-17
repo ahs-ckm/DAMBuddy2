@@ -41,13 +41,8 @@ namespace DAMBuddy2
 
         private static string DAM_UPLOAD_URL = "http://ckcm.healthy.bewell.ca:10081/init,FOLDER4,VGhpcyBpcyB0aGUgSW1wbGVtZW50YXRpb24gTm90ZQ==,am9uLmJlZWJ5,UGE1NXdvcmQ=";
 
-        //private string gServerName = "http://ckcm.healthy.bewell.ca";
-        //private string gDAMPort = "";
-        //private string gFolderName = "";
-        //private string gCacheName = "";
-        //private string gCacheDir = "";
         private RepoManager m_RepoManager;
-
+        
         private int mCurrentPage;
         private int mTotalItems;
         private int mPageSize = 200;
@@ -57,8 +52,7 @@ namespace DAMBuddy2
         private string m_currentHTML;
         private string m_currentDocumentWIP = "";
         private string m_currentDocumentRepo = ""; // used to track whether the same document is being viewed/reviewed, if so we should keep the position
-        private static string m_RepoPath = "";
-        //private List<ListViewItem> m_masterlist;
+
         // The name of the file that will store the latest version. 
         private static string latestVersionInfoFile = "Preview_version";
 
@@ -78,8 +72,6 @@ namespace DAMBuddy2
             "\r\n" +
             "   </soapenv:Body>\r\n" +
             "</soapenv:Envelope>";
-
-        //private static Dictionary<string, string> dictFileToPath;
 
         private ChromiumWebBrowser m_browserUpload;
         private ChromiumWebBrowser m_browserSchedule;
@@ -265,45 +257,39 @@ namespace DAMBuddy2
 
         private void InitializeApp()
         {
-            if (SetCurrentRepo() != "")
-            {
-                var appsettings = ConfigurationManager.AppSettings;
-                AppSettingsSection settings = (AppSettingsSection)ConfigurationManager.GetSection("PreviewView.Properties.Settings");
+            var appsettings = ConfigurationManager.AppSettings;
+            AppSettingsSection settings = (AppSettingsSection)ConfigurationManager.GetSection("PreviewView.Properties.Settings");
 
-                mCurrentPage = 0;
-                tsbStart.Enabled = true;
-                tsbPause.Enabled = false;
-                tsbWord.Enabled = false;
-                tstbRepositoryFilter.Text = "";
+            mCurrentPage = 0;
+            tsbStart.Enabled = true;
+            tsbPause.Enabled = false;
+            tsbWord.Enabled = false;
+            tstbRepositoryFilter.Text = "";
 
-                m_RepoManager = new RepoManager( StaleCallback, DisplayWIPCallback, RemoveWIPCallback, WIPModifiedCallback);
-                m_RepoManager.CallbackScheduleState = ScheduleStateChangeCallback;
-                m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
-                m_browserSchedule = new ChromiumWebBrowser("http://ckcm:10008/scheduler-plan.html"); // TODO:Fix port
-                m_browserUpload = new ChromiumWebBrowser("about:blank");
-                tpUpload.Controls.Add(m_browserUpload);
-                tpSchedule.Controls.Add(m_browserSchedule);
-                m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
-                m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
+            m_RepoManager = new RepoManager( StaleCallback, DisplayWIPCallback, RemoveWIPCallback, WIPModifiedCallback);
+            m_RepoManager.CallbackScheduleState = ScheduleStateChangeCallback;
+            m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
+            m_browserSchedule = new ChromiumWebBrowser("http://ckcm:10008/scheduler-plan.html"); // TODO:Fix port
+            m_browserUpload = new ChromiumWebBrowser("about:blank");
+            tpUpload.Controls.Add(m_browserUpload);
+            tpSchedule.Controls.Add(m_browserSchedule);
+            m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
+            m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
 
 
 
-                m_RepoManager.Init(30000 * 1, 60000 * 1);
-                m_RepoManager.GetTicketScheduleStatus();
+            m_RepoManager.Init(30000 * 1, 60000 * 1);
+            m_RepoManager.GetTicketScheduleStatus();
 
-                this.Text = "BuildBuddy v" + GetLocalVersionNumber();
+            this.Text = "BuildBuddy v" + GetLocalVersionNumber();
 
-                m_RequestBuilder = new TransformRequestBuilder(m_RepoManager, appsettings["QueryServiceUrl"] ?? "App Settings not found");
+            m_RequestBuilder = new TransformRequestBuilder(m_RepoManager, appsettings["QueryServiceUrl"] ?? "App Settings not found");
 
-                InitAvailableRepos();
+            InitAvailableRepos();
 
-                PrepareTransformSupport();
-                LoadRepositoryTemplates();
-            }
-            else
-            {
-                MessageBox.Show("No repository detected - is DamBuddy running?");
-            }
+
+            PrepareTransformSupport();
+            LoadRepositoryTemplates();
         }
 
 
@@ -337,6 +323,10 @@ namespace DAMBuddy2
             addNew.Height = 30;
             addNew.ImageScaling = ToolStripItemImageScaling.None;
             tsddbRepository.DropDownItems.Add(addNew);
+
+            tsddbRepository.Text = m_RepoManager.GetCurrentRepository();
+            tslWorkRepository.Text = m_RepoManager.GetCurrentRepository();
+
         }
 
         private bool PrepareTransformSupport()
@@ -358,7 +348,7 @@ namespace DAMBuddy2
             ZipArchive archive = ZipFile.OpenRead(fileName);
             foreach (ZipArchiveEntry entry in archive.Entries)
             {
-                string entryfullname = Path.Combine(m_RepoPath, entry.FullName);
+                string entryfullname = Path.Combine(m_RepoManager.TicketFolder, entry.FullName);
                 string entryPath = Path.GetDirectoryName(entryfullname);
                 if (!Directory.Exists(entryPath))
                 {
@@ -563,13 +553,13 @@ namespace DAMBuddy2
             m_currentDocumentRepo = sTemplateName;
         }
 
-        private static void RunTransform(object oArgs)
+        private void RunTransform(object oArgs)
         {
             TransformArgs theArgs = (TransformArgs)oArgs;
-
+            
             string sTemplateName = theArgs.sTemplateName;
             Cursor.Current = Cursors.WaitCursor;
-            string sSelectedTransform = m_RepoPath + @"\XSLT\OrderItem.xsl";
+            string sSelectedTransform = m_RepoManager.TicketFolder + @"\XSLT\OrderItem.xsl";
             string sProcessedName = sTemplateName.Replace(".oet", "").TrimEnd();
 
 
@@ -580,7 +570,7 @@ namespace DAMBuddy2
                  sProcessedName.EndsWith("Template", StringComparison.OrdinalIgnoreCase) ||
                  sProcessedName.EndsWith("Group", StringComparison.OrdinalIgnoreCase))
             {
-                sSelectedTransform = m_RepoPath + @"\XSLT\OrderSet.xsl";
+                sSelectedTransform = m_RepoManager.TicketFolder + @"\XSLT\OrderSet.xsl";
             }
 
             try
@@ -750,7 +740,7 @@ namespace DAMBuddy2
             var word = new Microsoft.Office.Interop.Word.Application();
             word.Visible = true;
             string TemplateFilename = dictIdName[lvRepository.SelectedItems[0].Text];
-            string newFilename = m_RepoPath + Path.GetFileNameWithoutExtension(TemplateFilename) + ".html";
+            string newFilename = m_RepoManager.WIPPath + Path.GetFileNameWithoutExtension(TemplateFilename) + ".html";
             string oldFilename = m_currentHTML.Replace("file:///", "");
 
             if (File.Exists(newFilename))
@@ -783,70 +773,7 @@ namespace DAMBuddy2
             //MessageBox.Show(filename);
             //messages += ("Storing config in " + filename + "\n");
         }
-
-        private string SetCurrentRepo()
-        {
-            string ConfigFile = "";
-            string TicketDir = "";
-            ConfigFile = GetTDConfig();
-
-            //MessageBox.Show("TD Config file :" + ConfigFile);
-
-            if (ConfigFile != "")
-            {
-                XmlDocument TDConfigDoc = new XmlDocument();
-
-                TDConfigDoc.Load(ConfigFile);
-
-                XmlNode selectedrepo = TDConfigDoc.DocumentElement.SelectSingleNode("/configuration/userSettings/TemplateTool.Properties.Settings/setting[@name='SelectedRepository']/value");
-                if (selectedrepo is null)
-                {
-
-                }
-                else
-                {
-                    TicketDir = selectedrepo.FirstChild.Value;
-
-                }
-
-                XmlNode TDRepositoryData = TDConfigDoc.DocumentElement.SelectSingleNode("/configuration/userSettings/TemplateTool.Properties.Settings/setting[@name='RepositoryList']/value/ArrayOfRepositoryData");
-                List<XmlNode> toRemove = new List<XmlNode>();
-
-                // strip out any existing data for this incoming repository
-                foreach (XmlElement confignode in TDRepositoryData)
-                {
-                    if (confignode.FirstChild.InnerText == TicketDir)
-                    {
-                        foreach (XmlNode theElement in confignode.ChildNodes)
-                        {
-                            if (theElement.Name == "TemplatesPath")
-                            {
-
-                                m_RepoPath = theElement.InnerText.Replace("Templates", "");
-                                //tslRepositoryRepo.Text = TicketDir;
-                                tsddbRepository.Text = TicketDir;
-                                tslWorkRepository.Text = TicketDir;
-                            }
-                        }
-                    }
-                }
-                foreach (XmlElement confignode in toRemove)
-                {
-                    XmlNode node = confignode.ParentNode;
-                    node.RemoveChild(confignode);
-                }
-
-                //TDConfigDoc.Save(TDConfigFile);
-
-            }
-
-            return m_RepoPath;
-
-
-
-        }
-
-
+ 
 
         static public string WalkDirectoryTree(System.IO.DirectoryInfo root, ref string filename)
         {
@@ -1154,14 +1081,14 @@ namespace DAMBuddy2
             lvRepoSearchResults.Columns[0].Width = -1;
         }
 
-        private static void RunThreadedSearch(object oArgs)
+        private void RunThreadedSearch(object oArgs)
         {
             SearchArgs theArgs = (SearchArgs)oArgs;
 
-            string repopath = m_RepoPath;
-            if (repopath.EndsWith(@"\"))
+            string assetpath = m_RepoManager.AssetPath;
+            if (assetpath.EndsWith(@"\"))
             {
-                repopath = repopath.Remove(repopath.Length - 1);
+                assetpath = assetpath.Remove(assetpath.Length - 1);
             }
 
             //if ( theArgs == null) return;
@@ -1175,7 +1102,7 @@ namespace DAMBuddy2
                     {
 
                         FileName = path + "grep.exe",
-                        Arguments = theArgs.sSearchTerm + " " + repopath + " -Rli --include=\"*.oet\"",
+                        Arguments = theArgs.sSearchTerm + " " + assetpath + " -Rli --include=\"*.oet\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
                         RedirectStandardError = true,
@@ -1226,17 +1153,6 @@ namespace DAMBuddy2
             }
         }
 
-        private void toolStripButton1_Click_4(object sender, EventArgs e)
-        {
-            Form2 test = new Form2();
-            test.Ticket = m_RepoPath;
-            test.ShowDialog();
-        }
-
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("");
-        }
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1527,7 +1443,8 @@ namespace DAMBuddy2
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            m_RepoManager.SaveExistingWip();
+            m_RepoManager.Closedown();
+            //m_RepoManager.SaveExistingWip();
         }
 
         private void configToolStripMenuItem_Click(object sender, EventArgs e)
