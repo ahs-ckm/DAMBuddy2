@@ -42,7 +42,7 @@ namespace DAMBuddy2
         private static string DAM_UPLOAD_URL = "http://ckcm.healthy.bewell.ca:10081/init,FOLDER4,VGhpcyBpcyB0aGUgSW1wbGVtZW50YXRpb24gTm90ZQ==,am9uLmJlZWJ5,UGE1NXdvcmQ=";
 
         private RepoManager m_RepoManager;
-        
+        private bool m_IsClosing = false;        
         private int mCurrentPage;
         private int mTotalItems;
         private int mPageSize = 200;
@@ -89,6 +89,7 @@ namespace DAMBuddy2
 
         public void DisplayTransformedDocumentWIP(string filename)
         {
+            
             if (InvokeRequired)
             {
                 BeginInvoke((MethodInvoker)delegate { this.DisplayTransformedDocumentWIP(filename); });
@@ -107,6 +108,8 @@ namespace DAMBuddy2
 
         public void DisplayTransformedDocumentRepo(string filename)
         {
+            if (m_IsClosing) return;
+
             try
             {
                 if (InvokeRequired)
@@ -128,6 +131,8 @@ namespace DAMBuddy2
 
         public void TicketStateChangeCallback(string ready)
         {
+            if (m_IsClosing) return;
+
             if (ready == "True")
             {
                 tslReadyState.Text = "Work: Ready";
@@ -141,9 +146,12 @@ namespace DAMBuddy2
                 tsbPause.Enabled = false;
             }
         }
+
+
             
         public void ScheduleStateChangeCallback(string jsonStatus)
         {
+            if (m_IsClosing) return;
 
             //MessageBox.Show(state.ScheduleState + ": Upload " + state.UploadEnabled);
 
@@ -199,7 +207,7 @@ namespace DAMBuddy2
 
         public void StaleCallback(string filename)
         {
-            
+            if (m_IsClosing) return;
             SetAssetStale(filename);
         }
 
@@ -225,6 +233,7 @@ namespace DAMBuddy2
 
         public void RemoveWIPCallback(string filename)
         {
+            if (m_IsClosing) return;
             foreach (ListViewItem item in lvWork.Items)
             {
                 if (item.Text == filename)
@@ -239,6 +248,8 @@ namespace DAMBuddy2
 
         public void DisplayWIPCallback(string filename)//, string originalpath)
         {
+            if (m_IsClosing) return;
+
             ListViewItem newitem = new ListViewItem(filename);
             newitem.SubItems.Add("Fresh");
             newitem.SubItems.Add("Unchanged");
@@ -251,8 +262,15 @@ namespace DAMBuddy2
 
         public void WIPModifiedCallback(string filename)
         {
+            if (m_IsClosing) return;
+
             SetAssetModified(filename);
         
+        }
+
+        public void TicketUpdateStateCallback( string TicketId, RepoManager.TicketChangeState state )
+        {
+            MessageBox.Show("mainform : received state update " + TicketId);
         }
 
         private void InitializeApp()
@@ -269,8 +287,14 @@ namespace DAMBuddy2
             m_RepoManager = new RepoManager( StaleCallback, DisplayWIPCallback, RemoveWIPCallback, WIPModifiedCallback);
             m_RepoManager.CallbackScheduleState = ScheduleStateChangeCallback;
             m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
+            m_RepoManager.CallbackUploadState = TicketUpdateStateCallback;
+
+
             m_browserSchedule = new ChromiumWebBrowser("http://ckcm:10008/scheduler-plan.html"); // TODO:Fix port
-            m_browserUpload = new ChromiumWebBrowser("about:blank");
+            m_browserUpload = new ChromiumWebBrowser("https://google.ca");
+
+            m_browserUpload.CreateControl();
+
             tpUpload.Controls.Add(m_browserUpload);
             tpSchedule.Controls.Add(m_browserSchedule);
             m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
@@ -709,6 +733,9 @@ namespace DAMBuddy2
 
         private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
+
+            if (m_IsClosing) return;
+
             m_currentHTML = wbRepositoryView.Url.ToString();
             tsbWord.Enabled = true;
             Cursor.Current = Cursors.Default;
@@ -943,7 +970,10 @@ namespace DAMBuddy2
         private bool StartUpload()
         {
             tabControl1.SelectedTab = tabControl1.TabPages[3];
-            m_browserUpload.Load(DAM_UPLOAD_URL);
+
+            string url = m_RepoManager.PrepareForUpload();
+
+            m_browserUpload.Load(url);
 
 
             return true;
@@ -1302,6 +1332,8 @@ namespace DAMBuddy2
 
         private void wbWIP_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
+            if (m_IsClosing) return;
+
             //m_currentHTML = wbRepositoryView.Url.ToString();
             tsbWordWIP.Enabled = true;
             Cursor.Current = Cursors.Default;
@@ -1443,6 +1475,7 @@ namespace DAMBuddy2
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            m_IsClosing = true;
             m_RepoManager.Closedown();
             //m_RepoManager.SaveExistingWip();
         }
@@ -1464,45 +1497,13 @@ namespace DAMBuddy2
 
         private void LaunchTD()
         {
-            //timer1.Enabled = false;
-
-            //SetupTDConfig();
             m_RepoManager.ConfigureAndLaunchTD();
-
-            /*
-            try
-            {
-
-                if (true)
-                {
-
-                    // Start the process.
-                    using (Process myProcess = new Process())
-                    {
-                        myProcess.StartInfo.UseShellExecute = false;
-                        string prgdir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
-                        myProcess.StartInfo.FileName = prgdir + "\\Ocean Informatics\\Template Designer\\TemplateDesigner.exe";
-                        myProcess.StartInfo.CreateNoWindow = true;
-                        myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
-
-                        myProcess.Start();
-
-   
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            */
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             LaunchTD();
         }
-
 
 
         private void setupNewTicketToolStripMenuItem_Click(object sender, EventArgs e)

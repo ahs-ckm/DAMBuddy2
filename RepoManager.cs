@@ -51,9 +51,6 @@ public class RepoManager
     private static string DAM_UPLOAD_PORT = "10091"; // DEV
     private static string DAM_SCHEDULER_PORT = "10008";
 
-    private static string DAM_FOLDER = "FOLDER04";
-    private static string CACHE_NAME = "LOCAL3";
-    private static string DAM_TICKET = "CSDFK-1489";
     private static string CURRENT_REPO = "CURRENT_REPO";
     private static string FOLDER_ROOT = @"c:\TD";
 
@@ -112,6 +109,7 @@ public class RepoManager
     public delegate void StaleCallback(string filename);
     public delegate void DisplayWIPCallback(string filename);//, string originalpath);
     public delegate void RemoveWIPCallback(string filename);
+    public delegate void UploadStateCallback(string Ticket, TicketChangeState state);
 
     ModifiedCallback m_callbackScheduleState;
     ModifiedCallback m_callbackTicketState;
@@ -119,11 +117,13 @@ public class RepoManager
     RemoveWIPCallback m_callbackRemoveWIP;
     StaleCallback m_callbackStale;
     DisplayWIPCallback m_callbackDisplayWIP;
+    UploadStateCallback m_callbackUploadState;
 
     public string TicketFolder { get => m_ticketBaseFolder; }
     public ModifiedCallback CallbackScheduleState { get => m_callbackScheduleState; set => m_callbackScheduleState = value; }
     public ModifiedCallback CallbackTicketState { get => m_callbackTicketState; set => m_callbackTicketState = value; }
     public List<ListViewItem> Masterlist { get => m_masterlist; set => m_masterlist = value; }
+    public UploadStateCallback CallbackUploadState { get => m_callbackUploadState; set => m_callbackUploadState = value; }
 
     public RepoManager( StaleCallback callbackStale, DisplayWIPCallback callbackDisplay, RemoveWIPCallback callbackRemove, ModifiedCallback callbackModifiedWIP)
     {
@@ -188,7 +188,6 @@ public class RepoManager
 
     }
 
-
     private void SaveepositoryState()
     {
         string filepath = FOLDER_ROOT + @"\" + "repostate.csv";
@@ -205,11 +204,64 @@ public class RepoManager
 
     }
 
-
+    public string GetCurrentRepositoryFolder()
+    {
+        return m_dictRepoState[m_dictRepoState[CURRENT_REPO]];
+    }
     public string GetCurrentRepository()
     {
         return m_dictRepoState[CURRENT_REPO];
-        //return "CSDFK-1988";
+       
+    }
+
+    private void ProcessTicketState( string sTicketID )
+    {
+        TicketChangeState state = GetTicketUploadState(sTicketID);
+        if( !state.active )
+        {
+            RemoveTicket(sTicketID);
+            CallbackUploadState?.Invoke(sTicketID, state);
+        }
+
+    }
+
+    private bool BackupTicket( string sTicketID )
+    {
+        // TODO: zip up to backup folder
+        MessageBox.Show("Backing up :" + m_ticketBaseFolder);
+        return true;
+    }
+
+    private void RemoveTicket( string sTicketID )
+    {
+        if( BackupTicket(sTicketID))
+        {
+            // TODO delete folder tree
+            //Directory.Delete(m_ticketBaseFolder, true);
+            
+            m_dictRepoState.Remove(sTicketID);
+            if( m_dictRepoState[CURRENT_REPO] == sTicketID ) { m_dictRepoState[CURRENT_REPO] = "";  }
+        }
+    }
+
+    private TicketChangeState GetTicketUploadState( string sTicketID )
+    {
+
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_UPLOAD_PORT}/dynamic/change_status,{GetCurrentRepository()}");
+        request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+        TicketChangeState state;
+
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        using (Stream stream = response.GetResponseStream())
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            string jsonState = reader.ReadToEnd();
+            state = System.Text.Json.JsonSerializer.Deserialize<RepoManager.TicketChangeState>(jsonState);
+            
+
+        }
+
+        return state;
     }
 
     public List<string> GetAvailableRepositories()
@@ -248,7 +300,7 @@ public class RepoManager
         string description = "the description";
         string ticket = GetCurrentRepository() ;
         
-        string config = $@"<DAM><RepositoryData><RepositoryName>{ticket}</RepositoryName><Description>{description}</Description><TemplatesPath>{AssetPath}\templates</TemplatesPath><ArchetypesPath>{AssetPath}\archetypes</ArchetypesPath><WorkingArchetypesPath/><CkmApiUrl>https://ahsckm.ca/ckm/rest/v1/</CkmApiUrl><CkmApiBatchSize>300</CkmApiBatchSize></RepositoryData></DAM>";
+        string config = $@"<DAM><RepositoryData><RepositoryName>{ticket}</RepositoryName><Description>{description}</Description><TemplatesPath>{AssetPath}</TemplatesPath><ArchetypesPath>{AssetPath}\archetypes</ArchetypesPath><WorkingArchetypesPath/><CkmApiUrl>https://ahsckm.ca/ckm/rest/v1/</CkmApiUrl><CkmApiBatchSize>300</CkmApiBatchSize></RepositoryData></DAM>";
 
         return config;
     }
@@ -395,6 +447,8 @@ public class RepoManager
         return true;
     }
 
+
+
     public bool SetTicketReadiness(bool bReady)
     {
         m_ReadyStateSetByUser = bReady;
@@ -405,7 +459,9 @@ public class RepoManager
             ReadyParam = "ready";
         }
 
-        string theParams = $"theState={ReadyParam}&theFolder={DAM_FOLDER}";
+        string damFolder = GetCurrentRepositoryFolder();
+
+        string theParams = $"theState={ReadyParam}&theFolder={damFolder}";
 
         try
         {
@@ -443,7 +499,7 @@ public class RepoManager
     public bool GetTicketScheduleStatus()
     {
 
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{DAM_TICKET}");
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{GetCurrentRepository()}");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
         using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -478,10 +534,11 @@ public class RepoManager
     private bool WIPRemoveFromServer(string sTemplateName, string sTID)
     {
         bool result = false;
+        string damFolder = GetCurrentRepositoryFolder();
 
         using (WebClient client = new WebClient())
         {
-            string theParams = $"theFolder={DAM_FOLDER}&theTemplateID={sTID}";
+            string theParams = $"theFolder={damFolder}&theTemplateID={sTID}";
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
             string response = client.UploadString(gServerName + ":" + DAM_UPLOAD_PORT + "/RemoveWIP", theParams);
             Console.WriteLine(response);
@@ -495,11 +552,14 @@ public class RepoManager
 
     private bool WIPToServer(string sTemplateName, string sTID)
     {
+        return PostWIP();
+        
         bool result = false;
+        string damfolder = GetCurrentRepositoryFolder();
 
         using (WebClient client = new WebClient())
         {
-            string theParams = $"theFolder={DAM_FOLDER}&theTemplateID={sTID}&theTemplateName={sTemplateName}";
+            string theParams = $"theFolder={damfolder}&theTemplateID={sTID}&theTemplateName={sTemplateName}";
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
             string response = client.UploadString(gServerName + ":" + DAM_UPLOAD_PORT + "/WIP", theParams);
             Console.WriteLine(response);
@@ -762,6 +822,27 @@ public class RepoManager
 
         LoadExistingWIP();
 
+
+
+        List<string> processlist = new List<string>();
+
+        foreach ( string ticket in m_dictRepoState.Keys)
+        {
+            processlist.Add(ticket);         
+        }
+
+
+        foreach( string ticket in processlist )
+        {
+            if (ticket != CURRENT_REPO)
+            {
+                ProcessTicketState(ticket);
+            }
+
+        }
+       // ProcessTicketState(m_dictRepoState[CURRENT_REPO]);
+
+
     }
 
 
@@ -770,7 +851,7 @@ public class RepoManager
         bool result = false;
 
         
-        string zipname = @"c:\temp\dambuddy2\togo-" + CACHE_NAME + ".zip";
+        string zipname = @"c:\temp\dambuddy2\togo-" + GetCurrentRepository() + ".zip";
         //try
         {
             //string directory = gCacheDir + "\\" + DAM_FOLDER;
@@ -788,9 +869,11 @@ public class RepoManager
             long length = new System.IO.FileInfo(zipname).Length;
             Console.WriteLine("\nSending file length: {0}", length);
 
+            string damfolder = GetCurrentRepositoryFolder();
+
             using (WebClient client = new WebClient())
             {
-                byte[] responseArray = client.UploadFile(gServerName + ":" + DAM_UPLOAD_PORT + "/upload," + DAM_FOLDER, "POST", zipname);
+                byte[] responseArray = client.UploadFile(gServerName + ":" + DAM_UPLOAD_PORT + "/upload," + damfolder, "POST", zipname);
                 // Decode and display the response.
                 Console.WriteLine("\nResponse Received. The contents of the file uploaded are:\n{0}",
                     System.Text.Encoding.ASCII.GetString(responseArray));
@@ -799,6 +882,18 @@ public class RepoManager
         }
 
         return result;
+    }
+
+    public string PrepareForUpload()
+    {
+        string folder = m_dictRepoState[m_dictRepoState[CURRENT_REPO]];
+        // TODO: move to config
+        
+        // TODO: start timer to check status
+
+        return $"http://ckcm.healthy.bewell.ca:10081/init,{folder},VGhpcyBpcyB0aGUgSW1wbGVtZW50YXRpb24gTm90ZQ==,am9uLmJlZWJ5,UGE1NXdvcmQ=";
+
+
     }
 
     public void Closedown()
@@ -818,7 +913,7 @@ public class RepoManager
             csv += "\n"; //newline to represent new pair
         }
 
-        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\WIP.csv", csv);
+        File.WriteAllText(m_ticketBaseFolder +  @"\WIP.csv", csv);
 
 
         csv = "";
@@ -830,7 +925,7 @@ public class RepoManager
             csv += "\n"; //newline to represent new pair
         }
 
-        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\ID2Gitpath.csv", csv);
+        File.WriteAllText(m_ticketBaseFolder + @"\ID2Gitpath.csv", csv);
 
 
         csv = "";
@@ -842,8 +937,8 @@ public class RepoManager
             csv += "\n"; //newline to represent new pair
         }
 
-        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\WIPID.csv", csv);
-        File.WriteAllText(m_ticketBaseFolder + @"\" + WIP + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
+        File.WriteAllText(m_ticketBaseFolder + @"\WIPID.csv", csv);
+        File.WriteAllText(m_ticketBaseFolder + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
     }
 
     public void DisplayWIP(string filename)//, string originalpath)
@@ -857,7 +952,7 @@ public class RepoManager
     public void LoadExistingWIP()
     {
 
-        string filepath = m_ticketBaseFolder + @"\" + WIP + @"\WIP.csv";
+        string filepath = m_ticketBaseFolder  + @"\WIP.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -879,7 +974,7 @@ public class RepoManager
         }
 
 
-        filepath = m_ticketBaseFolder + @"\" + WIP + @"\ID2Gitpath.csv";
+        filepath = m_ticketBaseFolder  + @"\ID2Gitpath.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -894,7 +989,7 @@ public class RepoManager
             }
         }
 
-        filepath = m_ticketBaseFolder + @"\" + WIP + @"\WIPID.csv";
+        filepath = m_ticketBaseFolder  + @"\WIPID.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -909,7 +1004,7 @@ public class RepoManager
             }
         }
 
-        filepath = m_ticketBaseFolder + @"\" + WIP + @"\ReadyState.txt";
+        filepath = m_ticketBaseFolder  + @"\ReadyState.txt";
 
         if (File.Exists(filepath))
         {
@@ -922,6 +1017,7 @@ public class RepoManager
         }
 
     }
+
 
     public bool RemoveWIP(string filename)//, string gitpath)
     {
@@ -1049,6 +1145,14 @@ public class RepoManager
         public string ScheduleState { get; set; }
     }
 
+
+    public class TicketChangeState
+    {
+        public bool active{ get; set; }
+        public bool uploading { get; set; }
+        public bool ready { get; set; }
+
+    }
 
     public void TestJira(string ticket)
     {

@@ -296,6 +296,7 @@
             this.tsbLaunch2.Name = "tsbLaunch2";
             this.tsbLaunch2.Size = new System.Drawing.Size(52, 40);
             this.tsbLaunch2.Text = "toolStripButton1";
+            this.tsbLaunch2.ToolTipText = "Launch Template Designer";
             this.tsbLaunch2.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
             // tsbRepositoryReload
@@ -385,7 +386,7 @@
             this.tsbRepoSearch.Name = "tsbRepoSearch";
             this.tsbRepoSearch.Size = new System.Drawing.Size(48, 42);
             this.tsbRepoSearch.Text = "toolStripButton1";
-            this.tsbRepoSearch.ToolTipText = "Search Asset Contents";
+            this.tsbRepoSearch.ToolTipText = "Start Search of Asset Contents";
             this.tsbRepoSearch.Click += new System.EventHandler(this.tsbRepoSearch_Click);
             // 
             // toolStripSeparator2
@@ -1034,6 +1035,7 @@
             this.tsbLaunchTD.Name = "tsbLaunchTD";
             this.tsbLaunchTD.Size = new System.Drawing.Size(48, 42);
             this.tsbLaunchTD.Text = "Launch TD";
+            this.tsbLaunchTD.ToolTipText = "Launch Template Designer";
             this.tsbLaunchTD.Click += new System.EventHandler(this.tsbLaunchTD_Click);
             // 
             // tsWorkReload

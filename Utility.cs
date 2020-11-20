@@ -11,7 +11,7 @@ namespace DAMBuddy2
     {
         public static string GetTemplateID( string filepath)
         {
-            string template = File.ReadAllText(filepath);
+                string template = File.ReadAllText(filepath);
             string tID = "";
 
             //char[] token = "<id>".ToCharArray();

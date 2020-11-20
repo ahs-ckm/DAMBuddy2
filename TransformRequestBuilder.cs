@@ -164,7 +164,7 @@ namespace DAMBuddy2
                     } else
                     {
                         sRelPath = GetTemplatePathFromID(sEmbeddedId);
-                        sTemplateFilePath = m_repoManager.TicketFolder + sRelPath;
+                        sTemplateFilePath = m_repoManager.TicketFolder + @"\" +  sRelPath;
 
                     }
 
