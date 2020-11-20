@@ -1482,6 +1482,8 @@ namespace DAMBuddy2
 
         private void configToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            m_RepoManager.TestCacheManager();
+            
             //m_RepoManager.TestJira( "CKCMFK-1989");
         }
 
@@ -1518,6 +1520,16 @@ namespace DAMBuddy2
         private void tsbHelp_Click(object sender, EventArgs e)
         {
             MessageBox.Show("TODO: Info on Scheduler State and implications...");
+        }
+
+        private void lvRepository_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void lvWork_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
         }
     }
 

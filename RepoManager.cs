@@ -16,6 +16,7 @@ using System.Net;
 using net.sf.saxon.trans.rules;
 using System.Diagnostics.Contracts;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json.Linq;
 
 public static class Extensions
 {
@@ -86,7 +87,7 @@ public class RepoManager
 
     private string m_ticketBaseFolder = "";
     private List<ListViewItem> m_masterlist;
-    
+    private RepoCacheManager mRepoCacheManager;    
 
     private FileSystemWatcher m_watcherRepo = null;
     private FileSystemWatcher m_watcherWIP = null;
@@ -305,92 +306,6 @@ public class RepoManager
         return config;
     }
 
-    public void Pull2()
-    {
-        string path = BIN_DIR;
-        
-        try
-        {
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-
-                    FileName = path + "git.exe",
-                    WorkingDirectory = m_ticketBaseFolder,
-                    Arguments = "pull",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
-
-
-            process.OutputDataReceived += new DataReceivedEventHandler((s, eData) =>
-            {
-                Console.WriteLine(eData.Data);
-
-                //AddSearchResult(eData.Data);
-
-            });
-
-            process.ErrorDataReceived += new DataReceivedEventHandler((s, eData) =>
-            {
-                Console.WriteLine(eData.Data);
-            });
-
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-
-            process.WaitForExit();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-
-    }
-
-    public void Pull()
-    {
-        PullOptions options = new PullOptions();
-        options.FetchOptions = new FetchOptions();
-        options.MergeOptions = new MergeOptions();
-
-        options.MergeOptions.FailOnConflict = false;
-        options.MergeOptions.MergeFileFavor = MergeFileFavor.Theirs;
-        options.MergeOptions.FileConflictStrategy = CheckoutFileConflictStrategy.Theirs;
-  
-        Repository repo = new Repository(m_ticketBaseFolder);
-
-        FetchOptions fetchoptions = new FetchOptions();
-        var remote = repo.Network.Remotes["origin"];
-        var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-
-        try
-        {
-            Commands.Fetch(repo, remote.Name, refSpecs, null, "test");
-            Branch head = repo.Branches.Single(branch => branch.FriendlyName == "master");
-            repo.Merge(head, new Signature("truecraft", "git@truecraft.io", new DateTimeOffset(DateTime.Now)), options.MergeOptions);
-
-            Commands.Pull(repo, new Signature("truecraft", "git@truecraft.io", new DateTimeOffset(DateTime.Now)), options);
-            var checkoutOptions = new CheckoutOptions();
-            checkoutOptions.CheckoutModifiers = CheckoutModifiers.Force;
-
-            Commands.Checkout(repo, head, checkoutOptions);
-
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-
-    }
-
-
-
     private void Empty(System.IO.DirectoryInfo directory)
     {
         foreach (System.IO.FileInfo file in directory.GetFiles()) file.Delete();
@@ -483,7 +398,7 @@ public class RepoManager
         return true;
     }
 
-    public bool PrepareNewTicket( string theTicketJSON )
+    public bool PrepareNewTicket( string jsonTicket )
     {
         // set it up on the server
         // get the server folder back?
@@ -492,8 +407,13 @@ public class RepoManager
         // move pre-prepared git folder
 
         // switch context.
+        JObject jsonissue = JObject.Parse(jsonTicket);
+        string ticketID = (string)jsonissue["key"];
 
-        return false;
+
+        return mRepoCacheManager.SetupTicket(FOLDER_ROOT + "\\" + ticketID);
+
+        
     }
 
     public bool GetTicketScheduleStatus()
@@ -721,7 +641,9 @@ public class RepoManager
     private void TimeToPull(Object info)
     {
         Console.WriteLine("TimeToPull()");
-        Pull2();
+        // Pull2();
+
+        // TODO: move this process & timer to RepoCacheHelper
         GetTicketScheduleStatus();
     }
 
@@ -793,6 +715,8 @@ public class RepoManager
 
     public void Init(int PullDelay, int PullInterval)
     {
+        mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR);
+        
         m_intervalPull = PullInterval;
 
         m_timerPull = new System.Threading.Timer(TimeToPull, null, PullDelay, m_intervalPull);
@@ -1127,6 +1051,11 @@ public class RepoManager
         CompareWIP2Initial(e.FullPath);
         
         // should check whether the md5 of the file is actually different to the initial md5
+    }
+
+    public void TestCacheManager()
+    {
+        //mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR);
     }
 
     private void OnChangedRepo(object source, FileSystemEventArgs e)

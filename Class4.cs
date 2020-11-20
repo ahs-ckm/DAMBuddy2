@@ -6,14 +6,7 @@ using System.Threading.Tasks;
 
 namespace DAMBuddy2
 {
-    class FolderManger
+    class Class4
     {
-        public static void CreateEnvironment( string TicketName ) 
-        { 
-        
-        
-        
-        }
-        
     }
 }

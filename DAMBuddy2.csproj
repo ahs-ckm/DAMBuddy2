@@ -140,7 +140,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FolderManger.cs" />
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -155,6 +154,7 @@
       <DependentUpon>mAINForm.cs</DependentUpon>
     </Compile>
     <Compile Include="OceanUtils.cs" />
+    <Compile Include="RepoCacheManager.cs" />
     <Compile Include="RepoManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

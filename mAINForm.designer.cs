@@ -595,6 +595,7 @@
             this.lvRepository.UseCompatibleStateImageBehavior = false;
             this.lvRepository.View = System.Windows.Forms.View.Details;
             this.lvRepository.SelectedIndexChanged += new System.EventHandler(this.lvRepository_SelectedIndexChanged_1);
+            this.lvRepository.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvRepository_MouseDoubleClick);
             this.lvRepository.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvRepository_MouseUp);
             // 
             // Asset
@@ -826,6 +827,7 @@
             this.lvWork.UseCompatibleStateImageBehavior = false;
             this.lvWork.View = System.Windows.Forms.View.Details;
             this.lvWork.SelectedIndexChanged += new System.EventHandler(this.lvWork_SelectedIndexChanged);
+            this.lvWork.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lvWork_MouseDoubleClick);
             this.lvWork.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lvWork_MouseUp);
             // 
             // chFilename
