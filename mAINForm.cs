@@ -333,8 +333,11 @@ namespace DAMBuddy2
                 var option = tsddbRepository.DropDownItems.Add(item);
 
                 option.Font = theFont;
+                option.Tag = item;
                 option.Height = 30;
                 option.ImageScaling = ToolStripItemImageScaling.None;
+                
+                option.Click += tsmiAvailableRepo_Click;
                 
             }
 
@@ -352,6 +355,7 @@ namespace DAMBuddy2
             tslWorkRepository.Text = m_RepoManager.GetCurrentRepository();
 
         }
+
 
         private bool PrepareTransformSupport()
         {
@@ -1508,6 +1512,10 @@ namespace DAMBuddy2
         }
 
 
+
+       
+
+
         private void setupNewTicketToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SetupTicketForm ticketform = new SetupTicketForm();
@@ -1529,6 +1537,30 @@ namespace DAMBuddy2
 
         private void lvWork_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+
+        }
+
+        private void tsmiAvailableRepo_Click(object sender, EventArgs e)
+        {
+
+            ToolStripMenuItem item = (ToolStripMenuItem )sender;
+
+            string newRepo = item.Text;
+
+            if (m_RepoManager.SetCurrentRepository(newRepo))
+            {
+
+
+                tsddbRepository.Text = newRepo;
+
+
+//                InitAvailableRepos();
+
+
+                PrepareTransformSupport();
+                LoadRepositoryTemplates();
+
+            }
 
         }
     }

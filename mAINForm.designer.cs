@@ -36,7 +36,7 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsddbRepository = new System.Windows.Forms.ToolStripDropDownButton();
-            this.cSDKFK1989ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAvailableRepo = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbLaunch2 = new System.Windows.Forms.ToolStripButton();
@@ -252,7 +252,7 @@
             // tsddbRepository
             // 
             this.tsddbRepository.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cSDKFK1989ToolStripMenuItem,
+            this.tsmiAvailableRepo,
             this.toolStripSeparator10,
             this.toolStripMenuItem2});
             this.tsddbRepository.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -265,12 +265,13 @@
             this.tsddbRepository.Text = "< no repository >";
             this.tsddbRepository.ToolTipText = "The current ticket being worked on, click to change.";
             // 
-            // cSDKFK1989ToolStripMenuItem
+            // tsmiAvailableRepo
             // 
-            this.cSDKFK1989ToolStripMenuItem.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
-            this.cSDKFK1989ToolStripMenuItem.Name = "cSDKFK1989ToolStripMenuItem";
-            this.cSDKFK1989ToolStripMenuItem.Size = new System.Drawing.Size(203, 30);
-            this.cSDKFK1989ToolStripMenuItem.Text = "CSDFK-1989";
+            this.tsmiAvailableRepo.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.tsmiAvailableRepo.Name = "tsmiAvailableRepo";
+            this.tsmiAvailableRepo.Size = new System.Drawing.Size(203, 30);
+            this.tsmiAvailableRepo.Text = "CSDFK-1989";
+            this.tsmiAvailableRepo.Click += new System.EventHandler(this.tsmiAvailableRepo_Click);
             // 
             // toolStripSeparator10
             // 
@@ -1542,7 +1543,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiUserAccount;
         private System.Windows.Forms.ToolStripMenuItem setupNewTicketToolStripMenuItem;
         private System.Windows.Forms.ToolStripDropDownButton tsddbRepository;
-        private System.Windows.Forms.ToolStripMenuItem cSDKFK1989ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsmiAvailableRepo;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem tsmiLog;

@@ -59,13 +59,13 @@ public class RepoManager
        
 
     private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
-    private static string GITKEEP_INITIAL = @"\gitkeep\initial";
-    private static string GITKEEP_UPDATE = @"\gitkeep\update";
-    private static string KEEP_TRASH = @"\trash";
+    public static string GITKEEP_INITIAL = @"\gitkeep\initial";
+    public static string GITKEEP_UPDATE = @"\gitkeep\update";
+    public static string KEEP_TRASH = @"\trash";
     private static string GITKEEP_SUFFIX = ".keep";
     //private static string WIP = @"\local\WIP";
-    private static string ASSETS = @"\local";
-    private static string WIP = @"\" + ASSETS + @"\WIP";
+    public static string ASSETS = @"\local";
+    public static string WIP = @"\" + ASSETS + @"\WIP";
     
 
     private string gServerName = "http://ckcm.healthy.bewell.ca";
@@ -283,18 +283,20 @@ public class RepoManager
 
     public bool SetCurrentRepository(string RepoName)
     {
-        m_ticketBaseFolder= RepoName;
+        m_ticketBaseFolder = FOLDER_ROOT + @"\" + RepoName + @"";
+        m_dictRepoState[CURRENT_REPO] = RepoName;
+
+        m_watcherRepo.Path = m_ticketBaseFolder + @"\" + ASSETS + @"\templates";
+        m_watcherWIP.Path = m_ticketBaseFolder + @"\" + WIP;
+
+
+        LoadRepositoryTemplates();
+        LoadExistingWIP();
 
         return true;
     }
 
 
-
-    private void CreateFolderStructure( string ticketname )
-    {
-        // path wrong : Directory.CreateDirectory(m_RepoPath + ticketname);
-
-    }
 
     public string GetTicketConfigForOcean( )
     {
@@ -363,6 +365,25 @@ public class RepoManager
     }
 
 
+    public string ServerLinkTicket(string sTicketID)
+    {
+        string sFolderName = "";
+        
+        string theParams = $"theTicket={sTicketID}";
+
+        using (WebClient client = new WebClient())
+        {
+            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+            sFolderName  = client.UploadString(gServerName + ":" + DAM_UPLOAD_PORT + "/linkTicket", theParams);
+            Console.WriteLine(sFolderName);
+                
+        }
+
+//        UpdateSchedule();
+//        GetTicketScheduleStatus();
+        return sFolderName;
+    }
+
 
     public bool SetTicketReadiness(bool bReady)
     {
@@ -409,11 +430,20 @@ public class RepoManager
         // switch context.
         JObject jsonissue = JObject.Parse(jsonTicket);
         string ticketID = (string)jsonissue["key"];
+        string theDescription = (string)jsonissue["description"];
 
 
-        return mRepoCacheManager.SetupTicket(FOLDER_ROOT + "\\" + ticketID);
+        if (mRepoCacheManager.SetupTicket(FOLDER_ROOT + "\\" + ticketID))
+        {
 
-        
+
+            string FolderID = ServerLinkTicket(ticketID);
+
+            m_dictRepoState.Add(ticketID, FolderID);
+            return true;
+        };
+
+        return false;
     }
 
     public bool GetTicketScheduleStatus()
@@ -719,6 +749,7 @@ public class RepoManager
         
         m_intervalPull = PullInterval;
 
+        //TODO: do we need per-ticket timers, or do we just pull into the current?
         m_timerPull = new System.Threading.Timer(TimeToPull, null, PullDelay, m_intervalPull);
 
         m_dictID2Gitpath = new Dictionary<string, string>();
@@ -824,6 +855,7 @@ public class RepoManager
     {
         SaveExistingWip();
         SaveepositoryState();
+        mRepoCacheManager.CloseDown();
     }
 
     private void SaveExistingWip()

@@ -75,10 +75,19 @@ namespace DAMBuddy2
         
         ~RepoCacheManager()
         {
-            SaveCacheState();
-            StopThreads();
+//            SaveCacheState();
+//            StopThreads();
         }
-        
+
+        public void CloseDown()
+        {
+            StopThreads();
+
+            SaveCacheState();
+
+        }
+
+
         private void StopThreads()
         {
             // terminates/destroys any threads currently active.
@@ -98,16 +107,26 @@ namespace DAMBuddy2
 
         private void ThreadComplete( object args )
         {
-            ThreadArgs threadaargs = (ThreadArgs)args;
+            ThreadArgs threadargs = (ThreadArgs)args;
 
             // TODO: remove from threadlist
             //string threadid = (string)id;
 
             //threadaargs.ThreadID
+            
 
+            mThreads.RemoveAll(item => item.ThreadID == threadargs.ThreadID);
 
-            mThreads.RemoveAll(item => item.ThreadID == threadaargs.ThreadID);
+            for( int i = 0; i < mRepoCacheList.Count; i++)
+            {
+                if (mRepoCacheList[i].Path == threadargs.RepoPath )
+                {
+                    mRepoCacheList[i].CloneCompleted = true;
+                    break;
+                }
+            }
 
+            
 
         }
 
@@ -242,6 +261,17 @@ namespace DAMBuddy2
         {
             //string statejson = System.Text.Json.JsonSerializer.Serialize(mRepoCacheList.CacheList);
 
+
+            for (int i = mRepoCacheList.Count - 1; i > -1; i--)
+            {
+                if( !mRepoCacheList[i].CloneCompleted )
+                {
+                    mRepoCacheList.RemoveAt(i);
+                }
+            }
+
+
+
             string statejson = JsonConvert.SerializeObject(mRepoCacheList);
 
 
@@ -291,11 +321,40 @@ namespace DAMBuddy2
                 Directory.Delete(path, true);
             }
 
-            RepoCacheState cache = mRepoCacheList.ElementAt(mRepoCacheList.Count - 1);
 
-            Directory.Move(cache.Path, path);
+            for( int i = mRepoCacheList.Count - 1; i > -1 ; i-- )
+            {
+                var cache = mRepoCacheList[i];
+                if ( cache.CloneCompleted )
+                {
 
-            mRepoCacheList.RemoveAt(mRepoCacheList.Count - 1);
+                    Directory.Move(cache.Path, path);
+
+                    mRepoCacheList.RemoveAt(i);
+
+
+                    if (!File.Exists(path + @"\" + RepoManager.GITKEEP_INITIAL))
+                    {
+                        Directory.CreateDirectory(path + @"\" + RepoManager.GITKEEP_INITIAL);
+                    }
+
+                    if (!File.Exists(path + @"\" + RepoManager.GITKEEP_UPDATE))
+                    {
+                        Directory.CreateDirectory(path + @"\" + RepoManager.GITKEEP_UPDATE);
+                    }
+
+                    if (!File.Exists(path + @"\" + RepoManager.WIP))
+                    {
+                        Directory.CreateDirectory(path + @"\" + RepoManager.WIP);
+                    }
+
+                    break;
+
+                }
+
+            }
+
+            //RepoCacheState cache = mRepoCacheList.ElementAt(mRepoCacheList.Count - 1);
 
             return true;
         }
@@ -313,7 +372,7 @@ namespace DAMBuddy2
             // if a cache has been cloned, how often to pull into it? once daily (for each cache).
         }
         
-        public void PrepareCache( string cacheFolder)
+   /*     public void PrepareCache( string cacheFolder)
         {
            ;
             if ( !Directory.Exists( cacheFolder ))
@@ -323,6 +382,6 @@ namespace DAMBuddy2
 
 
 
-        }
+        }*/
     }
 }
