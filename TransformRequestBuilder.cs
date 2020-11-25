@@ -25,6 +25,23 @@ namespace DAMBuddy2
             "</soapenv:Envelope>";
 
 
+        public static HttpWebRequest CreateSOAPWebRequest(string theURL)
+        {
+            //Making Web Request  
+            HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(theURL);
+            //SOAPAction  
+
+            Req.Headers.Add(@"SOAP:Action");
+
+            //Content_type  
+            Req.ContentType = "text/xml;charset=\"utf-8\"";
+            Req.Accept = "text/xml";
+            //HTTP method  
+            Req.Method = "POST";
+            //return HttpWebRequest  
+            return Req;
+        }
+
         public TransformRequestBuilder(RepoManager repoManager, string sURLCacheService)
         {
             m_repoManager = repoManager;
@@ -137,7 +154,7 @@ namespace DAMBuddy2
             {
                 if (!sAllArchetypesXML.Contains(sArchID))
                 {
-                    sTempXML = File.ReadAllText(m_repoManager.TicketFolder + @"\ArchetypeXML\" + sArchID + ".xml");
+                    sTempXML = File.ReadAllText(m_repoManager.CurrentRepo.TicketFolder + @"\ArchetypeXML\" + sArchID + ".xml");
 
                     sTempXML = sTempXML.Replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
                     sTempXML = sTempXML.Replace("<archetype xmlns=\"http://schemas.openehr.org/v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">", "");
@@ -158,13 +175,13 @@ namespace DAMBuddy2
                     string sRelPath = "";
                     string sTemplateFilePath = "";
 
-                    if (m_repoManager.isAssetinWIPByID( sEmbeddedId, ref sTemplateFilePath ))
+                    if (m_repoManager.CurrentRepo.isAssetinWIPByID( sEmbeddedId, ref sTemplateFilePath ))
                     {
                         
                     } else
                     {
                         sRelPath = GetTemplatePathFromID(sEmbeddedId);
-                        sTemplateFilePath = m_repoManager.TicketFolder + @"\" +  sRelPath;
+                        sTemplateFilePath = m_repoManager.CurrentRepo.TicketFolder + @"\" +  sRelPath;
 
                     }
 

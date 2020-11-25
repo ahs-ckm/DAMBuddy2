@@ -106,7 +106,7 @@ namespace DAMBuddy2
 
         private void button5_Click(object sender, EventArgs e)
         {
-            manager.AddWIP( textBox2.Text);
+            manager.CurrentRepo.AddWIP( textBox2.Text);
 
             //C:\TD\git1\mgr\local\templates\mgr\local\templates\section
 
@@ -114,7 +114,7 @@ namespace DAMBuddy2
 
         private void button6_Click(object sender, EventArgs e)
         {
-            manager.DoClone();
+            manager.CurrentRepo.DoClone();
         }
 
         private void button7_Click(object sender, EventArgs e)

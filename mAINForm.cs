@@ -82,14 +82,32 @@ namespace DAMBuddy2
         private static TransformRequestBuilder m_RequestBuilder;
         private bool gSearchDocumentRep;
 
-        public void DisplayRepoTransformedDocumentCallback(string filename)
+        
+        /// <summary>
+        /// Called (from RepoManager) when the transform process has completed for the Repository Doc Viewer
+        /// </summary>
+        /// <param name="filename"></param>
+        public void callbackDisplayRepoTransformedDocument(string filename)
         {
             DisplayTransformedDocumentRepo(filename);
         }
 
-        public void DisplayTransformedDocumentWIP(string filename)
+        /// <summary>
+        /// Called (from RepoManager) when the transform process has completed for the WIP Doc Viewer
+        /// </summary>
+        /// <param name="filename"></param>
+        public void callbackDisplayTransformedDocumentWIP(string filename)
         {
-            
+            DisplayTransformedDocumentWIP(filename);
+        }
+        /// <summary>
+        /// Displays the transformed file in the WIP browser 
+        /// </summary>
+        /// <param name="filename"></param>
+        public void DisplayTransformedDocumentWIP( string filename )
+        {
+            if (m_IsClosing) return;
+
             if (InvokeRequired)
             {
                 BeginInvoke((MethodInvoker)delegate { this.DisplayTransformedDocumentWIP(filename); });
@@ -104,8 +122,12 @@ namespace DAMBuddy2
 
             }
             catch { }
-        }
 
+        }
+        /// <summary>
+        /// Displays the transformed file in the Repository browser 
+        /// </summary>
+        /// <param name="filename"></param>
         public void DisplayTransformedDocumentRepo(string filename)
         {
             if (m_IsClosing) return;
@@ -128,8 +150,11 @@ namespace DAMBuddy2
             }
 
         }
-
-        public void TicketStateChangeCallback(string ready)
+        /// <summary>
+        /// called (from RepoManager) when the "ready state" of the ticket changes
+        /// </summary>
+        /// <param name="ready"></param>
+        public void callbackTicketStateChange(string ready)
         {
             if (m_IsClosing) return;
 
@@ -148,19 +173,23 @@ namespace DAMBuddy2
         }
 
 
-            
-        public void ScheduleStateChangeCallback(string jsonStatus)
+        /// <summary>
+        /// called (from Repomanager) when the "schedule state" of the ticket changes.
+        /// </summary>
+        /// <remarks>
+        /// This menthod updates the WIP toolbar color to match the state of the schedule and manages the state of the upload button
+        /// </remarks>
+        /// <param name="jsonStatus"></param>
+        public void callbackScheduleStateChange(string jsonStatus)
         {
             if (m_IsClosing) return;
 
-            //MessageBox.Show(state.ScheduleState + ": Upload " + state.UploadEnabled);
-
             if (InvokeRequired)
             {
-                BeginInvoke((MethodInvoker)delegate { this.ScheduleStateChangeCallback(jsonStatus); });
+                BeginInvoke((MethodInvoker)delegate { this.callbackScheduleStateChange(jsonStatus); });
                 return;
             }
-            RepoManager.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoManager.TicketScheduleState>(jsonStatus);
+            RepoInstance.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoInstance.TicketScheduleState>(jsonStatus);
 
             if (state.UploadEnabled == "true")
             {
@@ -204,13 +233,18 @@ namespace DAMBuddy2
             }
 
         }
-
-        public void StaleCallback(string filename)
+        /// <summary>
+        /// called (by the RepoManger) when a WIP asset becomes stale, i.e. has been changed in the master Repository after the asset was added to WIP
+        /// </summary>
+        /// <param name="filename"></param>
+        public void callbackStale(string filename)
         {
             if (m_IsClosing) return;
             SetAssetStale(filename);
         }
-
+        /// <summary>
+        /// manages the title text of the WIP tab to give useful summary information on the state of WIP
+        /// </summary>
         public void UpdateWorkViewTitle()
         {
             string AssetCount = lvWork.Items.Count.ToString();
@@ -230,8 +264,11 @@ namespace DAMBuddy2
             }
 
         }
-
-        public void RemoveWIPCallback(string filename)
+        /// <summary>
+        /// called (by RepoManager?) when an asset has been removed from WIP
+        /// </summary>
+        /// <param name="filename"></param>
+        public void callbackRemoveWIP(string filename)
         {
             if (m_IsClosing) return;
             foreach (ListViewItem item in lvWork.Items)
@@ -244,9 +281,12 @@ namespace DAMBuddy2
             }
 
             UpdateWorkViewTitle();
-                    }
-
-        public void DisplayWIPCallback(string filename)//, string originalpath)
+        }
+        /// <summary>
+        /// called (by RepoManager?) when an asset has been added to WIP
+        /// </summary>
+        /// <param name="filename"></param>
+        public void callbackDisplayWIP(string filename)
         {
             if (m_IsClosing) return;
 
@@ -259,8 +299,11 @@ namespace DAMBuddy2
             UpdateWorkViewTitle();
         }
 
-
-        public void WIPModifiedCallback(string filename)
+        /// <summary>
+        /// called (by RepoManager) when an asset in WIP has been modified (by the editor)
+        /// </summary>
+        /// <param name="filename"></param>
+        public void callbackWIPModified(string filename)
         {
             if (m_IsClosing) return;
 
@@ -268,11 +311,15 @@ namespace DAMBuddy2
         
         }
 
-        public void TicketUpdateStateCallback( string TicketId, RepoManager.TicketChangeState state )
+        public void callbackTicketUpdateState( string TicketId, RepoManager.TicketChangeState state )
         {
+            // TODD: Implement
             MessageBox.Show("mainform : received state update " + TicketId);
         }
 
+        /// <summary>
+        /// Initialization block: reads config, instantiates embedded objs, creates chromium browsers, sets callbacks for, and, creates RepoManager instance
+        /// </summary>
         private void InitializeApp()
         {
             var appsettings = ConfigurationManager.AppSettings;
@@ -284,11 +331,16 @@ namespace DAMBuddy2
             tsbWord.Enabled = false;
             tstbRepositoryFilter.Text = "";
 
-            m_RepoManager = new RepoManager( StaleCallback, DisplayWIPCallback, RemoveWIPCallback, WIPModifiedCallback);
-            m_RepoManager.CallbackScheduleState = ScheduleStateChangeCallback;
-            m_RepoManager.CallbackTicketState = TicketStateChangeCallback;
-            m_RepoManager.CallbackUploadState = TicketUpdateStateCallback;
 
+            RepoCallbackSettings callbacks = new RepoCallbackSettings();
+            callbacks.callbackStale = callbackStale;
+            callbacks.callbackDisplayWIP = callbackDisplayWIP;
+            callbacks.callbackRemoveWIP = callbackRemoveWIP;
+            callbacks.callbackModifiedWIP = callbackWIPModified;
+            callbacks.callbackScheduleState = callbackScheduleStateChange;
+            callbacks.callbackUploadState = callbackTicketUpdateState;
+            m_RepoManager = new RepoManager( callbacks);
+            
 
             m_browserSchedule = new ChromiumWebBrowser("http://ckcm:10008/scheduler-plan.html"); // TODO:Fix port
             m_browserUpload = new ChromiumWebBrowser("https://google.ca");
@@ -303,7 +355,7 @@ namespace DAMBuddy2
 
 
             m_RepoManager.Init(30000 * 1, 60000 * 1);
-            m_RepoManager.GetTicketScheduleStatus();
+            //m_RepoManager.GetTicketScheduleStatus();
 
             this.Text = "BuildBuddy v" + GetLocalVersionNumber();
 
@@ -316,7 +368,9 @@ namespace DAMBuddy2
             LoadRepositoryTemplates();
         }
 
-
+        /// <summary>
+        /// Manages the UI for switching current repository, loads the repository list from RepoManager
+        /// </summary>
         private void InitAvailableRepos()
         {
             var listRepos = m_RepoManager.GetAvailableRepositories();
@@ -356,7 +410,11 @@ namespace DAMBuddy2
 
         }
 
-
+        /// <summary>
+        /// Downloads supporting files used in Transform process. 
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>files are archetype xml files which are managed/created on the server</remarks>
         private bool PrepareTransformSupport()
         {
 
@@ -376,7 +434,7 @@ namespace DAMBuddy2
             ZipArchive archive = ZipFile.OpenRead(fileName);
             foreach (ZipArchiveEntry entry in archive.Entries)
             {
-                string entryfullname = Path.Combine(m_RepoManager.TicketFolder, entry.FullName);
+                string entryfullname = Path.Combine(m_RepoManager.CurrentRepo.TicketFolder, entry.FullName);
                 string entryPath = Path.GetDirectoryName(entryfullname);
                 if (!Directory.Exists(entryPath))
                 {
@@ -395,7 +453,10 @@ namespace DAMBuddy2
         }
 
 
-
+        /// <summary>
+        /// Loads version from a local file (not assemmbly versions)
+        /// </summary>
+        /// <returns></returns>
         private static string GetLocalVersionNumber()
         {
 
@@ -407,26 +468,11 @@ namespace DAMBuddy2
             }
             return null;
         }
+        
 
-        public static HttpWebRequest CreateSOAPWebRequest()
-        {
-            //Making Web Request  
-            HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(m_OPTWebserviceUrl);
-            //SOAPAction  
-
-            Req.Headers.Add(@"SOAP:Action");
-
-            //Content_type  
-            Req.ContentType = "text/xml;charset=\"utf-8\"";
-            Req.Accept = "text/xml";
-            //HTTP method  
-            Req.Method = "POST";
-            //return HttpWebRequest  
-            return Req;
-        }
-
-
-
+        /// <summary>
+        /// Creates Listitems in Repostory listview using paged list from RepoManager and applies filtering based on user filtertext
+        /// </summary>
         private void DisplayTemplates2()
         {
 
@@ -443,21 +489,21 @@ namespace DAMBuddy2
                 
                 int count = 0;
                 //    ..LockWindowUpdate(this.Handle);
-                //foreach (ListViewItem item in m_masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())))
-                //var aPage = m_RepoManager.Masterlist.Page(mCurrentPage);
+                //foreach (ListViewItem item in m_MasterListAssets.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())))
+                //var aPage = m_RepoManager.MasterListAssets.Page(mCurrentPage);
 
                 int numberOfObjectsPerPage = 200;
                 int pageNumber = mCurrentPage;
-                mTotalItems  = m_RepoManager.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Count();
+                mTotalItems  = m_RepoManager.CurrentRepo.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Count();
 
 
             
                 availablePages = mTotalItems / mPageSize;
                 lblPageCount.Text = $"{mCurrentPage + 1}/{availablePages + 1}";
 
-                var RepoPage = m_RepoManager.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
+                var RepoPage = m_RepoManager.CurrentRepo.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
 
-                //var RepoPage = m_RepoManager.Masterlist.Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
+                //var RepoPage = m_RepoManager.MasterListAssets.Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
 
                 Console.WriteLine($"count {RepoPage.Count()}");
 
@@ -501,11 +547,17 @@ namespace DAMBuddy2
 
         }
 
-        private void DisplayRepoStatusUpdateCallback(string sStatus)
+        /// <summary>
+        /// Displays the progress of the Repository Document Transform
+        /// </summary>
+        /// <param name="sStatus"></param>
+        private void callbackDisplayRepoStatusUpdate(string sStatus)
         {
+
+
             if (InvokeRequired)
             {
-                BeginInvoke((MethodInvoker)delegate { this.DisplayRepoStatusUpdateCallback(sStatus); });
+                BeginInvoke((MethodInvoker)delegate { this.callbackDisplayRepoStatusUpdate(sStatus); });
                 return;
             }
             if (sStatus == null) return;
@@ -518,6 +570,10 @@ namespace DAMBuddy2
 
             tspStatusLabel.Text = sStatus;
         }
+        /// <summary>
+        /// Displays the progress of the WIP Document Transform
+        /// </summary>
+        /// <param name="sStatus"></param>
 
         private void DisplayWIPStatusUpdateCallback(string sStatus)
         {
@@ -532,14 +588,17 @@ namespace DAMBuddy2
             //tsPBWIPTransform.PerformStep();
             tsStatusLabel.Text = sStatus;
         }
-
+        /// <summary>
+        /// Creates a thread to execute the WIP Document transformation, passing callbacks for status and completion notifications
+        /// </summary>
+        /// <param name="sTemplateName"></param>
         private void RunThreadedTransformWIP(string sTemplateName)
         {
 
             var args = new TransformArgs();
             args.sTemplateName = sTemplateName;
-            args.sTemplateFilepath = m_RepoManager.GetTemplateFilepath(sTemplateName);
-            args.callbackDisplayHTML = DisplayTransformedDocumentWIP;
+            args.sTemplateFilepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(sTemplateName);
+            args.callbackDisplayHTML = callbackDisplayTransformedDocumentWIP;
             args.callbackStatusUpdate = DisplayWIPStatusUpdateCallback;
             tsPBWIPTransform.Step = 1;
             tsPBWIPTransform.Value = 0;
@@ -554,14 +613,17 @@ namespace DAMBuddy2
             m_currentDocumentWIP = sTemplateName;
         }
 
-
+        /// <summary>
+        /// Creates a thread to execute the Repository Document transformation, passing callbacks for status and completion notifications
+        /// </summary>
+        /// <param name="sTemplateName"></param>
         private void RunThreadedTransformRepo(string sTemplateName)
         {
             var args = new TransformArgs();
             args.sTemplateName = sTemplateName;
-            args.sTemplateFilepath = m_RepoManager.GetTemplateFilepath(sTemplateName);
-            args.callbackDisplayHTML = DisplayRepoTransformedDocumentCallback;
-            args.callbackStatusUpdate = DisplayRepoStatusUpdateCallback;
+            args.sTemplateFilepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(sTemplateName);
+            args.callbackDisplayHTML = callbackDisplayRepoTransformedDocument;
+            args.callbackStatusUpdate = callbackDisplayRepoStatusUpdate;
             toolStripProgressBar2.Step = 1;
             toolStripProgressBar2.Value = 0;
             toolStripProgressBar2.Minimum = 0;
@@ -574,7 +636,7 @@ namespace DAMBuddy2
             toolStripProgressBar1.Maximum = 5;
             toolStripProgressBar1.Visible = false;
 
-            DisplayRepoStatusUpdateCallback("Transforming " + m_currentDocumentRepo + ": Building SOAP Request...");
+            callbackDisplayRepoStatusUpdate("Transforming " + m_currentDocumentRepo + ": Building SOAP Request...");
 
             Thread thread1 = new Thread(RunTransform);
             thread1.Start(args);
@@ -587,7 +649,7 @@ namespace DAMBuddy2
             
             string sTemplateName = theArgs.sTemplateName;
             Cursor.Current = Cursors.WaitCursor;
-            string sSelectedTransform = m_RepoManager.TicketFolder + @"\XSLT\OrderItem.xsl";
+            string sSelectedTransform = m_RepoManager.CurrentRepo.TicketFolder + @"\XSLT\OrderItem.xsl";
             string sProcessedName = sTemplateName.Replace(".oet", "").TrimEnd();
 
 
@@ -598,14 +660,14 @@ namespace DAMBuddy2
                  sProcessedName.EndsWith("Template", StringComparison.OrdinalIgnoreCase) ||
                  sProcessedName.EndsWith("Group", StringComparison.OrdinalIgnoreCase))
             {
-                sSelectedTransform = m_RepoManager.TicketFolder + @"\XSLT\OrderSet.xsl";
+                sSelectedTransform = m_RepoManager.CurrentRepo.TicketFolder + @"\XSLT\OrderSet.xsl";
             }
 
             try
             {
                 string sTempHTML = @"c:\temp\" + Guid.NewGuid().ToString() + @".html";
 
-                HttpWebRequest wr = CreateSOAPWebRequest();
+                HttpWebRequest wr = TransformRequestBuilder.CreateSOAPWebRequest(m_OPTWebserviceUrl);
                 XmlDocument SOAPReqBody = new XmlDocument();
                 String optContents = "";
 
@@ -771,7 +833,7 @@ namespace DAMBuddy2
             var word = new Microsoft.Office.Interop.Word.Application();
             word.Visible = true;
             string TemplateFilename = dictIdName[lvRepository.SelectedItems[0].Text];
-            string newFilename = m_RepoManager.WIPPath + Path.GetFileNameWithoutExtension(TemplateFilename) + ".html";
+            string newFilename = m_RepoManager.CurrentRepo.WIPPath + Path.GetFileNameWithoutExtension(TemplateFilename) + ".html";
             string oldFilename = m_currentHTML.Replace("file:///", "");
 
             if (File.Exists(newFilename))
@@ -882,7 +944,7 @@ namespace DAMBuddy2
             {
                 string filename = lvRepository.SelectedItems[0].Text;
                 //string filepath = dictFileToPath[filename];
-                string filepath = m_RepoManager.GetTemplateFilepath( filename );
+                string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath( filename );
                 RunThreadedTransformRepo(filename);
                 LoadRepoWUR(filename);
             }
@@ -911,7 +973,7 @@ namespace DAMBuddy2
         private void LoadWURWIP(string filename)
         {
             //http://ckcm:8011/WhereUsed,0f3e3fc2-6dbe-4f6f-b292-e8ef0501c163
-            string sTID = m_RepoManager.GetTemplateID(filename);
+            string sTID = m_RepoManager.CurrentRepo.GetTemplateID(filename);
             wbWIPWUR.ScriptErrorsSuppressed = true;
             wbWIPWUR.Url = new Uri("http://ckcm:8011/WhereUsed," + sTID);
 
@@ -920,7 +982,7 @@ namespace DAMBuddy2
         private void LoadRepoWUR(string filename)
         {
             //http://ckcm:8011/WhereUsed,0f3e3fc2-6dbe-4f6f-b292-e8ef0501c163
-            string sTID = m_RepoManager.GetTemplateID(filename);
+            string sTID = m_RepoManager.CurrentRepo.GetTemplateID(filename);
             wbRepoWUR.ScriptErrorsSuppressed = true;
             wbRepoWUR.Url = new Uri("http://ckcm:8011/WhereUsed," + sTID);
 
@@ -942,29 +1004,10 @@ namespace DAMBuddy2
 
 
 
-        private void lvRepository_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
-
-
-            if (e.Item.Checked)
-            {
-                m_RepoManager.AddWIP((string)e.Item.Tag);
-
-                //    ListViewItem itemWIP = new ListViewItem(e.Item.Text);
-                //  itemWIP.Tag = e.Item.Tag;
-
-                //lvWork.Items.Add(itemWIP).SubItems.Add("-") ;
-
-                //lvRepository.Items.Remove(e.Item);
-                //lvWork.Items.Add(e.Item);
-            }
-        }
-
-
 
         private void tsbWorkUpload_Click(object sender, EventArgs e)
         {
-            m_RepoManager.PostWIP();
+            m_RepoManager.CurrentRepo.PostWIP();
             //PostCache();
             StartUpload();
 
@@ -1119,7 +1162,7 @@ namespace DAMBuddy2
         {
             SearchArgs theArgs = (SearchArgs)oArgs;
 
-            string assetpath = m_RepoManager.AssetPath;
+            string assetpath = m_RepoManager.CurrentRepo.AssetPath;
             if (assetpath.EndsWith(@"\"))
             {
                 assetpath = assetpath.Remove(assetpath.Length - 1);
@@ -1182,7 +1225,7 @@ namespace DAMBuddy2
             if (lvRepoSearchResults.SelectedItems.Count > 0)
             {
                 string filename = lvRepoSearchResults.SelectedItems[0].Text;
-                string filepath = m_RepoManager.GetTemplateFilepath(filename);//dictFileToPath[filename];
+                string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename);//dictFileToPath[filename];
                 RunThreadedTransformRepo(filename);
             }
         }
@@ -1201,7 +1244,7 @@ namespace DAMBuddy2
             if (item.Tag != null)
             {
                 string itemdata = (string)item.Tag;
-                m_RepoManager.AddWIP(itemdata);
+                m_RepoManager.CurrentRepo.AddWIP(itemdata);
 
             }
         }
@@ -1217,7 +1260,7 @@ namespace DAMBuddy2
 
             if (items.Length > 1)
             {
-                m_RepoManager.RemoveWIP(items[0]);//, items[1]);
+                m_RepoManager.CurrentRepo.RemoveWIP(items[0]);//, items[1]);
             }
         }
 
@@ -1281,7 +1324,7 @@ namespace DAMBuddy2
                     {
                         //MenuItem[] mi = new MenuItem[1];//{ new MenuItem("Remove " + item.Text), new MenuItem("World"), new MenuItem(item.Text) };
 
-                        var bEnabled = !m_RepoManager.isAssetinWIP(item.Text);
+                        var bEnabled = !m_RepoManager.CurrentRepo.isAssetinWIP(item.Text);
                         string prefix = "";
 
                         if (!bEnabled) prefix = "Already in WIP : ";
@@ -1324,7 +1367,7 @@ namespace DAMBuddy2
 
         private void LoadRepositoryTemplates()
         {
-            m_RepoManager.LoadRepositoryTemplates();
+            m_RepoManager.CurrentRepo.LoadRepositoryTemplates();
             mCurrentPage = 0;
             DisplayTemplates2();
         }
@@ -1420,7 +1463,7 @@ namespace DAMBuddy2
                 if (lvRepository.SelectedItems.Count > 0)
                 {
                     string filename = lvRepository.SelectedItems[0].Text;
-                    string filepath = m_RepoManager.GetTemplateFilepath(filename); //dictFileToPath[filename];
+                    string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename); //dictFileToPath[filename];
                     RunThreadedTransformRepo(filename);
                 }
 
@@ -1430,7 +1473,7 @@ namespace DAMBuddy2
                 if (lvRepoSearchResults.SelectedItems.Count > 0)
                 {
                     string filename = lvRepoSearchResults.SelectedItems[0].Text;
-                    string filepath = m_RepoManager.GetTemplateFilepath(filename); //dictFileToPath[filename];
+                    string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename); //dictFileToPath[filename];
                     RunThreadedTransformRepo(filename);
                 }
 
@@ -1465,7 +1508,7 @@ namespace DAMBuddy2
 
             tsbStart.Enabled = false;
             tsbPause.Enabled = true;
-            m_RepoManager.SetTicketReadiness(true);
+            m_RepoManager.CurrentRepo.SetTicketReadiness(true);
         }
 
         private void tsbPause_Click(object sender, EventArgs e)
@@ -1474,13 +1517,13 @@ namespace DAMBuddy2
 
             tsbStart.Enabled = true;
             tsbPause.Enabled = false;
-            m_RepoManager.SetTicketReadiness(false);
+            m_RepoManager.CurrentRepo.SetTicketReadiness(false);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             m_IsClosing = true;
-            m_RepoManager.Closedown();
+            m_RepoManager.Shutdown();
             //m_RepoManager.SaveExistingWip();
         }
 
@@ -1503,7 +1546,7 @@ namespace DAMBuddy2
 
         private void LaunchTD()
         {
-            m_RepoManager.ConfigureAndLaunchTD();
+            m_RepoManager.CurrentRepo.ConfigureAndLaunchTD();
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -1547,19 +1590,28 @@ namespace DAMBuddy2
 
             string newRepo = item.Text;
 
-            if (m_RepoManager.SetCurrentRepository(newRepo))
+            try
             {
+                this.UseWaitCursor = true;
+
+                if (m_RepoManager.SetCurrentRepository(newRepo))
+                {
 
 
-                tsddbRepository.Text = newRepo;
+                    tsddbRepository.Text = newRepo;
 
 
-//                InitAvailableRepos();
+                    //                InitAvailableRepos();
 
 
-                PrepareTransformSupport();
-                LoadRepositoryTemplates();
+                    PrepareTransformSupport();
+                    LoadRepositoryTemplates();
+                    lvWork.Items.Clear();
 
+                }
+            } finally
+            {
+                this.UseWaitCursor = false;
             }
 
         }

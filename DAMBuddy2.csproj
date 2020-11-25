@@ -155,6 +155,7 @@
     </Compile>
     <Compile Include="OceanUtils.cs" />
     <Compile Include="RepoCacheManager.cs" />
+    <Compile Include="RepoInstance.cs" />
     <Compile Include="RepoManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

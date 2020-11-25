@@ -11,27 +11,27 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 namespace DAMBuddy2
 {
-    public partial class SetupTicketForm : Form
-    {
+	public partial class SetupTicketForm : Form
+	{
 		public string m_Ticket;
 		public string m_TicketJSON;
 
 		public SetupTicketForm()
-        {
-            InitializeComponent();
-        }
+		{
+			InitializeComponent();
+		}
 
 		private string BuildHTML( string json )
-        {
+		{
 			JObject jsonissue = JObject.Parse(json);
 			string description = (string)jsonissue["fields"]["description"];
 			string html = $"<html><body><b>Description: </b>{description}</body></html>";
 			return html;
 		}
 
-        private void btnSearch_Click(object sender, EventArgs e)
-        {
-            string jsonTicket = "";
+		private void btnSearch_Click(object sender, EventArgs e)
+		{
+			string jsonTicket = "";
 			string searchTicket = tbTicket.Text;
 
 			jsonTicket = JiraService.GetJiraIssue(searchTicket);
@@ -45,7 +45,7 @@ namespace DAMBuddy2
 
 
 				/*
-                 * 			JSONObject obj = new JSONObject("" + response.getBody());
+				 * 			JSONObject obj = new JSONObject("" + response.getBody());
 			ji.setId(obj.getString("id"));
 
 			ji.setKey(obj.getString("key"));
@@ -125,8 +125,8 @@ namespace DAMBuddy2
 			String url = jiraBaseUrl + "/browse/" + ji.getKey();
 			ji.setUrl(url);
 
-                 */
+				 */
 			
 		}
-    }
+	}
 }
