@@ -58,8 +58,7 @@ namespace DAMBuddy2
 
         private string m_PushDir = @"c:\temp\dambuddy2\togo";
         private static string m_OPTWebserviceUrl = ""; //@"http://wsckcmapp01/OptWs/OperationalTemplateBuilderService.asmx";
-        private string m_CacheServiceURL = ""; //@"http://ckcm.healthy.bewell.ca:8091/transform_support";
-
+        
 
         protected String startBlock = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:opt=\"http://www.oceaninformatics.org/OPTWS\" xmlns:tem=\"openEHR/v1/Template\" xmlns:v1=\"http://schemas.openehr.org/v1\">\r\n" +
                                   "   <soapenv:Header/>\r\n" +
@@ -154,11 +153,11 @@ namespace DAMBuddy2
         /// called (from RepoManager) when the "ready state" of the ticket changes
         /// </summary>
         /// <param name="ready"></param>
-        public void callbackTicketStateChange(string ready)
+        public void callbackTicketStateChange(bool isReady)
         {
             if (m_IsClosing) return;
 
-            if (ready == "True")
+            if (isReady)
             {
                 tslReadyState.Text = "Work: Ready";
                 tsbPause.Enabled = true;
@@ -339,6 +338,8 @@ namespace DAMBuddy2
             callbacks.callbackModifiedWIP = callbackWIPModified;
             callbacks.callbackScheduleState = callbackScheduleStateChange;
             callbacks.callbackUploadState = callbackTicketUpdateState;
+            callbacks.callbackTicketState = callbackTicketStateChange;
+
             m_RepoManager = new RepoManager( callbacks);
             
 
@@ -350,7 +351,7 @@ namespace DAMBuddy2
             tpUpload.Controls.Add(m_browserUpload);
             tpSchedule.Controls.Add(m_browserSchedule);
             m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
-            m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
+            //m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
 
 
 
@@ -364,7 +365,7 @@ namespace DAMBuddy2
             InitAvailableRepos();
 
 
-            PrepareTransformSupport();
+            //PrepareTransformSupport();
             LoadRepositoryTemplates();
         }
 
@@ -405,8 +406,8 @@ namespace DAMBuddy2
             addNew.ImageScaling = ToolStripItemImageScaling.None;
             tsddbRepository.DropDownItems.Add(addNew);
 
-            tsddbRepository.Text = m_RepoManager.GetCurrentRepository();
-            tslWorkRepository.Text = m_RepoManager.GetCurrentRepository();
+            tsddbRepository.Text = m_RepoManager.CurrentRepo.TicketID;;
+            tslWorkRepository.Text = tsddbRepository.Text;
 
         }
 
@@ -415,43 +416,6 @@ namespace DAMBuddy2
         /// </summary>
         /// <returns></returns>
         /// <remarks>files are archetype xml files which are managed/created on the server</remarks>
-        private bool PrepareTransformSupport()
-        {
-
-            string remoteUri = m_CacheServiceURL;
-
-            string fileName = "transform_support.zip", myStringWebResource = null;
-            // Create a new WebClient instance.
-            System.Net.WebClient myWebClient = new WebClient();
-            // Concatenate the domain with the Web resource filename.
-            myStringWebResource = remoteUri;
-            Console.WriteLine("Downloading File \"{0}\" from \"{1}\" .......\n\n", fileName, myStringWebResource);
-            // Download the Web resource and save it into the current filesystem folder.
-            myWebClient.DownloadFile(myStringWebResource, fileName);
-            Console.WriteLine("Successfully Downloaded File \"{0}\" from \"{1}\"", fileName, myStringWebResource);
-            Console.WriteLine("\nDownloaded file saved in the following file system folder:\n\t" + System.Windows.Forms.Application.StartupPath);
-
-            ZipArchive archive = ZipFile.OpenRead(fileName);
-            foreach (ZipArchiveEntry entry in archive.Entries)
-            {
-                string entryfullname = Path.Combine(m_RepoManager.CurrentRepo.TicketFolder, entry.FullName);
-                string entryPath = Path.GetDirectoryName(entryfullname);
-                if (!Directory.Exists(entryPath))
-                {
-                    Directory.CreateDirectory(entryPath);
-                }
-
-                string entryFn = Path.GetFileName(entryfullname);
-                if (!String.IsNullOrEmpty(entryFn))
-                {
-                    entry.ExtractToFile(entryfullname, true);
-
-                }
-
-            }
-            return true;
-        }
-
 
         /// <summary>
         /// Loads version from a local file (not assemmbly versions)
@@ -814,7 +778,7 @@ namespace DAMBuddy2
             {
                 if (!gSearchDocumentRep)
                 {
-                    string highlightedHtml = HighlightHtml(tstbRepositorySearch.Text, wbRepositoryView.Document);
+                    string highlightedHtml = Utility.HighlightHtml(tstbRepositorySearch.Text, wbRepositoryView.Document);
                     wbRepositoryView.DocumentText = highlightedHtml;
                     gSearchDocumentRep = true; // avoids re-triggering the highlight in a loop 
                 }
@@ -823,7 +787,6 @@ namespace DAMBuddy2
                     gSearchDocumentRep = false;
                 }
 
-                //wbRepositoryView.Document.Body.OuterHtml = highlightedHtml;
 
             }
         }
@@ -842,31 +805,9 @@ namespace DAMBuddy2
             }
 
             File.Copy(oldFilename, newFilename);
-            //Object filepath = m_currentHTML;
-            //var filePath = Server.MapPath("~/MyFiles/Html2PdfTest.html");
-            //var savePathPdf = Server.MapPath("~/MyFiles/Html2PdfTest.pdf");
             word.Documents.Open(newFilename);
         }
 
-
-
-        private string GetTDConfig()
-        {
-            string filename = "";
-
-            string OceanDir = "/Ocean_Informatics";
-
-            string appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string Ocean = appdata + OceanDir;
-
-            DirectoryInfo diOcean = new DirectoryInfo(Ocean);
-            WalkDirectoryTree(diOcean, ref filename);
-
-            return filename;
-            //MessageBox.Show(filename);
-            //messages += ("Storing config in " + filename + "\n");
-        }
- 
 
         static public string WalkDirectoryTree(System.IO.DirectoryInfo root, ref string filename)
         {
@@ -1034,7 +975,7 @@ namespace DAMBuddy2
             string filter = tstbRepositoryFilter.Text;
 
 
-            m_RepoManager.ApplyFilter(filter);
+            //m_RepoManager.ApplyFilter(filter);
             
             if( string.IsNullOrEmpty(filter ))
             {
@@ -1362,7 +1303,7 @@ namespace DAMBuddy2
 
         private void tsWorkReload_Click(object sender, EventArgs e)
         {
-
+            m_RepoManager.CurrentRepo.LoadExistingWIP();
         }
 
         private void LoadRepositoryTemplates()
@@ -1391,35 +1332,6 @@ namespace DAMBuddy2
 
         }
 
-        private string HighlightHtml(string SearchText, HtmlDocument doc2)
-        {
-            //mshtml.IHTMLDocument2 doc2 = WebBrowser.Document.DomDocument;
-            string ReplacementTag = "<span style='background-color: rgb(255, 255, 0);'>";
-            StringBuilder strBuilder = new StringBuilder(doc2.Body.OuterHtml);
-            string HTMLString = strBuilder.ToString();
-            //if (this.m_NoteType == ExtractionNoteType.SearchResult)
-            {
-                List<string> SearchWords = new List<string>();
-
-                SearchText = SearchText.Replace('"', ' ');
-                SearchWords.AddRange(SearchText.Trim().Split(' '));
-                foreach (string item in SearchWords)
-                {
-                    int index = HTMLString.IndexOf(item, 0, StringComparison.InvariantCultureIgnoreCase);
-                    // 'If index > 0 Then
-                    while ((index > 0 && index < HTMLString.Length))
-                    {
-                        HTMLString = HTMLString.Insert(index, ReplacementTag);
-                        HTMLString = HTMLString.Insert(index + item.Length + ReplacementTag.Length, "</span>");
-                        index = HTMLString.IndexOf(item, index + item.Length + ReplacementTag.Length + 7, StringComparison.InvariantCultureIgnoreCase);
-                    }
-                }
-            }
-            //else
-            // {
-            // }
-            return HTMLString;
-        }
 
 
         private void toolStripButton2_Click(object sender, EventArgs e)
@@ -1431,7 +1343,7 @@ namespace DAMBuddy2
         {
             if (tabControl1.SelectedTab.Name == "tpOverlaps")
             {
-                wbOverlaps.Url = new Uri("http://ckcm:10008/dynamic/OverlapFocus,CSDFK-1489");
+                wbOverlaps.Url = new Uri($"http://ckcm:10008/dynamic/OverlapFocus,{m_RepoManager.CurrentRepo.TicketID}");
             }
         }
 
@@ -1463,7 +1375,7 @@ namespace DAMBuddy2
                 if (lvRepository.SelectedItems.Count > 0)
                 {
                     string filename = lvRepository.SelectedItems[0].Text;
-                    string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename); //dictFileToPath[filename];
+                    string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename); 
                     RunThreadedTransformRepo(filename);
                 }
 
@@ -1473,7 +1385,7 @@ namespace DAMBuddy2
                 if (lvRepoSearchResults.SelectedItems.Count > 0)
                 {
                     string filename = lvRepoSearchResults.SelectedItems[0].Text;
-                    string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename); //dictFileToPath[filename];
+                    string filepath = m_RepoManager.CurrentRepo.GetTemplateFilepath(filename); 
                     RunThreadedTransformRepo(filename);
                 }
 
@@ -1529,7 +1441,6 @@ namespace DAMBuddy2
 
         private void configToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            m_RepoManager.TestCacheManager();
             
             //m_RepoManager.TestJira( "CKCMFK-1989");
         }
@@ -1593,21 +1504,23 @@ namespace DAMBuddy2
             try
             {
                 this.UseWaitCursor = true;
+                lvWork.Items.Clear();
+                UpdateWorkViewTitle();
 
                 if (m_RepoManager.SetCurrentRepository(newRepo))
                 {
 
 
                     tsddbRepository.Text = newRepo;
+                    tslWorkRepository.Text = newRepo;
 
 
                     //                InitAvailableRepos();
 
 
-                    PrepareTransformSupport();
+                    //PrepareTransformSupport();
                     LoadRepositoryTemplates();
-                    lvWork.Items.Clear();
-
+                    
                 }
             } finally
             {

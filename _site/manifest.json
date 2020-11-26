@@ -1,0 +1,414 @@
+{
+  "homepages": [],
+  "source_base_path": "C:/Users/jonbeeby/source/repos/DAMBuddy2",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/index.html",
+          "hash": "KzqEfmonuLCcQ3GPL8Wurw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/intro.html",
+          "hash": "kUGfhnEwpk+2rHRHXiQ4Rw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/toc.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/toc.html",
+          "hash": "gB8AESyvNru97tzIZofEEg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html",
+          "hash": "ajHqot+nXX6mZ8C5ul6Erw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.DisplayWIPCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.DisplayWIPCallback.html",
+          "hash": "gaIlQYk5iTW9UTJqLcBCyg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.FileAssociation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.FileAssociation.html",
+          "hash": "P0zhbVhgatt3QTNCBOlEDA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.FileAssociations.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.FileAssociations.html",
+          "hash": "MnjuIOSXDuKVdLoVSRuxLw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.Form2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.Form2.html",
+          "hash": "m3uHFHzrPFMiK8tFjCpjPw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.JiraIssue.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.JiraIssue.html",
+          "hash": "XeDe8Kyy1euYWK76FgS4oQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.JiraService.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.JiraService.html",
+          "hash": "C1NdMfP7412ZmIIlsiZ/bg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.SearchArgs.AddResultCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.SearchArgs.AddResultCallback.html",
+          "hash": "8DT6P5z/sA3U/FH0TTXDvA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.SearchArgs.FinishedSearch.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.SearchArgs.FinishedSearch.html",
+          "hash": "kANvmm8qwrWCOgp+ZHTJnQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.SearchArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.SearchArgs.html",
+          "hash": "/id1XA5wZcMp93eNdcEOtA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.TransformArgs.DisplayCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.TransformArgs.DisplayCallback.html",
+          "hash": "0IG1emRAOfa3izvF5lDQUw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.TransformArgs.StatusCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.TransformArgs.StatusCallback.html",
+          "hash": "tQTTYiZeh9aB+ROb5vShOg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.TransformArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.TransformArgs.html",
+          "hash": "ccSQy2WVyHfPqR9cTakpqg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.MainForm.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.MainForm.html",
+          "hash": "SD565TJQX9IlsdOW2pK6gQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.ModifiedCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.ModifiedCallback.html",
+          "hash": "Ah42x6LKdT19JenfSJChIA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.ReadyStateCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.ReadyStateCallback.html",
+          "hash": "sCDceF/f0AJmdVmHCWwKgQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.RemoveWIPCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.RemoveWIPCallback.html",
+          "hash": "Ctupk0/42knEmfeLsrR+QA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.RepoCallbackSettings.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.RepoCallbackSettings.html",
+          "hash": "ajaBdcWvtk1YwoNs40Hetw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.RepoInstance.TicketScheduleState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.RepoInstance.TicketScheduleState.html",
+          "hash": "a0IbeTmNPuiFT/U93VO5nQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.RepoInstance.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.RepoInstance.html",
+          "hash": "/JTYpYXzPkcz3zyz0bwg8w=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.RepoInstanceConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.RepoInstanceConfig.html",
+          "hash": "u0oHECfCSM9cU4/gAWRojQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.SetupTicketForm.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.SetupTicketForm.html",
+          "hash": "AqqH2osDEPxcZRrlTb8XHQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.StaleCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.StaleCallback.html",
+          "hash": "/x2OKW3n5WvNgiJLrTZQVg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.UploadStateCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.UploadStateCallback.html",
+          "hash": "iVQkQAIDk8ctFsQ/XJT2jA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.html",
+          "hash": "gzKCu4p9ClYLeNySF9aZEg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "obj/api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html",
+          "hash": "ryhIAaiKWomXXeC4Vrt4nQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html",
+          "hash": "G2AoE5T/2VarbHvzLEo4TQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    }
+  ],
+  "incremental_info": [
+    {
+      "status": {
+        "can_incremental": true,
+        "incrementalPhase": "build",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {
+        "ConceptualDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 3,
+          "skipped_file_count": 3
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 24,
+          "skipped_file_count": 24
+        },
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        }
+      }
+    },
+    {
+      "status": {
+        "can_incremental": true,
+        "details": "Can support incremental post processing.",
+        "incrementalPhase": "postProcessing",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {}
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

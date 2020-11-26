@@ -21,6 +21,7 @@ using Newtonsoft.Json.Linq;
 namespace DAMBuddy2
 {
     public delegate void ModifiedCallback(string filename);
+    public delegate void ReadyStateCallback(bool isReady);
     public delegate void StaleCallback(string filename);
     public delegate void DisplayWIPCallback(string filename);//, string originalpath);
     public delegate void RemoveWIPCallback(string filename);
@@ -28,18 +29,47 @@ namespace DAMBuddy2
 
     public class RepoInstanceConfig
     {
+        /// <summary>
+        /// the path to the folder for the repository
+        /// </summary>
         public string BaseFolder;
+        /// <summary>
+        /// the ticket id (e.g. CSDFK-1234)
+        /// </summary>
         public string TicketID;
+        /// <summary>
+        /// the folder name (from the server)
+        /// </summary>
         public string FolderID;
-        public string ServerURL;
+        /// <summary>
+        /// How many milliseconds to delay the first git pull for the repo
+        /// </summary>
         public int GitPullInitialDelay;
+        /// <summary>
+        /// How many milliseconds between git pulls
+        /// </summary>
         public int GitPullInterval;
+        /// <summary>
+        /// Denotes if this repository is the current/active in the UI
+        /// </summary>
+        public bool isActive = false;
+        /// <summary>
+        /// Collection of URL endpoints
+        /// </summary>
+            /// <summary>
+            /// The URL of the server....?
+            /// </summary>
+            public string URLServer;
+            /// <summary>
+            /// the URL for the transform support endpoint
+            /// </summary>
+            public string URLCache;
     }
 
     public class RepoCallbackSettings
     {
         public ModifiedCallback callbackScheduleState;
-        public ModifiedCallback callbackTicketState;
+        public ReadyStateCallback callbackTicketState;
         public ModifiedCallback callbackModifiedWIP;
         public RemoveWIPCallback callbackRemoveWIP;
         public StaleCallback callbackStale;
@@ -56,6 +86,7 @@ namespace DAMBuddy2
         private static string FOLDER_ROOT = @"c:\TD";
 
         private static string BIN_DIR = @"C:\Users\jonbeeby\source\repos\DamBuddy2\packages\PortableGit\bin\";
+        private string m_CacheServiceURL = ""; //@"http://ckcm.healthy.bewell.ca:8091/transform_support";
 
 
         private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
@@ -70,7 +101,7 @@ namespace DAMBuddy2
 
         //private string mConfig.BaseFolder = "";
         //private string mTicketID = "";
-        //private string mConfig.ServerURL = "";
+        //private string mConfig.URLServer = "";
 
         bool m_ReadyStateSetByUser = false;
         private static Dictionary<string, string> m_dictFileToPath;
@@ -92,7 +123,6 @@ namespace DAMBuddy2
         private RepoInstanceConfig mConfig;
         private DateTime m_dtCloneStart;
         private DateTime m_dtCloneEnd;
-        private bool mIsActive = false;
 
         public string WIPPath
         {
@@ -107,20 +137,22 @@ namespace DAMBuddy2
 
         public void MakeInactive()
         {
-            mIsActive = false;
+            mConfig.isActive = false;
             // stop timers, threads etc...
 
         }
         public void MakeActive()
         {
             // start timers, threads etc
-            mIsActive = true;
+            mConfig.isActive = true;
+            LoadExistingWIP();
+            mCallbacks.callbackTicketState?.Invoke(m_ReadyStateSetByUser);
 
         }
 
         public RepoInstance( RepoInstanceConfig config, RepoCallbackSettings callbacks)
         {
-  
+
             m_masterlist = new List<ListViewItem>();
             mConfig = config;
             
@@ -145,7 +177,7 @@ namespace DAMBuddy2
             Init();
 
             LoadRepositoryTemplates();
-            LoadExistingWIP();
+            //LoadExistingWIP();
 
 
         }
@@ -216,13 +248,50 @@ namespace DAMBuddy2
         }
 
 
+        private bool PrepareTransformSupport()
+        {
+
+            string remoteUri = mConfig.URLCache;
+
+            string fileName = mConfig.BaseFolder + "\\" + "transform_support.zip", myStringWebResource = null;
+            // Create a new WebClient instance.
+            System.Net.WebClient myWebClient = new WebClient();
+            // Concatenate the domain with the Web resource filename.
+            myStringWebResource = remoteUri;
+            Console.WriteLine("Downloading File \"{0}\" from \"{1}\" .......\n\n", fileName, myStringWebResource);
+            // Download the Web resource and save it into the current filesystem folder.
+            myWebClient.DownloadFile(myStringWebResource, fileName);
+            Console.WriteLine("Successfully Downloaded File \"{0}\" from \"{1}\"", fileName, myStringWebResource);
+            Console.WriteLine("\nDownloaded file saved in the following file system folder:\n\t" + System.Windows.Forms.Application.StartupPath);
+
+            ZipArchive archive = ZipFile.OpenRead(fileName);
+            foreach (ZipArchiveEntry entry in archive.Entries)
+            {
+                string entryfullname = Path.Combine(TicketFolder, entry.FullName);
+                string entryPath = Path.GetDirectoryName(entryfullname);
+                if (!Directory.Exists(entryPath))
+                {
+                    Directory.CreateDirectory(entryPath);
+                }
+
+                string entryFn = Path.GetFileName(entryfullname);
+                if (!String.IsNullOrEmpty(entryFn))
+                {
+                    entry.ExtractToFile(entryfullname, true);
+
+                }
+
+            }
+            return true;
+        }
+
 
         public bool GetTicketScheduleStatus()
         {
 
-            if (!mIsActive) return false;
+            if (!mConfig.isActive) return false;
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{mConfig.ServerURL}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{TicketID}");
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{mConfig.URLServer}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{TicketID}");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -231,7 +300,7 @@ namespace DAMBuddy2
             {
                 string jsonStatus = reader.ReadToEnd();
 
-                if (!mIsActive) return false;
+                if (!mConfig.isActive) return false;
 
                 mCallbacks.callbackScheduleState?.Invoke(jsonStatus);
 
@@ -242,7 +311,7 @@ namespace DAMBuddy2
 
         private bool UpdateSchedule()
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{mConfig.ServerURL}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json");
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{mConfig.URLServer}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -266,7 +335,7 @@ namespace DAMBuddy2
             {
                 string theParams = $"theFolder={damFolder}&theTemplateID={sTID}";
                 client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                string response = client.UploadString(mConfig.ServerURL + ":" + DAM_UPLOAD_PORT + "/RemoveWIP", theParams);
+                string response = client.UploadString(mConfig.URLServer + ":" + DAM_UPLOAD_PORT + "/RemoveWIP", theParams);
                 Console.WriteLine(response);
             }
             result = true;
@@ -286,7 +355,7 @@ namespace DAMBuddy2
             File.Copy(gitfilepath, filepathWIP);
             File.Move(gitfilepath, initialFile);
 
-            RepoManager.MakeMd5(initialFile);
+            Utility.MakeMd5(initialFile);
 
             string sTID = Utility.GetTemplateID(filepathWIP);
 
@@ -308,7 +377,7 @@ namespace DAMBuddy2
             string gitinitpath = mConfig.BaseFolder + @"\" + GITKEEP_INITIAL;
             File.Move(filepath, gitinitpath);
 
-            RepoManager.MakeMd5(gitinitpath);
+            Utility.MakeMd5(gitinitpath);
         }
 
         public bool isAssetinWIP(string filename)
@@ -330,7 +399,7 @@ namespace DAMBuddy2
             }
             File.Move(filepath, gitkeepfile);
 
-            RepoManager.MakeMd5(gitkeepfile);
+            Utility.MakeMd5(gitkeepfile);
         }
 
         public string GetTemplateID(string filename)
@@ -393,7 +462,7 @@ namespace DAMBuddy2
 
                 using (WebClient client = new WebClient())
                 {
-                    byte[] responseArray = client.UploadFile(mConfig.ServerURL + ":" + DAM_UPLOAD_PORT + "/upload," + damfolder, "POST", zipname);
+                    byte[] responseArray = client.UploadFile(mConfig.URLServer + ":" + DAM_UPLOAD_PORT + "/upload," + damfolder, "POST", zipname);
                     // Decode and display the response.
                     Console.WriteLine("\nResponse Received. The contents of the file uploaded are:\n{0}",
                         System.Text.Encoding.ASCII.GetString(responseArray));
@@ -513,7 +582,7 @@ namespace DAMBuddy2
                 var line = reader.ReadLine();
                 if (line == "True") { m_ReadyStateSetByUser = true; }
                 SetTicketReadiness(m_ReadyStateSetByUser);
-                mCallbacks.callbackTicketState?.Invoke(line);
+                mCallbacks.callbackTicketState?.Invoke(m_ReadyStateSetByUser);
             }
 
         }
@@ -619,8 +688,8 @@ namespace DAMBuddy2
 
             string WIPHashHex = "";
 
-            string wipContents = RepoManager.ReadAsset(filepath);
-            string initialContents = RepoManager.ReadAsset(initialasset);
+            string wipContents = Utility.ReadAsset(filepath);
+            string initialContents = Utility.ReadAsset(initialasset);
 
             if (string.IsNullOrEmpty(initialContents))
                 return;
@@ -676,6 +745,8 @@ namespace DAMBuddy2
             m_watcherWIP.Changed += OnChangedWIP;
             m_watcherWIP.EnableRaisingEvents = true;
 
+            PrepareTransformSupport();
+
             LoadExistingWIP();
         }
 
@@ -705,7 +776,7 @@ namespace DAMBuddy2
             if (IsStale(Path.GetFileName(filepath)))
             {
 
-                if (!mIsActive) return ;
+                if (!mConfig.isActive) return ;
 
                 mCallbacks.callbackStale?.Invoke(Path.GetFileName(filepath));
             }
@@ -733,7 +804,7 @@ namespace DAMBuddy2
             {
                 string theParams = $"theFolder={damfolder}&theTemplateID={sTID}&theTemplateName={sTemplateName}";
                 client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                string response = client.UploadString(mConfig.ServerURL + ":" + DAM_UPLOAD_PORT + "/WIP", theParams);
+                string response = client.UploadString(mConfig.URLServer + ":" + DAM_UPLOAD_PORT + "/WIP", theParams);
                 Console.WriteLine(response);
             }
             result = true;
@@ -762,7 +833,7 @@ namespace DAMBuddy2
                 using (WebClient client = new WebClient())
                 {
                     client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                    string response = client.UploadString(mConfig.ServerURL + ":" + DAM_UPLOAD_PORT + "/ready", theParams);
+                    string response = client.UploadString(mConfig.URLServer + ":" + DAM_UPLOAD_PORT + "/ready", theParams);
                     Console.WriteLine(response);
                 }
             }
