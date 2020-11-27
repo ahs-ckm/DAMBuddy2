@@ -75,6 +75,7 @@ namespace DAMBuddy2
         public StaleCallback callbackStale;
         public DisplayWIPCallback callbackDisplayWIP;
         public UploadStateCallback callbackUploadState;
+        public ModifiedCallback callbackInfo;
 
     }
 
@@ -181,17 +182,11 @@ namespace DAMBuddy2
 
 
         }
-        private bool BackupTicket()
-        {
-            // TODO: zip up to backup folder
-            MessageBox.Show("Backing up :" + mConfig.BaseFolder);
-            return true;
-        }
 
-        public bool Remove()
+/*        public bool Remove()
         {
             return BackupTicket();
-        }
+        }*/
 
         public void Shutdown()
         {
@@ -752,7 +747,7 @@ namespace DAMBuddy2
 
 
         
-
+/*
         public bool DoClone()
         {
             try
@@ -765,7 +760,7 @@ namespace DAMBuddy2
                 return false;
             }
 
-        }
+        }*/
 
 
         // called when an asset is 
@@ -858,13 +853,13 @@ namespace DAMBuddy2
 
             return config;
         }
-
+/*
         private void Empty(System.IO.DirectoryInfo directory)
         {
             foreach (System.IO.FileInfo file in directory.GetFiles()) file.Delete();
             foreach (System.IO.DirectoryInfo subDirectory in directory.GetDirectories()) subDirectory.Delete(true);
         }
-
+*/
 
 
 
@@ -877,14 +872,14 @@ namespace DAMBuddy2
 
 
         }
-
+/*
         public static bool TransferProgress(TransferProgress progress)
         {
             Console.WriteLine($"Objects: {progress.ReceivedObjects} of {progress.TotalObjects}");
             return true;
         }
-
-
+*/
+/*
         public bool Clone()
         {
             m_dtCloneStart = DateTime.Now;
@@ -902,9 +897,11 @@ namespace DAMBuddy2
 
             m_dtCloneEnd = DateTime.Now;
 
+            mCallbacks.callbackInfo?.Invoke("Clone completed.");
+
             return true;
         }
-
+*/
 
     }
 }

@@ -91,6 +91,11 @@ namespace DAMBuddy2
             DisplayTransformedDocumentRepo(filename);
         }
 
+        public void callbackUserInfoDisplay( string message )
+        {
+            toolStripStatusLabel1.Text = message;
+        }
+
         /// <summary>
         /// Called (from RepoManager) when the transform process has completed for the WIP Doc Viewer
         /// </summary>
@@ -339,6 +344,7 @@ namespace DAMBuddy2
             callbacks.callbackScheduleState = callbackScheduleStateChange;
             callbacks.callbackUploadState = callbackTicketUpdateState;
             callbacks.callbackTicketState = callbackTicketStateChange;
+            callbacks.callbackInfo = callbackUserInfoDisplay;
 
             m_RepoManager = new RepoManager( callbacks);
             
@@ -353,7 +359,7 @@ namespace DAMBuddy2
             m_OPTWebserviceUrl = appsettings["OPTServiceUrl"] ?? "App Settings not found";
             //m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
 
-
+            toolStripStatusLabel1.Text = "";
 
             m_RepoManager.Init(30000 * 1, 60000 * 1);
             //m_RepoManager.GetTicketScheduleStatus();
@@ -406,7 +412,24 @@ namespace DAMBuddy2
             addNew.ImageScaling = ToolStripItemImageScaling.None;
             tsddbRepository.DropDownItems.Add(addNew);
 
-            tsddbRepository.Text = m_RepoManager.CurrentRepo.TicketID;;
+            if( m_RepoManager.CurrentRepo == null )
+            {
+                SetRepositoryTitle( "Link a ticket" );
+                
+
+            }
+            else
+            {
+                SetRepositoryTitle(m_RepoManager.CurrentRepo.TicketID);
+
+            }
+
+        }
+
+        private void SetRepositoryTitle(string sTitle)
+        {
+
+            tsddbRepository.Text = sTitle;
             tslWorkRepository.Text = tsddbRepository.Text;
 
         }
@@ -1308,6 +1331,8 @@ namespace DAMBuddy2
 
         private void LoadRepositoryTemplates()
         {
+            if (m_RepoManager.CurrentRepo == null) return;
+
             m_RepoManager.CurrentRepo.LoadRepositoryTemplates();
             mCurrentPage = 0;
             DisplayTemplates2();
@@ -1475,7 +1500,14 @@ namespace DAMBuddy2
             SetupTicketForm ticketform = new SetupTicketForm();
             if (ticketform.ShowDialog() == DialogResult.OK)
             {
-                m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON);
+                if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))
+                {
+                    LoadRepositoryTemplates();
+                }
+                
+
+
+
             };
         }
 
@@ -1510,15 +1542,7 @@ namespace DAMBuddy2
                 if (m_RepoManager.SetCurrentRepository(newRepo))
                 {
 
-
-                    tsddbRepository.Text = newRepo;
-                    tslWorkRepository.Text = newRepo;
-
-
-                    //                InitAvailableRepos();
-
-
-                    //PrepareTransformSupport();
+                    SetRepositoryTitle(newRepo);
                     LoadRepositoryTemplates();
                     
                 }

@@ -45,34 +45,75 @@ namespace DAMBuddy2
         // instead, the git clone is performed on a background thread
 
         private static string REPOCACHE_FOLDER = @"\repocache";             // the name of the folder under which the cache folders are stored.
+        private static string WORKING_FOLDER = @"\repotemp\";                     // will contain the repos which didn't get completely cloned (e.g. if the app was closed before the clone() finished).
+
+
         private string STATE_FILEPATH = @"\repoliststate.json";             // the file holding the state of the cache for persistence
 
         private string mRepoCacheStateFilepath = "";
+        private string mRepoWorkingFilepath;
         private string mGitBinariesPath = "";                               // path the folder containing git binaries
         private string mRemoteGitRepository = "";                           // the URL for the git repo to be cloned (the CKMMirror repository)
-
+        private ModifiedCallback mCallbackInfo;
         public string mRootFolder = "";                                     // the top level directory path
         private int mCacheSize = -1;                                        // how many cache folders should be maintained 
         
-        private List<RepoCacheState> mRepoCacheList = null;                             // state of all the cached repos (serialized to mRepoCacheStateFilepath)
+        private List<RepoCacheState> mRepoCacheList = null;                 // state of all the cached repos (serialized to mRepoCacheStateFilepath)
 
         private List<ThreadArgs> mThreads = null;                           // list of all created threads
+        private bool mIsSClosingDown = false;
+
+        public int AvailableCaches { get => mRepoCacheList.Where(x => x.CloneCompleted).Count(); }
         
-        public RepoCacheManager( string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath )
+        public RepoCacheManager( string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, ModifiedCallback callbackInfoUpdate )
         {
             mRootFolder = rootfolder;
             mCacheSize = cachesize;
             mGitBinariesPath = gitBinariesPath;
             mRemoteGitRepository = gitRemoteRepoURL;
+            mCallbackInfo = callbackInfoUpdate;
 
             mRepoCacheStateFilepath = mRootFolder + REPOCACHE_FOLDER + STATE_FILEPATH;
+            mRepoWorkingFilepath = mRootFolder + WORKING_FOLDER;
+
+            if (!Directory.Exists(mRepoWorkingFilepath)) Directory.CreateDirectory(mRepoWorkingFilepath);
+
+            if (!Directory.Exists(mRootFolder + REPOCACHE_FOLDER)) Directory.CreateDirectory(mRootFolder + REPOCACHE_FOLDER);
+
 
             mThreads = new List<ThreadArgs>();
 
-            Init();
-            EmptyTrash();
+            LoadCacheState();
+            VerifyCacheState();
+            ManageCaches();
+            
+            callbackInfoUpdate?.Invoke($"Available Caches: {AvailableCaches}/{cachesize}");
+
+            DeleteTrash();
         }
-        
+
+        private void DeleteTrash()
+        {
+            string foldername;
+            var trashfolders = Directory.EnumerateDirectories(mRepoWorkingFilepath);
+            foreach (var folder in trashfolders)
+            {
+                try
+                {
+                    Directory.Delete(folder, true);
+                    /*
+                                    }
+
+                                    foldername = folder.Substring(folder.LastIndexOf("\\") + 1);
+                                    if (mRepoCacheList.Where( cache => cache.Path.Equals( folder) && cache.CloneCompleted).Count() == 0 ) {
+                                        // remove folder
+                                        Directory.Move(folder, mRepoWorkingFilepath + "\\" + foldername);
+                                    }*/
+                }
+                catch { }
+            }
+        }
+
         ~RepoCacheManager()
         {
 //            SaveCacheState();
@@ -81,6 +122,7 @@ namespace DAMBuddy2
 
         public void CloseDown()
         {
+            mIsSClosingDown = true;
             StopThreads();
 
             SaveCacheState();
@@ -99,12 +141,6 @@ namespace DAMBuddy2
             }
         }
 
-        private void EmptyTrash()
-        {
-            // removing repositories can take time due to the high number of files
-            // TODO: threaded delete.
-        }
-
         private void ThreadComplete( object args )
         {
             ThreadArgs threadargs = (ThreadArgs)args;
@@ -113,7 +149,6 @@ namespace DAMBuddy2
             //string threadid = (string)id;
 
             //threadaargs.ThreadID
-            
 
             mThreads.RemoveAll(item => item.ThreadID == threadargs.ThreadID);
 
@@ -121,16 +156,33 @@ namespace DAMBuddy2
             {
                 if (mRepoCacheList[i].Path == threadargs.RepoPath )
                 {
-                    mRepoCacheList[i].CloneCompleted = true;
+
+                    string cachepath = "";
+                    if( MoveWorkingToCache(threadargs.RepoPath, ref cachepath) )
+                    {
+                        mRepoCacheList[i].Path = cachepath;
+                        mRepoCacheList[i].CloneCompleted = true;
+                        mCallbackInfo?.Invoke($"Cache Clone Completed. Available Caches: {AvailableCaches}/{mCacheSize}");
+                        SaveCacheState();
+                    }
+
                     break;
                 }
             }
 
+            ManageCaches();
             
 
         }
 
+        private bool MoveWorkingToCache( string workingpath, ref string cachepath)
+        {
+            cachepath = workingpath.Replace(WORKING_FOLDER, REPOCACHE_FOLDER + "\\");
 
+            Directory.Move(workingpath, cachepath);
+
+            return true;
+        }
 
         private void ThreadException( object e )
         {
@@ -141,7 +193,7 @@ namespace DAMBuddy2
         private string CreateNewCache( string name )
         {
 
-            string cachefolder = mRootFolder + REPOCACHE_FOLDER + @"\" + name;
+            string cachefolder = mRepoWorkingFilepath + name;
             if ( Directory.Exists( cachefolder))
             {
                 Directory.Delete(cachefolder);
@@ -157,6 +209,8 @@ namespace DAMBuddy2
             args.callbackComplete = ThreadComplete;
 
             args.ThreadInstance.Start(args);
+
+            mCallbackInfo?.Invoke($"Preparing new cache. Available caches = {AvailableCaches}/{mCacheSize}");
 
             mThreads.Add(args);
 
@@ -229,10 +283,15 @@ namespace DAMBuddy2
 
             } catch ( Exception e )
             {
-                threadargs.callbackError?.Invoke(e) ;
-            }
+                if (!mIsSClosingDown)
+                {
+                    threadargs.callbackError?.Invoke(e);
 
-            threadargs.callbackComplete?.Invoke(args);
+                }
+                return;
+            }
+            if (!mIsSClosingDown)
+                threadargs.callbackComplete?.Invoke(args);
 
             //m_dtCloneEnd = DateTime.Now;
 
@@ -285,17 +344,6 @@ namespace DAMBuddy2
             File.WriteAllText(mRepoCacheStateFilepath, statejson);
         }
 
-        private void TestSerialization()
-        {
-            LoadCacheState();
-            RepoCacheState state = new RepoCacheState();
-            state.Path = "test";
-            mRepoCacheList.Add(state);
-            SaveCacheState();
-
-        }
-
-
         private void ManageCaches()
         {
             // checks that the number of available caches match the cache size and creates caches if needed
@@ -313,6 +361,17 @@ namespace DAMBuddy2
             }
         }
 
+
+        private void VerifyCacheState()
+        {
+            for( int i = mRepoCacheList.Count -1; i >= 0; i--)
+            {
+                var cache = mRepoCacheList[i];
+                if (!Directory.Exists(cache.Path))
+                    mRepoCacheList.RemoveAt(i);
+            }
+            return;
+        }
 
         public bool SetupTicket(string path)
         {
@@ -359,19 +418,17 @@ namespace DAMBuddy2
             return true;
         }
     
-
+/*
         private void Init()
         {
             //TestSerialization();
             // read all the existing folders in the cache
-            LoadCacheState();
-            ManageCaches();
             
             // each cache folder needs a persistent state: has git clone run successfully once?
 
             // if a cache has been cloned, how often to pull into it? once daily (for each cache).
         }
-        
+        */
    /*     public void PrepareCache( string cacheFolder)
         {
            ;

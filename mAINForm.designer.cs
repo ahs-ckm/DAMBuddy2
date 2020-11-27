@@ -143,6 +143,7 @@
             this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -1329,7 +1330,8 @@
             // 
             this.statusForm.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslMainStatus,
-            this.toolStripDropDownButton1});
+            this.toolStripDropDownButton1,
+            this.toolStripStatusLabel1});
             this.statusForm.Location = new System.Drawing.Point(0, 772);
             this.statusForm.Name = "statusForm";
             this.statusForm.Size = new System.Drawing.Size(1649, 22);
@@ -1378,6 +1380,12 @@
             this.tslScheduleStatus.Size = new System.Drawing.Size(180, 52);
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // MainForm
             // 
@@ -1548,6 +1556,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem tsmiLog;
         private System.Windows.Forms.ToolStripButton tsbHelp;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

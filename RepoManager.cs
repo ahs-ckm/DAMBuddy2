@@ -104,7 +104,7 @@ public class RepoManager
     /// </summary>
     public RepoInstance CurrentRepo
     {
-        get => GetInstance(m_dictRepoState[CURRENT_REPO]);
+        get => GetInstanceUnsafe(m_dictRepoState[CURRENT_REPO]);
     }
 
             
@@ -137,10 +137,14 @@ public class RepoManager
         
         LoadRepositoryState();
         string sTicketID = m_dictRepoState[CURRENT_REPO];
+        if ( sTicketID == "") return;
+
+
         string sFolderID = m_dictRepoState[sTicketID];
 
-        var instance = GetInstance(sTicketID);
-        if( instance == null )
+        RepoInstance instance = null;
+
+        if( !GetInstanceSafe(sTicketID, ref instance) )
         {
             instance = CreateRepoInstance(sTicketID, sFolderID, true);
         }
@@ -148,6 +152,9 @@ public class RepoManager
         {
             instance.MakeActive();
         }
+
+
+
 
     }
 
@@ -160,7 +167,7 @@ public class RepoManager
 /// <param name="PullInterval"></param>
     public void Init(int PullDelay, int PullInterval)
     {
-        mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR);
+        mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR, mRepoInstancCallbacks.callbackInfo);
 
         m_intervalPull = PullInterval;
         m_pullDelay = PullDelay;
@@ -253,7 +260,7 @@ public class RepoManager
     private TicketChangeState GetTicketUploadState(string sTicketID)
     {
 
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_UPLOAD_PORT}/dynamic/change_status,{CurrentRepo.TicketID}");
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_UPLOAD_PORT}/dynamic/change_status,{sTicketID}");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
         TicketChangeState state;
 
@@ -270,29 +277,65 @@ public class RepoManager
         return state;
     }
 
+
+
+    private RepoInstance GetInstanceUnsafe(string sTicketID)
+    {
+
+        foreach (var instance in mRepoInstanceList)
+        {
+            if (instance.TicketID == sTicketID)
+            {
+                return instance;
+            }
+        }
+
+        return null;
+    }
+
+
     /// <summary>
     /// Helper function to find and return the RepoInstance corresponding to the passed in ticket
     /// </summary>
     /// <param name="sTicketID"></param>
     /// <returns></returns>
-    private RepoInstance GetInstance( string sTicketID)
+    private bool GetInstanceSafe( string sTicketID, ref RepoInstance theInstance)
     {
         
         foreach (var instance in mRepoInstanceList)
         {
-            if (instance.TicketID == sTicketID) { return instance; }
+            if (instance.TicketID == sTicketID) 
+            {
+                theInstance = instance;
+                return true;
+            }
         }
 
-        return null;
+        return false;
     }
     /// <summary>
     /// Removes from the RepoState the RepoInstance corresponding to the ticket parameter 
     /// </summary>
     /// <param name="sTicketID"></param>
+
+
+
+    private bool BackupTicket(string sPath)
+    {
+        // TODO: zip up to backup folder
+        MessageBox.Show("Backing up :" + sPath );
+        return true;
+    }
     private void RemoveTicket(string sTicketID)
     {
-        if (GetInstance(sTicketID).Remove())
+
+        string path = FOLDER_ROOT + "\\" + sTicketID;
+
+        if (BackupTicket( path) )
         {
+
+
+
             m_dictRepoState.Remove(sTicketID);
             if (m_dictRepoState[CURRENT_REPO] == sTicketID) { m_dictRepoState[CURRENT_REPO] = ""; }
         }
@@ -352,13 +395,18 @@ public class RepoManager
 
         if (m_dictRepoState[CURRENT_REPO] == sTicketID) return true; // already current
 
-        var oldInstance = GetInstance(m_dictRepoState[CURRENT_REPO]);
-      
-        // tell current repo instance that it's not current
-        oldInstance.MakeInactive();
-        
-        
-        RepoInstance instance = GetInstance(sTicketID);
+        RepoInstance oldInstance = null; 
+            
+        if( GetInstanceSafe(m_dictRepoState[CURRENT_REPO], ref oldInstance))
+        {
+
+            // tell current repo instance that it's not current
+            oldInstance.MakeInactive();
+
+        }
+
+
+        RepoInstance instance = GetInstanceUnsafe(sTicketID);
 
 
         if (instance == null )
@@ -394,13 +442,13 @@ public class RepoManager
         // switch context.
         JObject jsonissue = JObject.Parse(jsonTicket);
         string ticketID = (string)jsonissue["key"];
-        
+
 
         if (mRepoCacheManager.SetupTicket(FOLDER_ROOT + "\\" + ticketID))
         {
 
-            
             string FolderID = ServerLinkTicket(jsonissue);
+
             CreateRepoInstance(ticketID, FolderID, true);
 
             m_dictRepoState.Add(ticketID, FolderID);
@@ -422,7 +470,15 @@ public class RepoManager
         string sTicketID = (string)theIssue["key"];
         string sDescription = (string)theIssue["fields"]["description"];
         string sName = (string)theIssue["fields"]["name"];
-        string sAssignee = (string)theIssue["fields"]["assignee"];
+
+        string sAssignee = "";
+        try
+        {
+            sName = (string)theIssue["fields"]["assignee"]["name"];
+
+        }
+        catch { }
+
         /*
         if (theIssue.isNull("assignee") == false)
         {
@@ -432,9 +488,9 @@ public class RepoManager
         }*/
 
 
-       // string theParams = System.Net.WebUtility.HtmlEncode($"theTicket={sTicketID},theDescription={sDescription},theLead={sName},theAssignee={sAssignee}");
+        string theParams = $"theTicket={sTicketID}&theDescription=abc&theLead=JonBeeby&theAssignee=JonBeeby";
 
-        string theParams = System.Net.WebUtility.HtmlEncode($"theTicket={sTicketID},theDescription=abc,theLead=JonBeeby,theAssignee=JonBeeby");
+        //string theParams = System.Net.WebUtility.HtmlEncode($"theTicket={sTicketID},theDescription=abc,theLead=JonBeeby,theAssignee=JonBeeby");
 
 
         using (WebClient client = new WebClient())

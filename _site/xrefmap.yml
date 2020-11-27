@@ -433,6 +433,19 @@ references:
   isSpec: "True"
   fullName: DAMBuddy2.MainForm.callbackTicketUpdateState
   nameWithType: MainForm.callbackTicketUpdateState
+- uid: DAMBuddy2.MainForm.callbackUserInfoDisplay(System.String)
+  name: callbackUserInfoDisplay(String)
+  href: api/DAMBuddy2.MainForm.html#DAMBuddy2_MainForm_callbackUserInfoDisplay_System_String_
+  commentId: M:DAMBuddy2.MainForm.callbackUserInfoDisplay(System.String)
+  fullName: DAMBuddy2.MainForm.callbackUserInfoDisplay(System.String)
+  nameWithType: MainForm.callbackUserInfoDisplay(String)
+- uid: DAMBuddy2.MainForm.callbackUserInfoDisplay*
+  name: callbackUserInfoDisplay
+  href: api/DAMBuddy2.MainForm.html#DAMBuddy2_MainForm_callbackUserInfoDisplay_
+  commentId: Overload:DAMBuddy2.MainForm.callbackUserInfoDisplay
+  isSpec: "True"
+  fullName: DAMBuddy2.MainForm.callbackUserInfoDisplay
+  nameWithType: MainForm.callbackUserInfoDisplay
 - uid: DAMBuddy2.MainForm.callbackWIPModified(System.String)
   name: callbackWIPModified(String)
   href: api/DAMBuddy2.MainForm.html#DAMBuddy2_MainForm_callbackWIPModified_System_String_
@@ -634,6 +647,12 @@ references:
   commentId: F:DAMBuddy2.RepoCallbackSettings.callbackDisplayWIP
   fullName: DAMBuddy2.RepoCallbackSettings.callbackDisplayWIP
   nameWithType: RepoCallbackSettings.callbackDisplayWIP
+- uid: DAMBuddy2.RepoCallbackSettings.callbackInfo
+  name: callbackInfo
+  href: api/DAMBuddy2.RepoCallbackSettings.html#DAMBuddy2_RepoCallbackSettings_callbackInfo
+  commentId: F:DAMBuddy2.RepoCallbackSettings.callbackInfo
+  fullName: DAMBuddy2.RepoCallbackSettings.callbackInfo
+  nameWithType: RepoCallbackSettings.callbackInfo
 - uid: DAMBuddy2.RepoCallbackSettings.callbackModifiedWIP
   name: callbackModifiedWIP
   href: api/DAMBuddy2.RepoCallbackSettings.html#DAMBuddy2_RepoCallbackSettings_callbackModifiedWIP
@@ -721,19 +740,6 @@ references:
   commentId: F:DAMBuddy2.RepoInstance.ASSETS
   fullName: DAMBuddy2.RepoInstance.ASSETS
   nameWithType: RepoInstance.ASSETS
-- uid: DAMBuddy2.RepoInstance.Clone
-  name: Clone()
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_Clone
-  commentId: M:DAMBuddy2.RepoInstance.Clone
-  fullName: DAMBuddy2.RepoInstance.Clone()
-  nameWithType: RepoInstance.Clone()
-- uid: DAMBuddy2.RepoInstance.Clone*
-  name: Clone
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_Clone_
-  commentId: Overload:DAMBuddy2.RepoInstance.Clone
-  isSpec: "True"
-  fullName: DAMBuddy2.RepoInstance.Clone
-  nameWithType: RepoInstance.Clone
 - uid: DAMBuddy2.RepoInstance.ConfigureAndLaunchTD
   name: ConfigureAndLaunchTD()
   href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_ConfigureAndLaunchTD
@@ -747,19 +753,6 @@ references:
   isSpec: "True"
   fullName: DAMBuddy2.RepoInstance.ConfigureAndLaunchTD
   nameWithType: RepoInstance.ConfigureAndLaunchTD
-- uid: DAMBuddy2.RepoInstance.DoClone
-  name: DoClone()
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_DoClone
-  commentId: M:DAMBuddy2.RepoInstance.DoClone
-  fullName: DAMBuddy2.RepoInstance.DoClone()
-  nameWithType: RepoInstance.DoClone()
-- uid: DAMBuddy2.RepoInstance.DoClone*
-  name: DoClone
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_DoClone_
-  commentId: Overload:DAMBuddy2.RepoInstance.DoClone
-  isSpec: "True"
-  fullName: DAMBuddy2.RepoInstance.DoClone
-  nameWithType: RepoInstance.DoClone
 - uid: DAMBuddy2.RepoInstance.GetTemplateFilepath(System.String)
   name: GetTemplateFilepath(String)
   href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_GetTemplateFilepath_System_String_
@@ -934,19 +927,6 @@ references:
   isSpec: "True"
   fullName: DAMBuddy2.RepoInstance.PostWIP
   nameWithType: RepoInstance.PostWIP
-- uid: DAMBuddy2.RepoInstance.Remove
-  name: Remove()
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_Remove
-  commentId: M:DAMBuddy2.RepoInstance.Remove
-  fullName: DAMBuddy2.RepoInstance.Remove()
-  nameWithType: RepoInstance.Remove()
-- uid: DAMBuddy2.RepoInstance.Remove*
-  name: Remove
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_Remove_
-  commentId: Overload:DAMBuddy2.RepoInstance.Remove
-  isSpec: "True"
-  fullName: DAMBuddy2.RepoInstance.Remove
-  nameWithType: RepoInstance.Remove
 - uid: DAMBuddy2.RepoInstance.RemoveWIP(System.String)
   name: RemoveWIP(String)
   href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_RemoveWIP_System_String_
@@ -1044,19 +1024,6 @@ references:
   isSpec: "True"
   fullName: DAMBuddy2.RepoInstance.TicketScheduleState.UploadEnabled
   nameWithType: RepoInstance.TicketScheduleState.UploadEnabled
-- uid: DAMBuddy2.RepoInstance.TransferProgress(TransferProgress)
-  name: TransferProgress(TransferProgress)
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_TransferProgress_TransferProgress_
-  commentId: M:DAMBuddy2.RepoInstance.TransferProgress(TransferProgress)
-  fullName: DAMBuddy2.RepoInstance.TransferProgress(TransferProgress)
-  nameWithType: RepoInstance.TransferProgress(TransferProgress)
-- uid: DAMBuddy2.RepoInstance.TransferProgress*
-  name: TransferProgress
-  href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_TransferProgress_
-  commentId: Overload:DAMBuddy2.RepoInstance.TransferProgress
-  isSpec: "True"
-  fullName: DAMBuddy2.RepoInstance.TransferProgress
-  nameWithType: RepoInstance.TransferProgress
 - uid: DAMBuddy2.RepoInstance.UpdateOnWIP(System.String)
   name: UpdateOnWIP(String)
   href: api/DAMBuddy2.RepoInstance.html#DAMBuddy2_RepoInstance_UpdateOnWIP_System_String_
