@@ -142,6 +142,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="busyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="busyForm.Designer.cs">
+      <DependentUpon>busyForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -170,6 +176,9 @@
     </Compile>
     <Compile Include="TransformRequestBuilder.cs" />
     <Compile Include="Utility.cs" />
+    <EmbeddedResource Include="busyForm.resx">
+      <DependentUpon>busyForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
     </EmbeddedResource>
@@ -214,6 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
+    <None Include="Resources\CSAE-TRILL_1-480x445.jpg" />
     <None Include="Resources\outline_help_outline_black_24dp.png" />
     <None Include="Resources\outline_confirmation_number_black_24dp.png" />
     <None Include="Resources\outline_face_black_24dp.png" />

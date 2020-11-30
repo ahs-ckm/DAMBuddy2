@@ -7,6 +7,38 @@ references:
   commentId: N:DAMBuddy2
   fullName: DAMBuddy2
   nameWithType: DAMBuddy2
+- uid: DAMBuddy2.BusyForm
+  name: BusyForm
+  href: api/DAMBuddy2.BusyForm.html
+  commentId: T:DAMBuddy2.BusyForm
+  fullName: DAMBuddy2.BusyForm
+  nameWithType: BusyForm
+- uid: DAMBuddy2.BusyForm.#ctor
+  name: BusyForm()
+  href: api/DAMBuddy2.BusyForm.html#DAMBuddy2_BusyForm__ctor
+  commentId: M:DAMBuddy2.BusyForm.#ctor
+  fullName: DAMBuddy2.BusyForm.BusyForm()
+  nameWithType: BusyForm.BusyForm()
+- uid: DAMBuddy2.BusyForm.#ctor*
+  name: BusyForm
+  href: api/DAMBuddy2.BusyForm.html#DAMBuddy2_BusyForm__ctor_
+  commentId: Overload:DAMBuddy2.BusyForm.#ctor
+  isSpec: "True"
+  fullName: DAMBuddy2.BusyForm.BusyForm
+  nameWithType: BusyForm.BusyForm
+- uid: DAMBuddy2.BusyForm.Dispose(System.Boolean)
+  name: Dispose(Boolean)
+  href: api/DAMBuddy2.BusyForm.html#DAMBuddy2_BusyForm_Dispose_System_Boolean_
+  commentId: M:DAMBuddy2.BusyForm.Dispose(System.Boolean)
+  fullName: DAMBuddy2.BusyForm.Dispose(System.Boolean)
+  nameWithType: BusyForm.Dispose(Boolean)
+- uid: DAMBuddy2.BusyForm.Dispose*
+  name: Dispose
+  href: api/DAMBuddy2.BusyForm.html#DAMBuddy2_BusyForm_Dispose_
+  commentId: Overload:DAMBuddy2.BusyForm.Dispose
+  isSpec: "True"
+  fullName: DAMBuddy2.BusyForm.Dispose
+  nameWithType: BusyForm.Dispose
 - uid: DAMBuddy2.DisplayWIPCallback
   name: DisplayWIPCallback
   href: api/DAMBuddy2.DisplayWIPCallback.html

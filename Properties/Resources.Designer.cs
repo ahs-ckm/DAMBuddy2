@@ -63,6 +63,16 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap CSAE_TRILL_1_480x445 {
+            get {
+                object obj = ResourceManager.GetObject("CSAE-TRILL_1-480x445", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icons8_approve_48 {
             get {
                 object obj = ResourceManager.GetObject("icons8-approve-48", resourceCulture);

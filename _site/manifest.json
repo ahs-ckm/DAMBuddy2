@@ -53,6 +53,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "obj/api/DAMBuddy2.BusyForm.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DAMBuddy2.BusyForm.html",
+          "hash": "7NV+/IdAPT8PqE73u1Tiow=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "obj/api/DAMBuddy2.DisplayWIPCallback.yml",
       "output": {
         ".html": {
@@ -333,7 +345,7 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.html",
-          "hash": "gzKCu4p9ClYLeNySF9aZEg=="
+          "hash": "os1SYKBC6kdJEEmSC9ppyQ=="
         }
       },
       "is_incremental": true,
@@ -345,7 +357,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "ryhIAaiKWomXXeC4Vrt4nQ=="
+          "hash": "eC/9XVhb8iRV8ZWi+maWSw=="
         }
       },
       "is_incremental": false,
@@ -382,8 +394,8 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 24,
-          "skipped_file_count": 24
+          "total_file_count": 25,
+          "skipped_file_count": 25
         },
         "TocDocumentProcessor": {
           "can_incremental": false,

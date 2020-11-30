@@ -452,6 +452,9 @@ public class RepoManager
             CreateRepoInstance(ticketID, FolderID, true);
 
             m_dictRepoState.Add(ticketID, FolderID);
+            m_dictRepoState[CURRENT_REPO] = ticketID;
+
+            Console.WriteLine($"Current Repository is now {CurrentRepo}");
             return true;
         };
 

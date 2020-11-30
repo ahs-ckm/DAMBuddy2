@@ -85,10 +85,13 @@ namespace DAMBuddy2
 
             LoadCacheState();
             VerifyCacheState();
-            ManageCaches();
-            
+
             callbackInfoUpdate?.Invoke($"Available Caches: {AvailableCaches}/{cachesize}");
 
+
+            ManageCaches();
+            
+            
             DeleteTrash();
         }
 
@@ -197,9 +200,11 @@ namespace DAMBuddy2
             if ( Directory.Exists( cachefolder))
             {
                 Directory.Delete(cachefolder);
+
             }
 
-            Directory.CreateDirectory(cachefolder);
+            var info = Directory.CreateDirectory(cachefolder);
+            Console.WriteLine(info.FullName);
 
             var args = new ThreadArgs();
             args.ThreadID = $"{cachefolder}-clone";
@@ -276,7 +281,8 @@ namespace DAMBuddy2
             {
                 if (!File.Exists(threadargs.RepoPath))
                 {
-                    Directory.CreateDirectory(threadargs.RepoPath);
+                    var info =  Directory.CreateDirectory(threadargs.RepoPath);
+                    Console.WriteLine($"Created this directory for Clone(): {info.FullName}");
                 }
 
                 Repository.Clone(mRemoteGitRepository, threadargs.RepoPath, options);

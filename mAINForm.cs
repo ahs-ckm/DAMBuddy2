@@ -1502,6 +1502,7 @@ namespace DAMBuddy2
             {
                 if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))
                 {
+                    InitAvailableRepos();
                     LoadRepositoryTemplates();
                 }
                 
@@ -1533,9 +1534,14 @@ namespace DAMBuddy2
 
             string newRepo = item.Text;
 
+            BusyForm busy = new BusyForm();
+            busy.StartPosition = FormStartPosition.CenterScreen;
+            //busy.Parent = this;
+
             try
             {
                 this.UseWaitCursor = true;
+                busy.Show();
                 lvWork.Items.Clear();
                 UpdateWorkViewTitle();
 
@@ -1548,6 +1554,7 @@ namespace DAMBuddy2
                 }
             } finally
             {
+                busy.Hide();                
                 this.UseWaitCursor = false;
             }
 
