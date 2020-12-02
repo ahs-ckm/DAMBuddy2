@@ -44,6 +44,9 @@ namespace DAMBuddy2
         // using a pre-prepared git repository avoids the user having to wait whilst a git clone is performed.
         // instead, the git clone is performed on a background thread
 
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static string mGitBinariesPath = "";                               // path the folder containing git binaries
+
         private static string REPOCACHE_FOLDER = @"\repocache";             // the name of the folder under which the cache folders are stored.
         private static string WORKING_FOLDER = @"\repotemp\";                     // will contain the repos which didn't get completely cloned (e.g. if the app was closed before the clone() finished).
 
@@ -52,7 +55,6 @@ namespace DAMBuddy2
 
         private string mRepoCacheStateFilepath = "";
         private string mRepoWorkingFilepath;
-        private string mGitBinariesPath = "";                               // path the folder containing git binaries
         private string mRemoteGitRepository = "";                           // the URL for the git repo to be cloned (the CKMMirror repository)
         private ModifiedCallback mCallbackInfo;
         public string mRootFolder = "";                                     // the top level directory path
@@ -67,6 +69,9 @@ namespace DAMBuddy2
         
         public RepoCacheManager( string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, ModifiedCallback callbackInfoUpdate )
         {
+
+            Logger.Info("RepoCacheManager() : Hello world");
+
             mRootFolder = rootfolder;
             mCacheSize = cachesize;
             mGitBinariesPath = gitBinariesPath;
@@ -222,7 +227,7 @@ namespace DAMBuddy2
             return cachefolder;
         }
 
-        public void Pull2( string repofolder )
+        public static void Pull2( string repofolder )
         {
             
             try

@@ -100,7 +100,7 @@ namespace DAMBuddy2
 
         private void button4_Click(object sender, EventArgs e)
         {
-            manager.Init((1000 * 60), (1000 * 60));
+            //manager.Init((1000 * 60), (1000 * 60));
 
         }
 

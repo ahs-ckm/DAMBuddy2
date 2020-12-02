@@ -20,7 +20,8 @@ namespace DAMBuddy2
         static string filename;
         static DateTime lastwrite;
 
-        public static void LaunchTD()
+
+        public static void LaunchTD(string assetfilepath)
         {
             try
             {
@@ -29,6 +30,7 @@ namespace DAMBuddy2
                 using (Process myProcess = new Process())
                 {
                     myProcess.StartInfo.UseShellExecute = false;
+                    myProcess.StartInfo.Arguments = "\"" +assetfilepath + "\"";
                     string prgdir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
                     myProcess.StartInfo.FileName = prgdir + "\\Ocean Informatics\\Template Designer\\TemplateDesigner.exe";
                     myProcess.StartInfo.CreateNoWindow = true;

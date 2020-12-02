@@ -124,8 +124,6 @@
             this.tsbHelp = new System.Windows.Forms.ToolStripButton();
             this.tslScheduleStatus2 = new System.Windows.Forms.ToolStripLabel();
             this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
-            this.tpOverlaps = new System.Windows.Forms.TabPage();
-            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.tpUpload = new System.Windows.Forms.TabPage();
             this.tpSchedule = new System.Windows.Forms.TabPage();
             this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -144,6 +142,8 @@
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
+            this.tpOverlaps2 = new System.Windows.Forms.TabPage();
+            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -168,9 +168,9 @@
             this.statusStrip2.SuspendLayout();
             this.tpOverlapsWIP.SuspendLayout();
             this.toolStrip2.SuspendLayout();
-            this.tpOverlaps.SuspendLayout();
             this.cmsRemove.SuspendLayout();
             this.statusForm.SuspendLayout();
+            this.tpOverlaps2.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox3
@@ -192,7 +192,6 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tpWIP);
-            this.tabControl1.Controls.Add(this.tpOverlaps);
             this.tabControl1.Controls.Add(this.tpUpload);
             this.tabControl1.Controls.Add(this.tpSchedule);
             this.tabControl1.Controls.Add(this.tabPage5);
@@ -869,6 +868,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbWIPViews.Controls.Add(this.tpPreviewWIP);
             this.tbWIPViews.Controls.Add(this.tpOverlapsWIP);
+            this.tbWIPViews.Controls.Add(this.tpOverlaps2);
             this.tbWIPViews.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.tbWIPViews.Location = new System.Drawing.Point(0, 0);
             this.tbWIPViews.Multiline = true;
@@ -877,6 +877,7 @@
             this.tbWIPViews.SelectedIndex = 0;
             this.tbWIPViews.Size = new System.Drawing.Size(965, 705);
             this.tbWIPViews.TabIndex = 17;
+            this.tbWIPViews.Selected += new System.Windows.Forms.TabControlEventHandler(this.tbWIPViews_Selected);
             // 
             // tpPreviewWIP
             // 
@@ -1235,25 +1236,6 @@
             this.tsbWorkUpload.ToolTipText = "Upload to Repository";
             this.tsbWorkUpload.Click += new System.EventHandler(this.tsbWorkUpload_Click);
             // 
-            // tpOverlaps
-            // 
-            this.tpOverlaps.Controls.Add(this.wbOverlaps);
-            this.tpOverlaps.Location = new System.Drawing.Point(4, 35);
-            this.tpOverlaps.Name = "tpOverlaps";
-            this.tpOverlaps.Size = new System.Drawing.Size(1641, 755);
-            this.tpOverlaps.TabIndex = 6;
-            this.tpOverlaps.Text = "Overlaps";
-            this.tpOverlaps.UseVisualStyleBackColor = true;
-            // 
-            // wbOverlaps
-            // 
-            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wbOverlaps.Location = new System.Drawing.Point(0, 0);
-            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
-            this.wbOverlaps.Name = "wbOverlaps";
-            this.wbOverlaps.Size = new System.Drawing.Size(1641, 755);
-            this.wbOverlaps.TabIndex = 0;
-            // 
             // tpUpload
             // 
             this.tpUpload.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -1379,13 +1361,32 @@
             this.tslScheduleStatus.AutoSize = false;
             this.tslScheduleStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tslScheduleStatus.Font = new System.Drawing.Font("Arial Unicode MS", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.tslScheduleStatus.Image = global::DAMBuddy2.Properties.Resources.icons8_word_48;
             this.tslScheduleStatus.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tslScheduleStatus.ImageTransparentColor = System.Drawing.Color.Transparent;
             this.tslScheduleStatus.Name = "tslScheduleStatus";
             this.tslScheduleStatus.Size = new System.Drawing.Size(180, 52);
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            // 
+            // tpOverlaps2
+            // 
+            this.tpOverlaps2.Controls.Add(this.wbOverlaps);
+            this.tpOverlaps2.Location = new System.Drawing.Point(32, 4);
+            this.tpOverlaps2.Name = "tpOverlaps2";
+            this.tpOverlaps2.Padding = new System.Windows.Forms.Padding(3);
+            this.tpOverlaps2.Size = new System.Drawing.Size(929, 697);
+            this.tpOverlaps2.TabIndex = 2;
+            this.tpOverlaps2.Text = "Overlaps";
+            this.tpOverlaps2.UseVisualStyleBackColor = true;
+            // 
+            // wbOverlaps
+            // 
+            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wbOverlaps.Location = new System.Drawing.Point(3, 3);
+            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbOverlaps.Name = "wbOverlaps";
+            this.wbOverlaps.Size = new System.Drawing.Size(923, 691);
+            this.wbOverlaps.TabIndex = 1;
             // 
             // MainForm
             // 
@@ -1396,6 +1397,7 @@
             this.Controls.Add(this.statusForm);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.textBox3);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "DAMBuddy2 vDraft";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -1433,10 +1435,10 @@
             this.tpOverlapsWIP.ResumeLayout(false);
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
-            this.tpOverlaps.ResumeLayout(false);
             this.cmsRemove.ResumeLayout(false);
             this.statusForm.ResumeLayout(false);
             this.statusForm.PerformLayout();
+            this.tpOverlaps2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1519,8 +1521,6 @@
         private System.Windows.Forms.StatusStrip statusStrip2;
         private System.Windows.Forms.ToolStripStatusLabel tsStatusLabel;
         private System.Windows.Forms.ToolStripProgressBar tsPBWIPTransform;
-        private System.Windows.Forms.TabPage tpOverlaps;
-        private System.Windows.Forms.WebBrowser wbOverlaps;
         private System.Windows.Forms.ColumnHeader chRootNode;
         private System.Windows.Forms.Label lblFilter;
         private System.Windows.Forms.Button btnPrev;
@@ -1557,6 +1557,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiLog;
         private System.Windows.Forms.ToolStripButton tsbHelp;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.TabPage tpOverlaps2;
+        private System.Windows.Forms.WebBrowser wbOverlaps;
     }
 }
 

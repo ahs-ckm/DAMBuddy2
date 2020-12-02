@@ -141,10 +141,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.SearchArgs.AddResultCallback.html",
-          "hash": "0Ebu7az1eQwPM6nUGj3DuA=="
+          "hash": "ZboCsgtm0y2A+lxYAvwHAw=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -153,10 +153,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.SearchArgs.FinishedSearch.html",
-          "hash": "JgMmWDHQYLrjEBEZ4/YyAg=="
+          "hash": "wcjyVFx/NZugzYnR/cyswA=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -165,10 +165,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.SearchArgs.html",
-          "hash": "Czj5w+WDRaqEvW/P2JC9dg=="
+          "hash": "RIPbBNrepxhi2lflyrTs1Q=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -177,10 +177,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.TransformArgs.DisplayCallback.html",
-          "hash": "0EorHnFXqHUF7lzAB17kuQ=="
+          "hash": "3wX9KYX7HB3rpWdI7FCLwg=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -189,10 +189,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.TransformArgs.StatusCallback.html",
-          "hash": "ns6Al2+nMGwYzAkHkl1qHQ=="
+          "hash": "VT8ErdPPNurHFprqBwACPQ=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -201,10 +201,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.TransformArgs.html",
-          "hash": "QPLsgNvM57FtBrP4PG3z3A=="
+          "hash": "aIwIwv2DBENg5Tjh0pFBqQ=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -213,10 +213,10 @@
       "output": {
         ".html": {
           "relative_path": "api/DAMBuddy2.MainForm.html",
-          "hash": "nt8b0bwv8ofTr0ZQPA9zNw=="
+          "hash": "tackeifLEEDAeEf4mxVavA=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -348,7 +348,7 @@
           "hash": "os1SYKBC6kdJEEmSC9ppyQ=="
         }
       },
-      "is_incremental": true,
+      "is_incremental": false,
       "version": ""
     },
     {
@@ -395,7 +395,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 25,
-          "skipped_file_count": 25
+          "skipped_file_count": 18
         },
         "TocDocumentProcessor": {
           "can_incremental": false,

@@ -63,136 +63,6 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap CSAE_TRILL_1_480x445 {
-            get {
-                object obj = ResourceManager.GetObject("CSAE-TRILL_1-480x445", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_approve_48 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-approve-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_approve_48__1_ {
-            get {
-                object obj = ResourceManager.GetObject("icons8-approve-48 (1)", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_clear_filters_64 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-clear-filters-64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_decision_48 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-decision-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_decision_48__1_ {
-            get {
-                object obj = ResourceManager.GetObject("icons8-decision-48 (1)", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_decision_48__2_ {
-            get {
-                object obj = ResourceManager.GetObject("icons8-decision-48 (2)", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_google_web_search_64 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-google-web-search-64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_refresh_document_48 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-refresh-document-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_restart_48 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-restart-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_search_48 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-search-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_upward_arrow_64 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-upward-arrow-64", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap icons8_upward_arrow_64__1_ {
-            get {
-                object obj = ResourceManager.GetObject("icons8-upward-arrow-64 (1)", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap icons8_venn_diagram_48 {
             get {
                 object obj = ResourceManager.GetObject("icons8-venn-diagram-48", resourceCulture);
@@ -203,29 +73,9 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap icons8_word_48 {
+        internal static System.Drawing.Bitmap ounq1mw5kdxy {
             get {
-                object obj = ResourceManager.GetObject("icons8-word-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap InProgress__2_ {
-            get {
-                object obj = ResourceManager.GetObject("InProgress (2)", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap NotScheduled__2_ {
-            get {
-                object obj = ResourceManager.GetObject("NotScheduled (2)", resourceCulture);
+                object obj = ResourceManager.GetObject("ounq1mw5kdxy", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -396,26 +246,6 @@ namespace DAMBuddy2.Properties {
         internal static System.Drawing.Bitmap outline_text_snippet_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_text_snippet_black_24dp", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap photo_2020_10_06_08_29_12 {
-            get {
-                object obj = ResourceManager.GetObject("photo_2020-10-06_08-29-12", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap photo_2020_10_06_08_32_56 {
-            get {
-                object obj = ResourceManager.GetObject("photo_2020-10-06_08-32-56", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

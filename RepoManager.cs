@@ -60,7 +60,10 @@ public static class Extensions
 /// </summary>
 public class RepoManager
 {
-    
+
+    private static int GIT_PULL_INTERVAL = 60000; // 1 minute
+    private static int GIT_PULL_DELAY = 60000;// 1 minute
+
     private static string DAM_UPLOAD_PORT = "10091"; // DEV
     private static string DAM_SCHEDULER_PORT = "10008";
 
@@ -87,7 +90,7 @@ public class RepoManager
 
 
 
-    private int m_intervalPull = 5000;
+    private int m_intervalPull;
     private int m_pullDelay;
     private string m_CacheServiceURL;
     private List<RepoInstance> mRepoInstanceList;
@@ -133,6 +136,9 @@ public class RepoManager
         mRepoInstanceList = new List<RepoInstance>();
 
 
+        m_intervalPull = GIT_PULL_INTERVAL;
+        m_pullDelay = GIT_PULL_DELAY;
+
         mRepoInstancCallbacks = callbacks;
         
         LoadRepositoryState();
@@ -165,12 +171,9 @@ public class RepoManager
 /// </summary>
 /// <param name="PullDelay"></param>
 /// <param name="PullInterval"></param>
-    public void Init(int PullDelay, int PullInterval)
+    public void Init()//int PullDelay, int PullInterval)
     {
         mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR, mRepoInstancCallbacks.callbackInfo);
-
-        m_intervalPull = PullInterval;
-        m_pullDelay = PullDelay;
 
         List<string> processlist = new List<string>();
 
@@ -334,12 +337,18 @@ public class RepoManager
         if (BackupTicket( path) )
         {
 
-
+            CloseTicketOnServer();
 
             m_dictRepoState.Remove(sTicketID);
             if (m_dictRepoState[CURRENT_REPO] == sTicketID) { m_dictRepoState[CURRENT_REPO] = ""; }
         }
     
+    }
+
+    private void CloseTicketOnServer()
+    {
+
+        throw new NotImplementedException();
     }
 
     /// <summary>

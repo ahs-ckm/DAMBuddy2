@@ -176,7 +176,7 @@ namespace DAMBuddy2
             }
 
             Init();
-
+            
             LoadRepositoryTemplates();
             //LoadExistingWIP();
 
@@ -210,12 +210,13 @@ namespace DAMBuddy2
         }
 
 
-        public void ConfigureAndLaunchTD()
+        public void ConfigureAndLaunchTD( string assetfilepath)
         {
             string config = GetTicketConfigForOcean();
+
             OceanUtils.ConfigureTD(TicketID, config);
             
-            OceanUtils.LaunchTD();
+            OceanUtils.LaunchTD( assetfilepath );
         }
 
 
@@ -428,6 +429,17 @@ namespace DAMBuddy2
             return true;
         }
 
+        private void VerifyFreshness()
+        {
+            if (!mConfig.isActive) return;
+
+            foreach ( var item in m_dictWIPID2Path)
+            {
+                string filename = item.Key;
+                if ( IsStale(filename) ) mCallbacks.callbackStale?.Invoke(filename);
+            }
+
+        }
 
 
         public bool PostWIP()
@@ -743,6 +755,8 @@ namespace DAMBuddy2
             PrepareTransformSupport();
 
             LoadExistingWIP();
+
+            VerifyFreshness(); 
         }
 
 
@@ -780,7 +794,7 @@ namespace DAMBuddy2
         private void TimeToPull(Object info)
         {
             Console.WriteLine("TimeToPull()");
-            // Pull2();
+            RepoCacheManager.Pull2( TicketFolder );
 
             // TODO: move this process & timer to RepoCacheHelper
             GetTicketScheduleStatus();
