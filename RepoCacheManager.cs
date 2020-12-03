@@ -425,7 +425,7 @@ namespace DAMBuddy2
             }
 
             //RepoCacheState cache = mRepoCacheList.ElementAt(mRepoCacheList.Count - 1);
-
+            ManageCaches();
             return true;
         }
     

@@ -136,17 +136,32 @@ namespace DAMBuddy2
         }
 
 
+        private void EnableBackgroundActivities()
+        {
+            m_timerPull.Change(mConfig.GitPullInitialDelay, mConfig.GitPullInterval);
+            m_watcherRepo.EnableRaisingEvents = true;
+            m_watcherWIP.EnableRaisingEvents = true;
+        }
+
+
+        private void DisableBackgroundActivities()
+        {
+            m_timerPull.Change(Timeout.Infinite, Timeout.Infinite);
+            m_watcherRepo.EnableRaisingEvents = false;
+            m_watcherWIP.EnableRaisingEvents = false;
+        }
+
         public void MakeInactive()
         {
             mConfig.isActive = false;
-            // stop timers, threads etc...
+            DisableBackgroundActivities();
 
         }
         public void MakeActive()
         {
-            // start timers, threads etc
             mConfig.isActive = true;
             LoadExistingWIP();
+            EnableBackgroundActivities();
             mCallbacks.callbackTicketState?.Invoke(m_ReadyStateSetByUser);
 
         }
@@ -179,17 +194,16 @@ namespace DAMBuddy2
             
             LoadRepositoryTemplates();
             //LoadExistingWIP();
-
-
         }
-
-/*        public bool Remove()
-        {
-            return BackupTicket();
-        }*/
 
         public void Shutdown()
         {
+            m_watcherRepo.EnableRaisingEvents = false;
+            m_watcherWIP.EnableRaisingEvents = false;
+
+            m_watcherWIP.Dispose();
+            m_watcherRepo.Dispose();
+            m_timerPull.Dispose();
             
             SaveExistingWip();
         }
@@ -305,9 +319,11 @@ namespace DAMBuddy2
             return true;
         }
 
-        private bool UpdateSchedule()
+        private static bool UpdateSchedule(string URLServer)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{mConfig.URLServer}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json");
+
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{URLServer}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -348,7 +364,10 @@ namespace DAMBuddy2
             string filepathWIP = mConfig.BaseFolder + WIP + @"\" + filename;
             string initialFile = mConfig.BaseFolder + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
 
+            // copy the asset to the working folder
             File.Copy(gitfilepath, filepathWIP);
+            
+            // move asset from repository folder into the intitial git folder (which is used to flag for stale/updated assets)
             File.Move(gitfilepath, initialFile);
 
             Utility.MakeMd5(initialFile);
@@ -823,6 +842,27 @@ namespace DAMBuddy2
         }
 
 
+
+        public static void CloseTicketOnServer(string sTicketID, string URLServer)
+        {
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{URLServer}:{DAM_UPLOAD_PORT}/dynamic/removeTicket,{sTicketID}");
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            RepoManager.TicketChangeState state;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string jsonState = reader.ReadToEnd();
+
+
+            }
+
+            UpdateSchedule( URLServer );
+        }
+
+
         public bool SetTicketReadiness(bool bReady)
         {
             m_ReadyStateSetByUser = bReady;
@@ -852,7 +892,7 @@ namespace DAMBuddy2
                 return false;
             }
 
-            UpdateSchedule();
+            UpdateSchedule(mConfig.URLServer);
             GetTicketScheduleStatus();
             return true;
         }

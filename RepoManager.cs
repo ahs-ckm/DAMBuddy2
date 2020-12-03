@@ -329,7 +329,31 @@ public class RepoManager
         MessageBox.Show("Backing up :" + sPath );
         return true;
     }
-    private void RemoveTicket(string sTicketID)
+
+    private void MoveToTrash( string sTicketID )
+    {
+        RepoInstance repo = null;
+        string sTrashFolder = FOLDER_ROOT + "\\" + KEEP_TRASH;
+
+
+        if( GetInstanceSafe(sTicketID, ref repo))
+        {
+            if( !Directory.Exists( sTrashFolder))
+            {
+                Directory.CreateDirectory(sTrashFolder);
+            }
+
+            repo.Shutdown();
+
+            string sTicketFolder = FOLDER_ROOT + "\\" + sTicketID;
+
+            Directory.Move(sTicketFolder, sTrashFolder + "\\" + sTicketID);
+
+        }
+
+    }
+
+    public void RemoveTicket(string sTicketID)
     {
 
         string path = FOLDER_ROOT + "\\" + sTicketID;
@@ -337,18 +361,13 @@ public class RepoManager
         if (BackupTicket( path) )
         {
 
-            CloseTicketOnServer();
-
+            RepoInstance.CloseTicketOnServer(sTicketID, gServerName);
+            MoveToTrash(sTicketID);
+        
             m_dictRepoState.Remove(sTicketID);
             if (m_dictRepoState[CURRENT_REPO] == sTicketID) { m_dictRepoState[CURRENT_REPO] = ""; }
         }
     
-    }
-
-    private void CloseTicketOnServer()
-    {
-
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -464,6 +483,8 @@ public class RepoManager
             m_dictRepoState[CURRENT_REPO] = ticketID;
 
             Console.WriteLine($"Current Repository is now {CurrentRepo}");
+            
+            
             return true;
         };
 

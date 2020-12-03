@@ -98,6 +98,8 @@
             this.wbWIP = new System.Windows.Forms.WebBrowser();
             this.tpOverlapsWIP = new System.Windows.Forms.TabPage();
             this.wbWIPWUR = new System.Windows.Forms.WebBrowser();
+            this.tpOverlaps2 = new System.Windows.Forms.TabPage();
+            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox5 = new System.Windows.Forms.TextBox();
@@ -142,8 +144,6 @@
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
-            this.tpOverlaps2 = new System.Windows.Forms.TabPage();
-            this.wbOverlaps = new System.Windows.Forms.WebBrowser();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -167,10 +167,10 @@
             this.tpPreviewWIP.SuspendLayout();
             this.statusStrip2.SuspendLayout();
             this.tpOverlapsWIP.SuspendLayout();
+            this.tpOverlaps2.SuspendLayout();
             this.toolStrip2.SuspendLayout();
             this.cmsRemove.SuspendLayout();
             this.statusForm.SuspendLayout();
-            this.tpOverlaps2.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox3
@@ -227,8 +227,8 @@
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(48, 48);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsddbRepository,
-            this.tsbLaunch2,
             this.tsbRepositoryReload,
+            this.tsbLaunch2,
             this.toolStripSeparator6,
             this.toolStripLabel1,
             this.tstbRepositoryFilter,
@@ -455,9 +455,9 @@
             this.setupNewTicketToolStripMenuItem.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
             this.setupNewTicketToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.setupNewTicketToolStripMenuItem.Name = "setupNewTicketToolStripMenuItem";
-            this.setupNewTicketToolStripMenuItem.Size = new System.Drawing.Size(199, 30);
-            this.setupNewTicketToolStripMenuItem.Text = "Setup New Ticket...";
-            this.setupNewTicketToolStripMenuItem.Click += new System.EventHandler(this.setupNewTicketToolStripMenuItem_Click);
+            this.setupNewTicketToolStripMenuItem.Size = new System.Drawing.Size(215, 30);
+            this.setupNewTicketToolStripMenuItem.Text = "Close Current Ticket...";
+            this.setupNewTicketToolStripMenuItem.Click += new System.EventHandler(this.closeTicketToolStripMenuItem_Click);
             // 
             // tsmiUserAccount
             // 
@@ -952,6 +952,26 @@
             this.wbWIPWUR.Size = new System.Drawing.Size(923, 691);
             this.wbWIPWUR.TabIndex = 6;
             // 
+            // tpOverlaps2
+            // 
+            this.tpOverlaps2.Controls.Add(this.wbOverlaps);
+            this.tpOverlaps2.Location = new System.Drawing.Point(32, 4);
+            this.tpOverlaps2.Name = "tpOverlaps2";
+            this.tpOverlaps2.Padding = new System.Windows.Forms.Padding(3);
+            this.tpOverlaps2.Size = new System.Drawing.Size(929, 697);
+            this.tpOverlaps2.TabIndex = 2;
+            this.tpOverlaps2.Text = "Overlaps";
+            this.tpOverlaps2.UseVisualStyleBackColor = true;
+            // 
+            // wbOverlaps
+            // 
+            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wbOverlaps.Location = new System.Drawing.Point(3, 3);
+            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
+            this.wbOverlaps.Name = "wbOverlaps";
+            this.wbOverlaps.Size = new System.Drawing.Size(923, 691);
+            this.wbOverlaps.TabIndex = 1;
+            // 
             // comboBox1
             // 
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -991,8 +1011,8 @@
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(48, 48);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tslWorkRepository,
-            this.tsbLaunchTD,
             this.tsWorkReload,
+            this.tsbLaunchTD,
             this.toolStripSeparator3,
             this.toolStripLabel3,
             this.tstbWorkFilter,
@@ -1368,26 +1388,6 @@
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // tpOverlaps2
-            // 
-            this.tpOverlaps2.Controls.Add(this.wbOverlaps);
-            this.tpOverlaps2.Location = new System.Drawing.Point(32, 4);
-            this.tpOverlaps2.Name = "tpOverlaps2";
-            this.tpOverlaps2.Padding = new System.Windows.Forms.Padding(3);
-            this.tpOverlaps2.Size = new System.Drawing.Size(929, 697);
-            this.tpOverlaps2.TabIndex = 2;
-            this.tpOverlaps2.Text = "Overlaps";
-            this.tpOverlaps2.UseVisualStyleBackColor = true;
-            // 
-            // wbOverlaps
-            // 
-            this.wbOverlaps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wbOverlaps.Location = new System.Drawing.Point(3, 3);
-            this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
-            this.wbOverlaps.Name = "wbOverlaps";
-            this.wbOverlaps.Size = new System.Drawing.Size(923, 691);
-            this.wbOverlaps.TabIndex = 1;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1433,12 +1433,12 @@
             this.statusStrip2.ResumeLayout(false);
             this.statusStrip2.PerformLayout();
             this.tpOverlapsWIP.ResumeLayout(false);
+            this.tpOverlaps2.ResumeLayout(false);
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
             this.cmsRemove.ResumeLayout(false);
             this.statusForm.ResumeLayout(false);
             this.statusForm.PerformLayout();
-            this.tpOverlaps2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

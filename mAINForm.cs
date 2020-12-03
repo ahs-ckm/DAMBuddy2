@@ -388,9 +388,11 @@ namespace DAMBuddy2
             addNew.ImageScaling = ToolStripItemImageScaling.None;
             tsddbRepository.DropDownItems.Add(addNew);
 
+
+
             if (m_RepoManager.CurrentRepo == null)
             {
-                SetRepositoryTitle("Link a ticket");
+                SetRepositoryTitle("Select a Ticket");
             }
             else
             {
@@ -1367,10 +1369,21 @@ namespace DAMBuddy2
             SetupTicketForm ticketform = new SetupTicketForm();
             if (ticketform.ShowDialog() == DialogResult.OK)
             {
-                if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))
+                BusyForm bf = new BusyForm();
+                try
                 {
-                    InitAvailableRepos();
-                    LoadRepositoryTemplates();
+                    bf.Show();
+
+                    if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))
+                    {
+                        InitAvailableRepos();
+                        LoadRepositoryTemplates();
+                    }
+
+                }
+                finally
+                {
+                    bf.Close();
                 }
             };
         }
@@ -1432,6 +1445,17 @@ namespace DAMBuddy2
             {
                 wbOverlaps.Url = new Uri($"{DAM_OVERLAP_URL}{m_RepoManager.CurrentRepo.TicketID}");
             }
+        }
+
+        private void closeTicketToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RepoInstance current = m_RepoManager.CurrentRepo;
+            if( current != null)
+            {
+                MessageBox.Show("About to remove the current ticket..");
+                m_RepoManager.RemoveTicket(current.TicketID);
+            }
+
         }
     }
 }
