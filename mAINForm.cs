@@ -331,7 +331,7 @@ namespace DAMBuddy2
             m_RepoManager = new RepoManager(callbacks);
 
             m_browserSchedule = new ChromiumWebBrowser("http://ckcm:10008/scheduler-plan.html"); // TODO:Fix port
-            m_browserUpload = new ChromiumWebBrowser("https://google.ca");
+            m_browserUpload = new ChromiumWebBrowser("about:blank");
 
             m_browserUpload.CreateControl();
 
@@ -743,7 +743,19 @@ namespace DAMBuddy2
             tsbWord.Enabled = true;
             Cursor.Current = Cursors.Default;
 
-            tspStatusLabel.Text = "Viewing " + m_currentDocumentRepo;
+            //tspStatusLabel.Text = "Viewing " + m_currentDocumentRepo;
+
+
+            if (!string.IsNullOrEmpty(m_currentDocumentRepo))
+            {
+                tspStatusLabel.Text = "Viewing " + m_currentDocumentRepo;
+            }
+            else
+            {
+                tspStatusLabel.Text = "";
+
+            }
+
 
             toolStripProgressBar2.Visible = false;
 
@@ -1241,7 +1253,15 @@ namespace DAMBuddy2
             tsbWordWIP.Enabled = true;
             Cursor.Current = Cursors.Default;
 
-            tsStatusLabel.Text = "Viewing " + m_currentDocumentWIP;
+            if( !string.IsNullOrEmpty(m_currentDocumentWIP))
+            {
+                tsStatusLabel.Text = "Viewing " + m_currentDocumentWIP;
+            }
+            else 
+            {
+                tsStatusLabel.Text = "";
+
+            }
 
             tsPBWIPTransform.Visible = false;
         }
@@ -1423,6 +1443,19 @@ namespace DAMBuddy2
                 busy.Show();
                 lvWork.Items.Clear();
                 UpdateWorkViewTitle();
+                tstbRepositoryFilter.Text = "";
+                wbRepositoryView.Navigate(new Uri("about:blank"));
+                wbRepoWUR.Navigate(new Uri("about:blank"));
+                wbWIP.Navigate(new Uri("about:blank"));
+                wbWIPWUR.Navigate(new Uri("about:blank"));
+                wbOverlaps.Navigate(new Uri("about:blank"));
+                m_browserUpload.Load("about:blank");
+
+                tsStatusLabel.Text = "";
+                m_currentDocumentWIP = "";
+                m_currentDocumentRepo = "";
+                tspStatusLabel.Text = "";
+
 
                 if (m_RepoManager.SetCurrentRepository(newRepo))
                 {
@@ -1439,7 +1472,6 @@ namespace DAMBuddy2
 
         private void tbWIPViews_Selected(object sender, TabControlEventArgs e)
         {
-      
 
             if (tbWIPViews.SelectedTab.Name == "tpOverlaps2")
             {
@@ -1454,6 +1486,7 @@ namespace DAMBuddy2
             {
                 MessageBox.Show("About to remove the current ticket..");
                 m_RepoManager.RemoveTicket(current.TicketID);
+                LoadRepositoryTemplates();
             }
 
         }

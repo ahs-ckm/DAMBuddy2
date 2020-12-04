@@ -217,6 +217,25 @@ public class RepoManager
             }
         }
 
+        // check that all the repo directories actually exist
+        // if the app wasn't closed cleanly, then the state may be inaccurate.
+
+        for (int i = m_dictRepoState.Count - 1;  i >= 0; i--)
+        {
+            var item = m_dictRepoState.ElementAt(i);
+            string sTicketFolder = item.Key;
+
+            if (sTicketFolder == CURRENT_REPO) continue; // ignore token
+
+            if(!Directory.Exists( FOLDER_ROOT + "\\" + sTicketFolder ))
+            {
+                if (m_dictRepoState[CURRENT_REPO] == sTicketFolder) m_dictRepoState[CURRENT_REPO] = "";
+                m_dictRepoState.Remove(sTicketFolder);
+            }
+
+
+        }
+
     }
 
     /// <summary>
@@ -363,7 +382,7 @@ public class RepoManager
 
             RepoInstance.CloseTicketOnServer(sTicketID, gServerName);
             MoveToTrash(sTicketID);
-        
+            mRepoInstanceList.Remove(GetInstanceUnsafe(sTicketID));
             m_dictRepoState.Remove(sTicketID);
             if (m_dictRepoState[CURRENT_REPO] == sTicketID) { m_dictRepoState[CURRENT_REPO] = ""; }
         }
@@ -563,14 +582,16 @@ public class RepoManager
     /// </summary>
     public void Shutdown()
     {
-        
+
+        mRepoCacheManager.Shutdown();
+
         foreach( var instance in mRepoInstanceList)
         {
             instance.Shutdown();
         }
 
         SaveepositoryState();
-        mRepoCacheManager.CloseDown();
+        mRepoCacheManager.Shutdown();
     }
 
 

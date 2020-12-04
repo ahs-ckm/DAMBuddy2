@@ -39,8 +39,8 @@
             this.tsmiAvailableRepo = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsbLaunch2 = new System.Windows.Forms.ToolStripButton();
             this.tsbRepositoryReload = new System.Windows.Forms.ToolStripButton();
+            this.tsbLaunch2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.tstbRepositoryFilter = new System.Windows.Forms.ToolStripTextBox();
@@ -105,8 +105,8 @@
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.tslWorkRepository = new System.Windows.Forms.ToolStripLabel();
-            this.tsbLaunchTD = new System.Windows.Forms.ToolStripButton();
             this.tsWorkReload = new System.Windows.Forms.ToolStripButton();
+            this.tsbLaunchTD = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.tstbWorkFilter = new System.Windows.Forms.ToolStripTextBox();
@@ -287,6 +287,18 @@
             this.toolStripMenuItem2.Size = new System.Drawing.Size(203, 30);
             this.toolStripMenuItem2.Text = "Setup New Ticket...";
             // 
+            // tsbRepositoryReload
+            // 
+            this.tsbRepositoryReload.AutoSize = false;
+            this.tsbRepositoryReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbRepositoryReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
+            this.tsbRepositoryReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbRepositoryReload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRepositoryReload.Name = "tsbRepositoryReload";
+            this.tsbRepositoryReload.Size = new System.Drawing.Size(48, 42);
+            this.tsbRepositoryReload.Text = "Reload Available Assets";
+            this.tsbRepositoryReload.Click += new System.EventHandler(this.tsbRepositoryReload_Click);
+            // 
             // tsbLaunch2
             // 
             this.tsbLaunch2.AutoSize = false;
@@ -299,18 +311,6 @@
             this.tsbLaunch2.Text = "toolStripButton1";
             this.tsbLaunch2.ToolTipText = "Launch Template Designer";
             this.tsbLaunch2.Click += new System.EventHandler(this.toolStripButton1_Click);
-            // 
-            // tsbRepositoryReload
-            // 
-            this.tsbRepositoryReload.AutoSize = false;
-            this.tsbRepositoryReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbRepositoryReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
-            this.tsbRepositoryReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbRepositoryReload.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbRepositoryReload.Name = "tsbRepositoryReload";
-            this.tsbRepositoryReload.Size = new System.Drawing.Size(48, 42);
-            this.tsbRepositoryReload.Text = "Reload Available Assets";
-            this.tsbRepositoryReload.Click += new System.EventHandler(this.tsbRepositoryReload_Click);
             // 
             // toolStripSeparator6
             // 
@@ -465,13 +465,13 @@
             this.tsmiUserAccount.Image = global::DAMBuddy2.Properties.Resources.outline_face_black_24dp;
             this.tsmiUserAccount.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsmiUserAccount.Name = "tsmiUserAccount";
-            this.tsmiUserAccount.Size = new System.Drawing.Size(199, 30);
+            this.tsmiUserAccount.Size = new System.Drawing.Size(215, 30);
             this.tsmiUserAccount.Text = "User Account...";
             // 
             // tsmiLog
             // 
             this.tsmiLog.Name = "tsmiLog";
-            this.tsmiLog.Size = new System.Drawing.Size(199, 30);
+            this.tsmiLog.Size = new System.Drawing.Size(215, 30);
             this.tsmiLog.Text = "Log...";
             // 
             // splitContainer1
@@ -1048,6 +1048,18 @@
             this.tslWorkRepository.Size = new System.Drawing.Size(169, 42);
             this.tslWorkRepository.Text = "<no repository>";
             // 
+            // tsWorkReload
+            // 
+            this.tsWorkReload.AutoSize = false;
+            this.tsWorkReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsWorkReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
+            this.tsWorkReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsWorkReload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsWorkReload.Name = "tsWorkReload";
+            this.tsWorkReload.Size = new System.Drawing.Size(48, 42);
+            this.tsWorkReload.Text = "Reload Available Assets";
+            this.tsWorkReload.Click += new System.EventHandler(this.tsWorkReload_Click);
+            // 
             // tsbLaunchTD
             // 
             this.tsbLaunchTD.AutoSize = false;
@@ -1062,18 +1074,6 @@
             this.tsbLaunchTD.Text = "Launch TD";
             this.tsbLaunchTD.ToolTipText = "Launch Template Designer";
             this.tsbLaunchTD.Click += new System.EventHandler(this.tsbLaunchTD_Click);
-            // 
-            // tsWorkReload
-            // 
-            this.tsWorkReload.AutoSize = false;
-            this.tsWorkReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsWorkReload.Image = global::DAMBuddy2.Properties.Resources.outline_cached_black_24dp;
-            this.tsWorkReload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsWorkReload.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsWorkReload.Name = "tsWorkReload";
-            this.tsWorkReload.Size = new System.Drawing.Size(48, 42);
-            this.tsWorkReload.Text = "Reload Available Assets";
-            this.tsWorkReload.Click += new System.EventHandler(this.tsWorkReload_Click);
             // 
             // toolStripSeparator3
             // 
