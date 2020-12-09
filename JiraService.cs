@@ -39,7 +39,7 @@ namespace DAMBuddy2
 	{
 		static string JIRA_USER = "jonbeeby";
 		static string JIRA_PW = "Up2Tkj2PqxPCkt";
-		static string JIRA_BASE_URL = "http://compcars.crha-health.ab.ca:8080";
+		static string JIRA_BASE_URL = "http://wsatsapp01.healthy.bewell.ca:8080/";
 
 		public static String search = "/rest/api/2/search";
 		public static String jqlCKCMTickets = "jql=assignee=ckcmservice+order+by+duedate";

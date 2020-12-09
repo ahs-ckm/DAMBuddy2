@@ -8,6 +8,8 @@ namespace DAMBuddy2
 {
     static class Program
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -16,7 +18,13 @@ namespace DAMBuddy2
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            try
+            {
+                Application.Run(new MainForm());
+            } catch (Exception e)
+            {
+                Logger.Error(e.StackTrace);
+            }
         }
     }
 }

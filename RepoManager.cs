@@ -101,6 +101,7 @@ public class RepoManager
 
     private static Dictionary<string, string> m_dictFileToPath;
     private Dictionary<string, string> m_dictRepoState;
+    private System.Threading.Timer m_timerMonitorTicketState;
 
     /// <summary>
     /// Helper to allow quick access to the RepoInstance for the current/active repository.
@@ -262,7 +263,24 @@ public class RepoManager
     /// Watchdog process to check whether a ticket has finished uploading, and if so, close/remove it.
     /// </summary>
     /// <param name="sTicketID"></param>
-    private void ProcessTicketState( string sTicketID )
+    private void ProcessTicketState(Object info)
+    {
+        string sTicketID = (string)info;
+        TicketChangeState state = GetTicketUploadState(sTicketID);
+        if (!state.active)
+        {
+            RemoveTicket(sTicketID);
+            //TODO: is this needed - if we close a ticket whilst the UI has it open - like after an upload finishes?
+            //CallbackUploadState?.Invoke(sTicketID, state);
+        }
+
+    }
+
+    /// <summary>
+    /// Watchdog process to check whether a ticket has finished uploading, and if so, close/remove it.
+    /// </summary>
+    /// <param name="sTicketID"></param>
+    /*private void ProcessTicketState( string sTicketID )
     {
         TicketChangeState state = GetTicketUploadState(sTicketID);
         if( !state.active )
@@ -272,7 +290,7 @@ public class RepoManager
             //CallbackUploadState?.Invoke(sTicketID, state);
         }
 
-    }
+    }*/
 
     /// <summary>
     /// Retrieves the ticket state from the server
@@ -374,19 +392,29 @@ public class RepoManager
 
     public void RemoveTicket(string sTicketID)
     {
-
-        string path = FOLDER_ROOT + "\\" + sTicketID;
+        if (m_dictRepoState[CURRENT_REPO] == sTicketID)
+        {
+            if (m_timerMonitorTicketState != null)
+            {
+                m_timerMonitorTicketState.Dispose();
+                m_timerMonitorTicketState = null;
+            }
+        }
+            string path = FOLDER_ROOT + "\\" + sTicketID;
 
         if (BackupTicket( path) )
         {
-
             RepoInstance.CloseTicketOnServer(sTicketID, gServerName);
             MoveToTrash(sTicketID);
             mRepoInstanceList.Remove(GetInstanceUnsafe(sTicketID));
             m_dictRepoState.Remove(sTicketID);
-            if (m_dictRepoState[CURRENT_REPO] == sTicketID) { m_dictRepoState[CURRENT_REPO] = ""; }
+
+            if (m_dictRepoState[CURRENT_REPO] == sTicketID)
+            {
+                m_dictRepoState[CURRENT_REPO] = "";
+            }
         }
-    
+
     }
 
     /// <summary>
@@ -558,7 +586,6 @@ public class RepoManager
         return sFolderName;
     }
 
-
     /// <summary>
     /// Provides the endpoint to call for the upload process and also starts a watchdog to 
     /// monitor ticket upload state (and eventually close the associated ticket, if upload completes successfully).
@@ -566,15 +593,16 @@ public class RepoManager
     /// <returns></returns>
     public string PrepareForUpload()
     {
-        string folder = m_dictRepoState[m_dictRepoState[CURRENT_REPO]];
+        string ticket = m_dictRepoState[CURRENT_REPO];
+        string folder = m_dictRepoState[ticket];
         // TODO: move to config
-        
-        // TODO: start timer to check status
+
+        m_timerMonitorTicketState = new System.Threading.Timer( ProcessTicketState, ticket, 5000,5000);
 
         return $"http://ckcm.healthy.bewell.ca:10081/init,{folder},VGhpcyBpcyB0aGUgSW1wbGVtZW50YXRpb24gTm90ZQ==,am9uLmJlZWJ5,UGE1NXdvcmQ=";
-
-
     }
+
+
 
 
     /// <summary>
@@ -582,6 +610,13 @@ public class RepoManager
     /// </summary>
     public void Shutdown()
     {
+
+        if( m_timerMonitorTicketState != null)
+        {
+            m_timerMonitorTicketState.Dispose();
+
+
+        }
 
         mRepoCacheManager.Shutdown();
 

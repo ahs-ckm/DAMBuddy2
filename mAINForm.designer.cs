@@ -144,6 +144,8 @@
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
+            this.panelMessageForUser = new System.Windows.Forms.Panel();
+            this.lblMessageToUser = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -171,6 +173,7 @@
             this.toolStrip2.SuspendLayout();
             this.cmsRemove.SuspendLayout();
             this.statusForm.SuspendLayout();
+            this.panelMessageForUser.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox3
@@ -1388,12 +1391,36 @@
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
+            // panelMessageForUser
+            // 
+            this.panelMessageForUser.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.panelMessageForUser.Controls.Add(this.lblMessageToUser);
+            this.panelMessageForUser.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelMessageForUser.Location = new System.Drawing.Point(0, 0);
+            this.panelMessageForUser.Name = "panelMessageForUser";
+            this.panelMessageForUser.Size = new System.Drawing.Size(1649, 33);
+            this.panelMessageForUser.TabIndex = 23;
+            this.panelMessageForUser.Visible = false;
+            // 
+            // lblMessageToUser
+            // 
+            this.lblMessageToUser.AutoSize = true;
+            this.lblMessageToUser.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F);
+            this.lblMessageToUser.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
+            this.lblMessageToUser.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblMessageToUser.Location = new System.Drawing.Point(6, 7);
+            this.lblMessageToUser.Name = "lblMessageToUser";
+            this.lblMessageToUser.Size = new System.Drawing.Size(289, 25);
+            this.lblMessageToUser.TabIndex = 0;
+            this.lblMessageToUser.Text = "     Information Message for User";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1649, 794);
+            this.Controls.Add(this.panelMessageForUser);
             this.Controls.Add(this.statusForm);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.textBox3);
@@ -1439,6 +1466,8 @@
             this.cmsRemove.ResumeLayout(false);
             this.statusForm.ResumeLayout(false);
             this.statusForm.PerformLayout();
+            this.panelMessageForUser.ResumeLayout(false);
+            this.panelMessageForUser.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1559,6 +1588,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.TabPage tpOverlaps2;
         private System.Windows.Forms.WebBrowser wbOverlaps;
+        private System.Windows.Forms.Panel panelMessageForUser;
+        private System.Windows.Forms.Label lblMessageToUser;
     }
 }
 

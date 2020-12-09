@@ -113,7 +113,10 @@ namespace DAMBuddy2
             {
                 wbWIP.Url = new Uri(filename);
             }
-            catch (Exception ex) { Logger.Error(ex, "Goodbye cruel world"); }
+            catch (Exception ex) {
+                Logger.Error(ex, ex.StackTrace);
+                Logger.Error(ex, "Goodbye cruel world"); 
+            }
         }
 
         /// <summary>
@@ -1089,7 +1092,8 @@ namespace DAMBuddy2
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Still Exectuing....");
+                Logger.Error(ex.StackTrace);
+                Logger.Info(ex, "Still Exectuing....");
                 Console.WriteLine(ex.Message);
             }
 
