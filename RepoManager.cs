@@ -271,7 +271,7 @@ public class RepoManager
         {
             RemoveTicket(sTicketID);
             //TODO: is this needed - if we close a ticket whilst the UI has it open - like after an upload finishes?
-            //CallbackUploadState?.Invoke(sTicketID, state);
+            mRepoInstancCallbacks.callbackUploadState?.Invoke(sTicketID, state);
         }
 
     }
@@ -363,7 +363,7 @@ public class RepoManager
     private bool BackupTicket(string sPath)
     {
         // TODO: zip up to backup folder
-        MessageBox.Show("Backing up :" + sPath );
+        //MessageBox.Show("Backing up :" + sPath );
         return true;
     }
 
@@ -400,7 +400,8 @@ public class RepoManager
                 m_timerMonitorTicketState = null;
             }
         }
-            string path = FOLDER_ROOT + "\\" + sTicketID;
+        
+        string path = FOLDER_ROOT + "\\" + sTicketID;
 
         if (BackupTicket( path) )
         {

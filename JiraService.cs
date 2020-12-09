@@ -37,6 +37,7 @@ namespace DAMBuddy2
 
 	public class JiraService
 	{
+		//TODO - move some to config, and we need jira user form.
 		static string JIRA_USER = "jonbeeby";
 		static string JIRA_PW = "Up2Tkj2PqxPCkt";
 		static string JIRA_BASE_URL = "http://wsatsapp01.healthy.bewell.ca:8080/";
@@ -61,17 +62,11 @@ namespace DAMBuddy2
 
 			try
 			{
-
-
-
-
 				String u = JIRA_USER;
 				String p = JIRA_PW;
 				String jiraBaseUrl = JIRA_BASE_URL;
 
 				finalUrl = jiraBaseUrl + search + "?" + jql;
-
-
 
 				var client = new RestClient(JIRA_BASE_URL);
 				client.Authenticator = new HttpBasicAuthenticator(JIRA_USER, JIRA_PW);
@@ -166,9 +161,6 @@ namespace DAMBuddy2
 			String finalUrl = jiraBaseUrl + "/rest/api/2/issue/" + issueIdorKey;
 
 			//			finalUrl = jiraBaseUrl + search + "?" + jql;
-
-
-
 			var client = new RestClient(JIRA_BASE_URL);
 			client.Authenticator = new HttpBasicAuthenticator(JIRA_USER, JIRA_PW);
 
@@ -177,9 +169,9 @@ namespace DAMBuddy2
 			var response = client.Get(request);
 			
 			if ( response.StatusCode == HttpStatusCode.OK)
-            {
+			{
 				return response.Content;
-            }
+			}
 
 			return "";
 			/*

@@ -44,7 +44,7 @@ namespace DAMBuddy2
         private string m_currentDocumentRepo = ""; // used to track whether the same document is being viewed/reviewed, if so we should keep the position
 
         // The name of the file that will store the latest version.
-        private static string latestVersionInfoFile = "Preview_version";
+        private static string latestVersionInfoFile = "buildbuddy_version";
 
         private string m_PushDir = @"c:\temp\dambuddy2\togo";
         private static string m_OPTWebserviceUrl = ""; //@"http://wsckcmapp01/OptWs/OperationalTemplateBuilderService.asmx";
@@ -303,8 +303,11 @@ namespace DAMBuddy2
 
         public void callbackTicketUpdateState(string TicketId, RepoManager.TicketChangeState state)
         {
-            // TODD: Implement
-            MessageBox.Show("mainform : received state update " + TicketId);
+            
+            InitAvailableRepos();
+            InitView();
+            
+            //MessageBox.Show("mainform : received state update " + TicketId);
         }
 
         /// <summary>
@@ -360,6 +363,12 @@ namespace DAMBuddy2
         /// </summary>
         private void InitAvailableRepos()
         {
+            if( InvokeRequired ) 
+            {
+                BeginInvoke((MethodInvoker)delegate { this.InitAvailableRepos(); });
+                return;
+            }
+
             var listRepos = m_RepoManager.GetAvailableRepositories();
             tsddbRepository.DropDownItems.Clear();
             FontFamily fontFamily = new FontFamily("Arial Unicode MS");
@@ -453,6 +462,13 @@ namespace DAMBuddy2
 
                 int numberOfObjectsPerPage = 200;
                 int pageNumber = mCurrentPage;
+                if (m_RepoManager.CurrentRepo == null)
+                {
+                    //MessageBox.Show("CurrentRepo is NULL");
+                    return;
+                }
+
+                
                 mTotalItems = m_RepoManager.CurrentRepo.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Count();
 
                 availablePages = mTotalItems / mPageSize;
@@ -1380,6 +1396,7 @@ namespace DAMBuddy2
 
         private void LaunchTD( string assetfilepath)
         {
+            if (m_RepoManager.CurrentRepo == null) return;
             m_RepoManager.CurrentRepo.ConfigureAndLaunchTD( assetfilepath );
         }
 
@@ -1401,7 +1418,11 @@ namespace DAMBuddy2
                     if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))
                     {
                         InitAvailableRepos();
+                        InitView();
                         LoadRepositoryTemplates();
+                    } else
+                    {
+                        MessageBox.Show("Unable to create ticket at this time");
                     }
 
                 }
@@ -1445,21 +1466,7 @@ namespace DAMBuddy2
             {
                 this.UseWaitCursor = true;
                 busy.Show();
-                lvWork.Items.Clear();
-                UpdateWorkViewTitle();
-                tstbRepositoryFilter.Text = "";
-                wbRepositoryView.Navigate(new Uri("about:blank"));
-                wbRepoWUR.Navigate(new Uri("about:blank"));
-                wbWIP.Navigate(new Uri("about:blank"));
-                wbWIPWUR.Navigate(new Uri("about:blank"));
-                wbOverlaps.Navigate(new Uri("about:blank"));
-                m_browserUpload.Load("about:blank");
-
-                tsStatusLabel.Text = "";
-                m_currentDocumentWIP = "";
-                m_currentDocumentRepo = "";
-                tspStatusLabel.Text = "";
-
+                InitView();
 
                 if (m_RepoManager.SetCurrentRepository(newRepo))
                 {
@@ -1472,6 +1479,34 @@ namespace DAMBuddy2
                 busy.Hide();
                 this.UseWaitCursor = false;
             }
+        }
+
+        private void InitView()
+        {
+            if( InvokeRequired )
+            {
+                BeginInvoke((MethodInvoker)delegate { this.InitView(); });
+                return;
+            }
+
+
+            lvWork.Items.Clear();
+            UpdateWorkViewTitle();
+            tstbRepositoryFilter.Text = "";
+            wbRepositoryView.Navigate(new Uri("about:blank"));
+            wbRepoWUR.Navigate(new Uri("about:blank"));
+            wbWIP.Navigate(new Uri("about:blank"));
+            wbWIPWUR.Navigate(new Uri("about:blank"));
+            wbOverlaps.Navigate(new Uri("about:blank"));
+            m_browserUpload.Load("about:blank");
+
+            tsStatusLabel.Text = "";
+            m_currentDocumentWIP = "";
+            m_currentDocumentRepo = "";
+            tspStatusLabel.Text = "";
+
+
+//            throw new NotImplementedException();
         }
 
         private void tbWIPViews_Selected(object sender, TabControlEventArgs e)

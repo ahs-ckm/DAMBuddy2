@@ -819,8 +819,6 @@ namespace DAMBuddy2
             GetTicketScheduleStatus();
         }
 
-
-
         private bool WIPToServer(string sTemplateName, string sTID)
         {
             return PostWIP();

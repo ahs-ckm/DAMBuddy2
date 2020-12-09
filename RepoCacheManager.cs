@@ -63,6 +63,7 @@ namespace DAMBuddy2
         private List<ThreadArgs> mCacheCreateThreads = null;                           // list of all created threads
         private bool mIsShuttingDown = false;
         private Timer m_timerManger;
+        private int mAvailableCaches;
 
         // public int AvailableCaches { get => mRepoCacheList.Where(x => x.CloneCompleted).Count(); }
 
@@ -91,6 +92,7 @@ namespace DAMBuddy2
             try
             {
                 var AvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
+                mAvailableCaches = AvailableCaches;
                 callbackInfoUpdate?.Invoke($"Available Caches: {AvailableCaches}/{cachesize}");
             }
             finally
@@ -205,6 +207,7 @@ namespace DAMBuddy2
                             //repoCacheList[i].Path = cachepath;
                             repoCacheList[i].CloneCompleted = true;
                             var nAvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
+                            mAvailableCaches = nAvailableCaches;
                             mCallbackInfo?.Invoke($"Cache Clone Completed ({threadargs.ThreadID}). Available Caches: {nAvailableCaches}/{mCacheSize}");
                            // repoCacheList.RemoveAt(i);
                             SaveCacheState(repoCacheList);
@@ -346,7 +349,7 @@ namespace DAMBuddy2
             {
 
 
-                string msg = $"Preparing a new cache. Indexed: {progress.IndexedObjects} of {progress.TotalObjects}. Bytes: {progress.ReceivedBytes}";
+                string msg = $"Available Caches: {mAvailableCaches}/{mCacheSize}. Preparing a new cache. Indexed: {progress.IndexedObjects} of {progress.TotalObjects}.";
                 //Console.WriteLine( msg );
                 mCallbackInfo?.Invoke(msg);
                 mProgressMsgCounter = 0;
@@ -494,6 +497,9 @@ namespace DAMBuddy2
                         Directory.Move(cache.Path, path);
 
                         repoCacheList.RemoveAt(i);
+
+                        mAvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
+
 
                         if (!File.Exists(path + @"\" + RepoManager.GITKEEP_INITIAL))
                         {
