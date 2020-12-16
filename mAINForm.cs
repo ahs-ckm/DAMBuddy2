@@ -280,6 +280,11 @@ namespace DAMBuddy2
         public void callbackDisplayWIP(string filename)
         {
             if (m_IsClosing) return;
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate { this.callbackDisplayWIP(filename); });
+                return;
+            }
 
             ListViewItem newitem = new ListViewItem(filename);
             newitem.SubItems.Add("Fresh");
@@ -294,11 +299,11 @@ namespace DAMBuddy2
         /// called (by RepoManager) when an asset in WIP has been modified (by the editor)
         /// </summary>
         /// <param name="filename"></param>
-        public void callbackWIPModified(string filename)
+        public void callbackWIPModified(string filename, string state)
         {
             if (m_IsClosing) return;
 
-            SetAssetModified(filename);
+            SetAssetModified(filename, state);
         }
 
         public void callbackTicketUpdateState(string TicketId, RepoManager.TicketChangeState state)
@@ -985,11 +990,11 @@ namespace DAMBuddy2
             //lvRepoSearchResults.Columns[0].Width = -1;
         }
 
-        private void SetAssetModified(string filename)
+        private void SetAssetModified(string filename, string state)
         {
             if (InvokeRequired)
             {
-                BeginInvoke((MethodInvoker)delegate { this.SetAssetModified(filename); });
+                BeginInvoke((MethodInvoker)delegate { this.SetAssetModified(filename, state); });
                 return;
             }
             if (filename == null) return;
@@ -999,7 +1004,7 @@ namespace DAMBuddy2
             {
                 if (item.Text == filename)
                 {
-                    item.SubItems[2].Text = "CHANGED";
+                    item.SubItems[2].Text = state;
                 }
             }
         }
@@ -1411,8 +1416,12 @@ namespace DAMBuddy2
             if (ticketform.ShowDialog() == DialogResult.OK)
             {
                 BusyForm bf = new BusyForm();
+                
+                
                 try
                 {
+                    bf.StartPosition = FormStartPosition.CenterScreen;
+
                     bf.Show();
 
                     if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))

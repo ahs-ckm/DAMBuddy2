@@ -23,6 +23,7 @@ namespace DAMBuddy2
                 Application.Run(new MainForm());
             } catch (Exception e)
             {
+                
                 Logger.Error(e.StackTrace);
             }
         }

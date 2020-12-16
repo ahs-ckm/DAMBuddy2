@@ -38,7 +38,7 @@
             // 
             // tbTicket
             // 
-            this.tbTicket.Location = new System.Drawing.Point(140, 10);
+            this.tbTicket.Location = new System.Drawing.Point(140, 9);
             this.tbTicket.Name = "tbTicket";
             this.tbTicket.Size = new System.Drawing.Size(153, 20);
             this.tbTicket.TabIndex = 0;
@@ -50,10 +50,11 @@
             "CSDFK-",
             "CSDCD-",
             "CSDCKT-"});
-            this.cbPrefix.Location = new System.Drawing.Point(13, 10);
+            this.cbPrefix.Location = new System.Drawing.Point(13, 9);
             this.cbPrefix.Name = "cbPrefix";
             this.cbPrefix.Size = new System.Drawing.Size(121, 21);
             this.cbPrefix.TabIndex = 1;
+            this.cbPrefix.SelectedIndexChanged += new System.EventHandler(this.cbPrefix_SelectedIndexChanged);
             // 
             // webBrowser1
             // 
@@ -63,7 +64,7 @@
             this.webBrowser1.Location = new System.Drawing.Point(13, 38);
             this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser1.Name = "webBrowser1";
-            this.webBrowser1.Size = new System.Drawing.Size(775, 371);
+            this.webBrowser1.Size = new System.Drawing.Size(775, 363);
             this.webBrowser1.TabIndex = 2;
             // 
             // btnSearch

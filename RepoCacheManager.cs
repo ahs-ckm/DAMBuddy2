@@ -54,7 +54,7 @@ namespace DAMBuddy2
         private string mRepoCacheStateFilepath = "";
         //private string mRepoWorkingFilepath;
         private string mRemoteGitRepository = "";                           // the URL for the git repo to be cloned (the CKMMirror repository)
-        private ModifiedCallback mCallbackInfo;
+        private GenericCallback mCallbackInfo;
         public string mRootFolder = "";                                     // the top level directory path
         private int mCacheSize = -1;                                        // how many cache folders should be maintained
 
@@ -67,7 +67,7 @@ namespace DAMBuddy2
 
         // public int AvailableCaches { get => mRepoCacheList.Where(x => x.CloneCompleted).Count(); }
 
-        public RepoCacheManager(string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, ModifiedCallback callbackInfoUpdate)
+        public RepoCacheManager(string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, GenericCallback callbackInfoUpdate)
         {
             Logger.Info("RepoCacheManager() : Hello world");
 

@@ -128,5 +128,11 @@ namespace DAMBuddy2
 				 */
 			
 		}
-	}
+
+        private void cbPrefix_SelectedIndexChanged(object sender, EventArgs e)
+        {
+			// save preference
+			MessageBox.Show("TODO: Save Preference");
+        }
+    }
 }

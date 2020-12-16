@@ -20,11 +20,11 @@ using Newtonsoft.Json.Linq;
 
 namespace DAMBuddy2
 {
-    public delegate void ModifiedCallback(string filename);
+    public delegate void ModifiedCallback(string filename, string state);
     public delegate void ReadyStateCallback(bool isReady);
-    public delegate void StaleCallback(string filename);
-    public delegate void DisplayWIPCallback(string filename);//, string originalpath);
-    public delegate void RemoveWIPCallback(string filename);
+    public delegate void GenericCallback(string filename);
+//    public delegate void DisplayWIPCallback(string filename);//, string originalpath);
+//    public delegate void RemoveWIPCallback(string filename);
     public delegate void UploadStateCallback(string Ticket, RepoManager.TicketChangeState state);
 
     public class RepoInstanceConfig
@@ -68,14 +68,14 @@ namespace DAMBuddy2
 
     public class RepoCallbackSettings
     {
-        public ModifiedCallback callbackScheduleState;
+        public GenericCallback callbackScheduleState;
         public ReadyStateCallback callbackTicketState;
         public ModifiedCallback callbackModifiedWIP;
-        public RemoveWIPCallback callbackRemoveWIP;
-        public StaleCallback callbackStale;
-        public DisplayWIPCallback callbackDisplayWIP;
+        public GenericCallback callbackRemoveWIP;
+        public GenericCallback callbackStale;
+        public GenericCallback callbackDisplayWIP;
         public UploadStateCallback callbackUploadState;
-        public ModifiedCallback callbackInfo;
+        public GenericCallback callbackInfo;
 
     }
 
@@ -109,7 +109,7 @@ namespace DAMBuddy2
         private Dictionary<string, string> m_dictID2Gitpath;
         private Dictionary<string, string> m_dictWIPName2Path;
         private Dictionary<string, string> m_dictWIPID2Path;
-
+        private FileSystemWatcher m_watcherNewAssets;
         private RepoCallbackSettings mCallbacks;
         private FileSystemWatcher m_watcherRepo = null;
         private FileSystemWatcher m_watcherWIP = null;
@@ -382,7 +382,7 @@ namespace DAMBuddy2
 
             SaveExistingWip();
 
-            mCallbacks.callbackDisplayWIP?.Invoke(filename);//;, gitfilepath);  // TODO - needs to be git filepath
+            mCallbacks.callbackDisplayWIP?.Invoke(filename);
         }
 
         private void SaveInitialState(string filepath)
@@ -421,7 +421,9 @@ namespace DAMBuddy2
         {
             if (isAssetinWIP(filename))
             {
-                return Utility.GetTemplateID(mConfig.BaseFolder + @"\" + WIP + @"\" + filename);
+                return Utility.GetTemplateID(m_dictWIPName2Path[filename]);
+
+               // return Utility.GetTemplateID(mConfig.BaseFolder + @"\" + WIP + @"\" + filename);
             }
 
             return Utility.GetTemplateID(m_dictFileToPath[filename]);
@@ -478,6 +480,24 @@ namespace DAMBuddy2
                 }
 
                 ZipFile.CreateFromDirectory(directory, zipname);
+                
+
+                // need to add the files in the ticket folder, which may contain brand new templates (not in WIP folder).
+                using (FileStream zipToOpen = new FileStream(zipname, FileMode.Open))
+                {
+                    using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+                    {
+                        string[] newtemplates = System.IO.Directory.GetFiles(AssetPath, "*.oet");
+                        foreach (string newtemplate in newtemplates) {
+                            ZipArchiveEntry newentry = archive.CreateEntry(Path.GetFileName(newtemplate));
+                            using (StreamWriter writer = new StreamWriter(newentry.Open()))
+                            {
+                                writer.Write( File.ReadAllText(newtemplate) );
+                            }
+
+                        }
+                    }
+                }
 
                 //Directory.Move(directory, directory + "-posted");
 
@@ -616,24 +636,81 @@ namespace DAMBuddy2
 
         public bool RemoveWIP(string filename)//, string gitpath)
         {
-            string wipFile = mConfig.BaseFolder + @"\" + WIP + @"\" + filename;
-
-            if (!File.Exists(wipFile))
+            string assetfilepath = m_dictWIPName2Path[filename];
+            
+            if (!File.Exists(assetfilepath))
             {
-                Console.WriteLine($"RemoveWIP() : {wipFile} doesn't exist");
+                Console.WriteLine($"RemoveWIP() : {assetfilepath} doesn't exist");
                 return false;
             }
 
-            // if modified message the user
-
-            // delete file in WIP
-            string sTID = Utility.GetTemplateID(wipFile);
-            string gitpath = m_dictID2Gitpath[sTID];
-            string initialFile = mConfig.BaseFolder + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
-            string updateFile = mConfig.BaseFolder + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
+            string sTID = Utility.GetTemplateID(assetfilepath);
             string trashDir = mConfig.BaseFolder + KEEP_TRASH;
-            try
+
+            if ( Path.GetDirectoryName( assetfilepath) == WIPPath )
             {
+                // if modified message the user
+
+                // delete file in WIP
+                string gitpath = m_dictID2Gitpath[sTID];
+                string initialFile = mConfig.BaseFolder + @"\" + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
+                string updateFile = mConfig.BaseFolder + @"\" + GITKEEP_UPDATE + @"\" + filename + GITKEEP_SUFFIX;
+                try
+                {
+                    WIPRemoveFromServer(filename, GetTemplateID(filename));
+
+                    m_dictWIPName2Path.Remove(filename);
+                    m_dictWIPName2Path.Remove(sTID);
+                    m_dictWIPID2Path.Remove(sTID);
+                    m_dictID2Gitpath.Remove(sTID);
+
+
+                    if (File.Exists(assetfilepath))
+                    {
+                        if (!File.Exists(trashDir))
+                            Directory.CreateDirectory(trashDir);
+
+                        if (File.Exists(trashDir + "\\" + filename + ".old"))
+                            File.Delete(trashDir + "\\" + filename + ".old");
+
+                        File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
+                    }
+                    if (File.Exists(assetfilepath + ".md5"))
+                    {
+                        File.Delete(assetfilepath + ".md5");
+                    }
+
+
+
+                    // move inital/update file back to repo path
+                    if (File.Exists(updateFile))
+                    {
+                        File.Move(updateFile, gitpath);
+                        if (File.Exists(initialFile)) File.Delete(initialFile);
+                        if (File.Exists(updateFile + ".md5")) File.Delete(updateFile + ".md5");
+                    }
+                    else
+                    {
+                        File.Move(initialFile, gitpath);
+                        if (File.Exists(initialFile + ".md5")) File.Delete(initialFile + ".md5");
+
+                    }
+
+                    mCallbacks.callbackRemoveWIP?.Invoke(filename);
+                    SaveExistingWip();
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("RemoveWIP() : " + e.Message);
+                }
+
+
+            }
+            else
+            {
+                MessageBox.Show("Will delete new asset " + filename);
+
                 WIPRemoveFromServer(filename, GetTemplateID(filename));
 
                 m_dictWIPName2Path.Remove(filename);
@@ -642,7 +719,7 @@ namespace DAMBuddy2
                 m_dictID2Gitpath.Remove(sTID);
 
 
-                if (File.Exists(wipFile))
+                if (File.Exists(assetfilepath))
                 {
                     if (!File.Exists(trashDir))
                         Directory.CreateDirectory(trashDir);
@@ -650,38 +727,17 @@ namespace DAMBuddy2
                     if (File.Exists(trashDir + "\\" + filename + ".old"))
                         File.Delete(trashDir + "\\" + filename + ".old");
 
-                    File.Move(wipFile, trashDir + "\\" + filename + ".old");
+                    File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
                 }
-                if (File.Exists(wipFile + ".md5"))
+                if (File.Exists(assetfilepath + ".md5"))
                 {
-                    File.Delete(wipFile + ".md5");
-                }
-
-
-
-                // move inital/update file back to repo path
-                if (File.Exists(updateFile))
-                {
-                    File.Move(updateFile, gitpath);
-                    if (File.Exists(initialFile)) File.Delete(initialFile);
-                    if (File.Exists(updateFile + ".md5")) File.Delete(updateFile + ".md5");
-                }
-                else
-                {
-                    File.Move(initialFile, gitpath);
-                    if (File.Exists(initialFile + ".md5")) File.Delete(initialFile + ".md5");
-
+                    File.Delete(assetfilepath + ".md5");
                 }
 
                 mCallbacks.callbackRemoveWIP?.Invoke(filename);
                 SaveExistingWip();
 
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("RemoveWIP() : " + e.Message);
-            }
-
             return true;
         }
 
@@ -726,10 +782,31 @@ namespace DAMBuddy2
             if (!wipContents.Equals(initialContents))
             {
 
-                mCallbacks.callbackModifiedWIP?.Invoke(asset);
+                mCallbacks.callbackModifiedWIP?.Invoke(asset, "CHANGED");
 
             }
 
+        }
+        private void OnChangedNewAsset(object source, FileSystemEventArgs e)
+        {
+            m_dictFileToPath[e.Name] = e.FullPath;
+
+            string sTID = Utility.GetTemplateID(e.FullPath);
+            string filepath = "";
+
+            if (m_dictWIPName2Path.TryGetValue(e.Name, out filepath)) return; ;
+
+            m_dictWIPName2Path[e.Name] = e.FullPath; // name -> filepath
+            m_dictWIPID2Path[sTID] = e.FullPath; // id -> filepath
+
+            WIPToServer(e.FullPath, sTID);
+
+            SaveExistingWip();
+
+            Console.WriteLine($"OnChangedNewAsset File: {e.FullPath} {e.ChangeType}");
+
+            mCallbacks.callbackDisplayWIP?.Invoke(e.Name);
+            mCallbacks.callbackModifiedWIP?.Invoke(e.Name, "NEW");
         }
 
         private void OnChangedWIP(object source, FileSystemEventArgs e)
@@ -737,7 +814,7 @@ namespace DAMBuddy2
             Console.WriteLine($"OnChangedWIP File: {e.FullPath} {e.ChangeType}");
             CompareWIP2Initial(e.FullPath);
 
-            // should check whether the md5 of the file is actually different to the initial md5
+            // TODO: should check whether the md5 of the file is actually different to the initial md5
         }
 
 
@@ -745,12 +822,25 @@ namespace DAMBuddy2
         {
             
             
-            //TODO: do we need per-ticket timers, or do we just pull into the current?
             m_timerPull = new System.Threading.Timer(TimeToPull, null, mConfig.GitPullInitialDelay, mConfig.GitPullInterval);
 
             m_dictID2Gitpath = new Dictionary<string, string>();
             m_dictWIPName2Path = new Dictionary<string, string>();
             m_dictWIPID2Path = new Dictionary<string, string>();
+
+
+
+            m_watcherNewAssets = new FileSystemWatcher();
+            m_watcherNewAssets.Path = AssetPath; //mConfig.BaseFolder + @"\" + ASSETS;
+            m_watcherNewAssets.IncludeSubdirectories = false;
+            m_watcherNewAssets.NotifyFilter = NotifyFilters.LastWrite;
+            m_watcherNewAssets.Filter = "*.oet";
+           // m_watcherNewAssets.Created += OnChangedNewAsset;
+            m_watcherNewAssets.Changed += OnChangedNewAsset;
+
+            m_watcherNewAssets.EnableRaisingEvents = true;
+
+
 
             m_watcherRepo = new FileSystemWatcher();
             m_watcherRepo.Path = mConfig.BaseFolder + @"\" + ASSETS + @"\templates";
@@ -841,10 +931,10 @@ namespace DAMBuddy2
 
 
 
-        public static void CloseTicketOnServer(string sTicketID, string URLServer)
+        public static void CloseTicketOnServer(string sTicketID, string sFolder, string URLServer)
         {
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{URLServer}:{DAM_UPLOAD_PORT}/dynamic/removeTicket,{sTicketID}");
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{URLServer}:{DAM_UPLOAD_PORT}/dynamic/removeTicket,{sTicketID},{sFolder}");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             RepoManager.TicketChangeState state;
 

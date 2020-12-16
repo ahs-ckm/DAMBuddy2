@@ -62,7 +62,7 @@ public class RepoManager
 {
 
     private static int GIT_PULL_INTERVAL = 60000; // 1 minute
-    private static int GIT_PULL_DELAY = 60000;// 1 minute
+    private static int GIT_PULL_DELAY = 1;// immediate
 
     private static string DAM_UPLOAD_PORT = "10091"; // DEV
     private static string DAM_SCHEDULER_PORT = "10008";
@@ -383,8 +383,14 @@ public class RepoManager
             repo.Shutdown();
 
             string sTicketFolder = FOLDER_ROOT + "\\" + sTicketID;
+            try
+            {
+                Directory.Move(sTicketFolder, sTrashFolder + "\\" + sTicketID);
 
-            Directory.Move(sTicketFolder, sTrashFolder + "\\" + sTicketID);
+            }
+            catch            {
+
+            }
 
         }
 
@@ -392,6 +398,8 @@ public class RepoManager
 
     public void RemoveTicket(string sTicketID)
     {
+        string sFolder = m_dictRepoState[sTicketID];
+
         if (m_dictRepoState[CURRENT_REPO] == sTicketID)
         {
             if (m_timerMonitorTicketState != null)
@@ -405,7 +413,7 @@ public class RepoManager
 
         if (BackupTicket( path) )
         {
-            RepoInstance.CloseTicketOnServer(sTicketID, gServerName);
+            RepoInstance.CloseTicketOnServer(sTicketID, sFolder, gServerName);
             MoveToTrash(sTicketID);
             mRepoInstanceList.Remove(GetInstanceUnsafe(sTicketID));
             m_dictRepoState.Remove(sTicketID);
