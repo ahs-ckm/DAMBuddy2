@@ -376,6 +376,9 @@ namespace DAMBuddy2
 
             var listRepos = m_RepoManager.GetAvailableRepositories();
             tsddbRepository.DropDownItems.Clear();
+            tsddbRepositoryWIP.DropDownItems.Clear();
+
+
             FontFamily fontFamily = new FontFamily("Arial Unicode MS");
             System.Drawing.Font theFont = new System.Drawing.Font(
                fontFamily,
@@ -393,10 +396,21 @@ namespace DAMBuddy2
                 option.ImageScaling = ToolStripItemImageScaling.None;
 
                 option.Click += tsmiAvailableRepo_Click;
+
+                option = tsddbRepositoryWIP.DropDownItems.Add(item);
+                option.Font = theFont;
+                option.Tag = item;
+                option.Height = 30;
+                option.ImageScaling = ToolStripItemImageScaling.None;
+
+                option.Click += tsmiAvailableRepo_Click;
+
+
             }
 
             ToolStripSeparator sep = new ToolStripSeparator();
             tsddbRepository.DropDownItems.Add(sep);
+            tsddbRepositoryWIP.DropDownItems.Add(new ToolStripSeparator());
 
             ToolStripMenuItem addNew = new ToolStripMenuItem("Setup New Ticket...", DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp);
             addNew.Click += setupNewTicketToolStripMenuItem_Click;
@@ -405,6 +419,13 @@ namespace DAMBuddy2
             addNew.ImageScaling = ToolStripItemImageScaling.None;
             tsddbRepository.DropDownItems.Add(addNew);
 
+
+            addNew = new ToolStripMenuItem("Setup New Ticket...", DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp);
+            addNew.Click += setupNewTicketToolStripMenuItem_Click;
+            addNew.Font = theFont;
+            addNew.Height = 30;
+            addNew.ImageScaling = ToolStripItemImageScaling.None;
+            tsddbRepositoryWIP.DropDownItems.Add(addNew);
 
 
             if (m_RepoManager.CurrentRepo == null)
@@ -420,7 +441,9 @@ namespace DAMBuddy2
         private void SetRepositoryTitle(string sTitle)
         {
             tsddbRepository.Text = sTitle;
-            tslWorkRepository.Text = tsddbRepository.Text;
+            tsddbRepositoryWIP.Text = sTitle;
+
+            //tslWorkRepository.Text = tsddbRepository.Text;
         }
 
         /// <summary>
@@ -927,7 +950,6 @@ namespace DAMBuddy2
             if (lvWork.SelectedItems.Count > 0)
             {
                 string filename = lvWork.SelectedItems[0].Text;
-                //string filepath = m_RepoManager.GetTemplateFilepath(filename);//dictFileToPath[filename];
                 RunThreadedTransformWIP(filename);
                 LoadWURWIP(filename);
             }
@@ -1537,6 +1559,18 @@ namespace DAMBuddy2
                 LoadRepositoryTemplates();
             }
 
+        }
+
+        private void tsWorkViewDocument_Click(object sender, EventArgs e)
+        {
+                if (lvWork.SelectedItems.Count > 0)
+                {
+                    string filename = lvWork.SelectedItems[0].Text;
+                    RunThreadedTransformWIP(filename);
+                    LoadWURWIP(filename);
+
+
+                }
         }
     }
 }

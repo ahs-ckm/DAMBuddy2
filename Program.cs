@@ -24,7 +24,7 @@ namespace DAMBuddy2
             } catch (Exception e)
             {
                 
-                Logger.Error(e.StackTrace);
+                Logger.Error(e, "An error occurred which is going to cause the application to close.");
             }
         }
     }

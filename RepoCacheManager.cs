@@ -415,6 +415,7 @@ namespace DAMBuddy2
                     args.ThreadID = $"{cachefolder}-clone";
                     args.RepoPath = cachefolder;
                     args.ThreadInstance = new Thread(Clone);
+                    args.ThreadInstance.Priority = ThreadPriority.BelowNormal;
                     args.callbackError = ThreadException;
                     args.callbackComplete = ThreadComplete;
                     args.ThreadInstance.Name = args.ThreadID;
@@ -457,10 +458,17 @@ namespace DAMBuddy2
 
                         if( Directory.Exists( cache.Path))
                         {
-                            try // TODO: fix read-only files 
+
+                            // git repos sometimes have readonly files, particularly if the clone/pull has been not completed cleanly.
+                            try 
                             {
+                                Utility.MakeAllWritable(cache.Path);
                                 Directory.Delete(cache.Path, true);
-                            } catch { }
+                            } catch (Exception e )
+                            {
+                                Logger.LogException(NLog.LogLevel.Warn, $"Prblems when trying to delete cache {cache.Path}.", e);
+                            }
+
                             
                             repoCacheList.RemoveAt(i);
 

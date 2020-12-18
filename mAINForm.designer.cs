@@ -104,7 +104,10 @@
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox5 = new System.Windows.Forms.TextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.tslWorkRepository = new System.Windows.Forms.ToolStripLabel();
+            this.tsddbRepositoryWIP = new System.Windows.Forms.ToolStripDropDownButton();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.tsWorkReload = new System.Windows.Forms.ToolStripButton();
             this.tsbLaunchTD = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -144,8 +147,6 @@
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
-            this.panelMessageForUser = new System.Windows.Forms.Panel();
-            this.lblMessageToUser = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -173,7 +174,6 @@
             this.toolStrip2.SuspendLayout();
             this.cmsRemove.SuspendLayout();
             this.statusForm.SuspendLayout();
-            this.panelMessageForUser.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox3
@@ -1013,7 +1013,7 @@
             this.toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip2.ImageScalingSize = new System.Drawing.Size(48, 48);
             this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tslWorkRepository,
+            this.tsddbRepositoryWIP,
             this.tsWorkReload,
             this.tsbLaunchTD,
             this.toolStripSeparator3,
@@ -1042,14 +1042,42 @@
             this.toolStrip2.TabIndex = 19;
             this.toolStrip2.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip2_ItemClicked);
             // 
-            // tslWorkRepository
+            // tsddbRepositoryWIP
             // 
-            this.tslWorkRepository.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F);
-            this.tslWorkRepository.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
-            this.tslWorkRepository.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tslWorkRepository.Name = "tslWorkRepository";
-            this.tslWorkRepository.Size = new System.Drawing.Size(169, 42);
-            this.tslWorkRepository.Text = "<no repository>";
+            this.tsddbRepositoryWIP.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem3,
+            this.toolStripSeparator11,
+            this.toolStripMenuItem4});
+            this.tsddbRepositoryWIP.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tsddbRepositoryWIP.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.tsddbRepositoryWIP.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
+            this.tsddbRepositoryWIP.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsddbRepositoryWIP.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddbRepositoryWIP.Name = "tsddbRepositoryWIP";
+            this.tsddbRepositoryWIP.Size = new System.Drawing.Size(192, 42);
+            this.tsddbRepositoryWIP.Text = "< no repository >";
+            this.tsddbRepositoryWIP.ToolTipText = "The current ticket being worked on, click to change.";
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(203, 30);
+            this.toolStripMenuItem3.Text = "CSDFK-1989";
+            // 
+            // toolStripSeparator11
+            // 
+            this.toolStripSeparator11.Name = "toolStripSeparator11";
+            this.toolStripSeparator11.Size = new System.Drawing.Size(200, 6);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.toolStripMenuItem4.Image = global::DAMBuddy2.Properties.Resources.outline_confirmation_number_black_24dp;
+            this.toolStripMenuItem4.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(203, 30);
+            this.toolStripMenuItem4.Text = "Setup New Ticket...";
             // 
             // tsWorkReload
             // 
@@ -1125,6 +1153,7 @@
             this.toolStripLabel6.Name = "toolStripLabel6";
             this.toolStripLabel6.Size = new System.Drawing.Size(83, 42);
             this.toolStripLabel6.Text = "Search Work";
+            this.toolStripLabel6.Visible = false;
             // 
             // tstbWIPSearch
             // 
@@ -1133,6 +1162,7 @@
             this.tstbWIPSearch.Font = new System.Drawing.Font("Arial Unicode MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.tstbWIPSearch.Name = "tstbWIPSearch";
             this.tstbWIPSearch.Size = new System.Drawing.Size(175, 45);
+            this.tstbWIPSearch.Visible = false;
             // 
             // toolStripButton2
             // 
@@ -1144,12 +1174,14 @@
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(48, 42);
             this.toolStripButton2.Text = "toolStripButton1";
+            this.toolStripButton2.Visible = false;
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(6, 45);
+            this.toolStripSeparator4.Visible = false;
             // 
             // tsWorkViewDocument
             // 
@@ -1161,6 +1193,7 @@
             this.tsWorkViewDocument.Name = "tsWorkViewDocument";
             this.tsWorkViewDocument.Size = new System.Drawing.Size(48, 42);
             this.tsWorkViewDocument.Text = "Refresh Transform";
+            this.tsWorkViewDocument.Click += new System.EventHandler(this.tsWorkViewDocument_Click);
             // 
             // tsbWordWIP
             // 
@@ -1391,36 +1424,12 @@
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             // 
-            // panelMessageForUser
-            // 
-            this.panelMessageForUser.BackColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.panelMessageForUser.Controls.Add(this.lblMessageToUser);
-            this.panelMessageForUser.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelMessageForUser.Location = new System.Drawing.Point(0, 0);
-            this.panelMessageForUser.Name = "panelMessageForUser";
-            this.panelMessageForUser.Size = new System.Drawing.Size(1649, 33);
-            this.panelMessageForUser.TabIndex = 23;
-            this.panelMessageForUser.Visible = false;
-            // 
-            // lblMessageToUser
-            // 
-            this.lblMessageToUser.AutoSize = true;
-            this.lblMessageToUser.Font = new System.Drawing.Font("Arial Unicode MS", 14.25F);
-            this.lblMessageToUser.Image = global::DAMBuddy2.Properties.Resources.outline_info_black_24dp;
-            this.lblMessageToUser.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblMessageToUser.Location = new System.Drawing.Point(6, 7);
-            this.lblMessageToUser.Name = "lblMessageToUser";
-            this.lblMessageToUser.Size = new System.Drawing.Size(289, 25);
-            this.lblMessageToUser.TabIndex = 0;
-            this.lblMessageToUser.Text = "     Information Message for User";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1649, 794);
-            this.Controls.Add(this.panelMessageForUser);
             this.Controls.Add(this.statusForm);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.textBox3);
@@ -1466,8 +1475,6 @@
             this.cmsRemove.ResumeLayout(false);
             this.statusForm.ResumeLayout(false);
             this.statusForm.PerformLayout();
-            this.panelMessageForUser.ResumeLayout(false);
-            this.panelMessageForUser.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1498,7 +1505,6 @@
         private System.Windows.Forms.ToolStripLabel tspTime;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
         private System.Windows.Forms.ToolStrip toolStrip2;
-        private System.Windows.Forms.ToolStripLabel tslWorkRepository;
         private System.Windows.Forms.ToolStripButton tsWorkReload;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
@@ -1588,8 +1594,10 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.TabPage tpOverlaps2;
         private System.Windows.Forms.WebBrowser wbOverlaps;
-        private System.Windows.Forms.Panel panelMessageForUser;
-        private System.Windows.Forms.Label lblMessageToUser;
+        private System.Windows.Forms.ToolStripDropDownButton tsddbRepositoryWIP;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
     }
 }
 

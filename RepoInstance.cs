@@ -100,10 +100,6 @@ namespace DAMBuddy2
         public static string WIP = @"\" + ASSETS + @"\WIP";
         private List<ListViewItem> m_masterlist;
 
-        //private string mConfig.BaseFolder = "";
-        //private string mTicketID = "";
-        //private string mConfig.URLServer = "";
-
         bool m_ReadyStateSetByUser = false;
         private static Dictionary<string, string> m_dictFileToPath;
         private Dictionary<string, string> m_dictID2Gitpath;
@@ -124,6 +120,7 @@ namespace DAMBuddy2
         private RepoInstanceConfig mConfig;
         private DateTime m_dtCloneStart;
         private DateTime m_dtCloneEnd;
+        private readonly string INFO_RESCHEDULE_WARNING = "Adding assets when the ticket is ready will require the ticket to be rescheduled. If the new asset is being changed by another user, it may result in your ticket becoming blocked.";
 
         public string WIPPath
         {
@@ -151,13 +148,13 @@ namespace DAMBuddy2
             m_watcherWIP.EnableRaisingEvents = false;
         }
 
-        public void MakeInactive()
+        public void MakeInactive() // no longer the current repo
         {
             mConfig.isActive = false;
             DisableBackgroundActivities();
 
         }
-        public void MakeActive()
+        public void MakeActive() // this is the current repository now
         {
             mConfig.isActive = true;
             LoadExistingWIP();
@@ -204,6 +201,8 @@ namespace DAMBuddy2
             m_watcherWIP.Dispose();
             m_watcherRepo.Dispose();
             m_timerPull.Dispose();
+            
+
             
             SaveExistingWip();
         }
@@ -309,6 +308,16 @@ namespace DAMBuddy2
             using (StreamReader reader = new StreamReader(stream))
             {
                 string jsonStatus = reader.ReadToEnd();
+                RepoInstance.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoInstance.TicketScheduleState>(jsonStatus);
+
+                if (state.UploadEnabled == "true")
+                {
+                    LockFiles( false );
+                }
+                else { 
+                    LockFiles(true); 
+                }
+
 
                 if (!mConfig.isActive) return false;
 
@@ -319,10 +328,36 @@ namespace DAMBuddy2
             return true;
         }
 
+        private bool LockFiles( bool Lock )
+        {
+            try
+            {
+                string[] wiptemplates = System.IO.Directory.GetFiles(WIPPath, "*.oet");
+                foreach (string wiptemplate in wiptemplates)
+                {
+                    var attr = File.GetAttributes(wiptemplate);
+
+
+                    if (Lock)
+                    {
+                        File.SetAttributes(wiptemplate, FileAttributes.ReadOnly);
+                    }
+                    else
+                    {
+                        File.SetAttributes(wiptemplate, FileAttributes.Normal);
+                    }
+
+                    
+
+                }
+
+            } catch 
+            { return false;  }
+            return true;
+        }
+
         private static bool UpdateSchedule(string URLServer)
         {
-
-
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{URLServer}:{DAM_SCHEDULER_PORT}/dynamic/BuildPlan.json");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
@@ -359,30 +394,58 @@ namespace DAMBuddy2
         // prepare an asset as WIP
         public void AddWIP(string gitfilepath)
         {
+            // If ticket is ready (and so in the schedule), it needs to be rescheduled.
+            // This means setting the ticket to not ready, then back to ready after the asset has been added.
 
-            string filename = Path.GetFileName(gitfilepath);
-            string filepathWIP = mConfig.BaseFolder + WIP + @"\" + filename;
-            string initialFile = mConfig.BaseFolder + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
+            bool bResetSchedule = false;
 
-            // copy the asset to the working folder
-            File.Copy(gitfilepath, filepathWIP);
-            
-            // move asset from repository folder into the intitial git folder (which is used to flag for stale/updated assets)
-            File.Move(gitfilepath, initialFile);
 
-            Utility.MakeMd5(initialFile);
+            if ( m_ReadyStateSetByUser )
+            {
+                if ( MessageBox.Show(INFO_RESCHEDULE_WARNING,
+                    "Schedule Warning", 
+                    MessageBoxButtons.OKCancel, 
+                    MessageBoxIcon.Warning) == DialogResult.Cancel ) { return; }
 
-            string sTID = Utility.GetTemplateID(filepathWIP);
+                SetTicketReadiness(false);
+                bResetSchedule = true;
+            }
+            try
+            {
 
-            m_dictID2Gitpath[sTID] = gitfilepath; // id -> original directory in git repo
-            m_dictWIPName2Path[filename] = filepathWIP; // name -> filepath
-            m_dictWIPID2Path[sTID] = filepathWIP; // id -> filepath
+                string filename = Path.GetFileName(gitfilepath);
+                string filepathWIP = mConfig.BaseFolder + WIP + @"\" + filename;
+                string initialFile = mConfig.BaseFolder + GITKEEP_INITIAL + @"\" + filename + GITKEEP_SUFFIX;
 
-            WIPToServer(filename, sTID);
+                // copy the asset to the working folder
+                File.Copy(gitfilepath, filepathWIP);
 
-            SaveExistingWip();
+                File.SetAttributes(filepathWIP, FileAttributes.ReadOnly);
 
-            mCallbacks.callbackDisplayWIP?.Invoke(filename);
+                // move asset from repository folder into the intitial git folder (which is used to flag for stale/updated assets)
+                File.Move(gitfilepath, initialFile);
+
+                Utility.MakeMd5(initialFile);
+
+                string sTID = Utility.GetTemplateID(filepathWIP);
+
+                m_dictID2Gitpath[sTID] = gitfilepath; // id -> original directory in git repo
+                m_dictWIPName2Path[filename] = filepathWIP; // name -> filepath
+                m_dictWIPID2Path[sTID] = filepathWIP; // id -> filepath
+
+                WIPToServer(filename, sTID);
+
+                SaveExistingWip();
+
+                mCallbacks.callbackDisplayWIP?.Invoke(filename);
+            }
+            finally
+            {
+                if ( bResetSchedule )
+                {
+                    SetTicketReadiness(true);
+                }
+            }
         }
 
         private void SaveInitialState(string filepath)

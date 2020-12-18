@@ -60,7 +60,8 @@ public static class Extensions
 /// </summary>
 public class RepoManager
 {
-
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private readonly string REPOCACHE_TOKEN = "repocache";
     private static int GIT_PULL_INTERVAL = 60000; // 1 minute
     private static int GIT_PULL_DELAY = 1;// immediate
 
@@ -87,7 +88,7 @@ public class RepoManager
 
 
     private RepoCacheManager mRepoCacheManager;
-
+    private Thread mThreadTidyRepository;
 
 
     private int m_intervalPull;
@@ -143,6 +144,12 @@ public class RepoManager
         mRepoInstancCallbacks = callbacks;
         
         LoadRepositoryState();
+
+
+        mThreadTidyRepository = new Thread(TidyRepositoryState);
+        mThreadTidyRepository.Priority = ThreadPriority.Lowest;
+        mThreadTidyRepository.Start();
+
         string sTicketID = m_dictRepoState[CURRENT_REPO];
         if ( sTicketID == "") return;
 
@@ -165,13 +172,99 @@ public class RepoManager
 
     }
 
+    private void TidyRepositoryState() // verify that we need each folder. If not in dictRepoState, remove it.
+    {
+        List<string> listToGo = new List<string>();
 
-/// <summary>
-/// Intializes the RepoManager, starting a process of checking the upload state of each repository/ticket. 
-/// Tickets may have been uploaded after the RepoManager was last closed, so any prior uploaded tickets will be removed.
-/// </summary>
-/// <param name="PullDelay"></param>
-/// <param name="PullInterval"></param>
+        try
+        {
+
+            string[] ticketFolder = Directory.GetDirectories(FOLDER_ROOT,"*", SearchOption.TopDirectoryOnly);
+            foreach (string folderpath in ticketFolder)
+            {
+                if (folderpath.Contains(REPOCACHE_TOKEN)) continue;
+                if (folderpath.Contains(KEEP_TRASH)) continue;
+
+
+
+                string sFolderName = Path.GetFileName(folderpath);
+
+                if (!m_dictRepoState.ContainsKey(sFolderName) )
+                {
+                    var sUniqueSuffix = Guid.NewGuid();
+                    string sNewName = folderpath;
+                    if ( !sFolderName.Contains( "TODELETE") )
+                    {
+                        sNewName = folderpath + "-TODELETE-" + sUniqueSuffix.ToString().Substring(0, 7);
+                        try
+                        {
+
+                            Directory.Move(folderpath, sNewName);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogException(NLog.LogLevel.Warn, $"Problems moving old ticket ({folderpath} -> {sNewName}", e);
+                        }
+
+                    }
+                    listToGo.Add(sNewName);
+
+                }
+            }
+
+            foreach(string pathToDelete in listToGo)
+            { 
+                try
+                {
+                    Utility.MakeAllWritable(pathToDelete);/*
+                    // git repos sometimes have readonly files, particularly if the clone/pull has been not completed cleanly.
+                    var readOnlyFiles = new DirectoryInfo(pathToDelete)
+                        .EnumerateFiles("*", SearchOption.AllDirectories)
+                        .Where(file => file.Attributes.HasFlag(FileAttributes.ReadOnly));
+
+                    foreach (FileInfo fi in readOnlyFiles)
+                    {
+                        File.SetAttributes(fi.FullName,  FileAttributes.Normal);
+
+                    }
+
+
+                    var readOnlyDirs = new DirectoryInfo(pathToDelete)
+                        .EnumerateDirectories("*", SearchOption.AllDirectories);
+
+                    foreach (DirectoryInfo di in readOnlyDirs)
+                    {
+                        File.SetAttributes(di.FullName, System.IO.FileAttributes.Normal);
+
+                    }
+                    */
+
+
+                    Directory.Delete(pathToDelete, true);
+                }
+                catch ( Exception e) 
+                {
+                    Logger.LogException(NLog.LogLevel.Warn, $"Problems when trying to delete old ticket folder {pathToDelete}", e);
+                }
+
+            }
+
+        }
+        finally
+        {
+        }
+
+
+        //throw new NotImplementedException();
+    }
+
+
+    /// <summary>
+    /// Intializes the RepoManager, starting a process of checking the upload state of each repository/ticket. 
+    /// Tickets may have been uploaded after the RepoManager was last closed, so any prior uploaded tickets will be removed.
+    /// </summary>
+    /// <param name="PullDelay"></param>
+    /// <param name="PullInterval"></param>
     public void Init()//int PullDelay, int PullInterval)
     {
         mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR, mRepoInstancCallbacks.callbackInfo);
@@ -414,7 +507,7 @@ public class RepoManager
         if (BackupTicket( path) )
         {
             RepoInstance.CloseTicketOnServer(sTicketID, sFolder, gServerName);
-            MoveToTrash(sTicketID);
+            //MoveToTrash(sTicketID);
             mRepoInstanceList.Remove(GetInstanceUnsafe(sTicketID));
             m_dictRepoState.Remove(sTicketID);
 
@@ -539,7 +632,7 @@ public class RepoManager
             m_dictRepoState[CURRENT_REPO] = ticketID;
 
             Console.WriteLine($"Current Repository is now {CurrentRepo}");
-            
+            SaveepositoryState();
             
             return true;
         };
@@ -620,7 +713,17 @@ public class RepoManager
     public void Shutdown()
     {
 
-        if( m_timerMonitorTicketState != null)
+        if (mThreadTidyRepository != null)
+        {
+            try
+            {
+                mThreadTidyRepository.Abort();
+            }
+            catch
+            { }
+        }
+
+        if ( m_timerMonitorTicketState != null)
         {
             m_timerMonitorTicketState.Dispose();
 

@@ -13,7 +13,26 @@ namespace DAMBuddy2
     class Utility
     {
 
+        public static void MakeAllWritable( string folderpath )
+        {
+            var readOnlyFiles = new DirectoryInfo(folderpath)
+                                    .EnumerateFiles("*", SearchOption.AllDirectories)
+                                    .Where(file => file.Attributes.HasFlag(FileAttributes.ReadOnly));
 
+            foreach (FileInfo fi in readOnlyFiles)
+            {
+                File.SetAttributes(fi.FullName, FileAttributes.Normal);
+            }
+
+            var readOnlyDirs = new DirectoryInfo(folderpath)
+                .EnumerateDirectories("*", SearchOption.AllDirectories);
+
+            foreach (DirectoryInfo di in readOnlyDirs)
+            {
+                File.SetAttributes(di.FullName, System.IO.FileAttributes.Normal);
+            }
+
+        }
 
         public static string ReadAsset(string filepath)
         {
