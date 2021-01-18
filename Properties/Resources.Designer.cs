@@ -63,16 +63,6 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap icons8_venn_diagram_48 {
-            get {
-                object obj = ResourceManager.GetObject("icons8-venn-diagram-48", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap ounq1mw5kdxy {
             get {
                 object obj = ResourceManager.GetObject("ounq1mw5kdxy", resourceCulture);

@@ -6,6 +6,8 @@ using System.Windows.Forms;
 
 namespace DAMBuddy2
 {
+
+
     static class Program
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

@@ -7,11 +7,81 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Configuration;
+using System.Net;
+using System.Net.Http;
 
 namespace DAMBuddy2
 {
     class Utility
     {
+
+        public static void PutSettingString(string sName, string sValue)
+        {
+
+            var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            var settings = configFile.AppSettings.Settings;
+
+            if( settings[sName] == null )
+            {
+                settings.Add(sName, sValue);
+            }
+            else
+            {
+                settings[sName].Value = sValue;
+             
+            }
+
+            configFile.Save(ConfigurationSaveMode.Modified);
+
+            ConfigurationManager.RefreshSection(configFile.AppSettings.SectionInformation.Name);
+
+            return;
+        }
+
+        public static async Task<bool> AuthorizeUserAsync( string sUser, string sPassword )
+        {
+            bool result = false;
+            string sSessionURL = Utility.GetSettingString("CKMSessionURL");
+
+            using (var httpClient = new HttpClient())
+            {
+                var byteArray = Encoding.ASCII.GetBytes($"{sUser}:{sPassword}");
+                httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), sSessionURL))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/xml");
+
+                    var response = await httpClient.SendAsync(request);
+
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        MessageBox.Show("Failed to authenticate.\n\nPlease update your user account credentials.", "Problem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        result = true;
+                    }
+
+                }
+            }
+
+
+            return result;
+        }
+
+        public static string GetSettingString( string sName )
+        {
+            return ConfigurationManager.AppSettings[sName];
+
+        }
+
+        public static int GetSettingInt(string sName)
+        {
+            return Int32.Parse( ConfigurationManager.AppSettings[sName] );
+
+        }
 
         public static void MakeAllWritable( string folderpath )
         {
@@ -100,7 +170,7 @@ namespace DAMBuddy2
         {
             // strip all spaces and write md5 to asset.oet.md5
             string assetcontent = ReadAsset(filepath);
-            string hashvalue = "";
+            //string hashvalue = "";
             byte[] hashBytes = { };
 
             using (var md5 = MD5.Create())
@@ -119,6 +189,9 @@ namespace DAMBuddy2
         {
             //string template = File.ReadAllText(filepath);
             string template = "";
+
+            if (!File.Exists(filepath)) return "";
+
 
             using (FileStream fs = new FileStream(filepath,
                                       FileMode.Open,

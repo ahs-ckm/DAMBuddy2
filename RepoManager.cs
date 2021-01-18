@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using DAMBuddy2;
-using LibGit2Sharp;
-using LibGit2Sharp.Handlers;
-using System.IO.Compression;
 using System.Net;
-using net.sf.saxon.trans.rules;
 using System.Diagnostics.Contracts;
 using System.Collections.ObjectModel;
 using Newtonsoft.Json.Linq;
@@ -61,46 +52,17 @@ public static class Extensions
 public class RepoManager
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-    private readonly string REPOCACHE_TOKEN = "repocache";
-    private static int GIT_PULL_INTERVAL = 60000; // 1 minute
-    private static int GIT_PULL_DELAY = 1;// immediate
-
-    private static string DAM_UPLOAD_PORT = "10091"; // DEV
-    private static string DAM_SCHEDULER_PORT = "10008";
-
     private static string CURRENT_REPO = "CURRENT_REPO";
-    private static string FOLDER_ROOT = @"c:\TD";
-
-    private static string BIN_DIR = @"C:\Users\jonbeeby\source\repos\DamBuddy2\packages\PortableGit\bin\";
-
 
     private string m_GitRepositoryURI = "https://github.com/ahs-ckm/ckm-mirror";
-    public static string GITKEEP_INITIAL = @"\gitkeep\initial";
-    public static string GITKEEP_UPDATE = @"\gitkeep\update";
-    public static string KEEP_TRASH = @"\trash";
-    private static string GITKEEP_SUFFIX = ".keep";
-    //private static string WIP = @"\local\WIP";
-    public static string ASSETS = @"\local";
-    public static string WIP = @"\" + ASSETS + @"\WIP";
-
-
-    private string gServerName = "http://ckcm.healthy.bewell.ca";
-
-
     private RepoCacheManager mRepoCacheManager;
     private Thread mThreadTidyRepository;
-
-
     private int m_intervalPull;
     private int m_pullDelay;
     private string m_CacheServiceURL;
     private List<RepoInstance> mRepoInstanceList;
 
     RepoCallbackSettings mRepoInstancCallbacks;
-
-    bool m_ReadyStateSetByUser = false;
-
-    private static Dictionary<string, string> m_dictFileToPath;
     private Dictionary<string, string> m_dictRepoState;
     private System.Threading.Timer m_timerMonitorTicketState;
 
@@ -137,9 +99,10 @@ public class RepoManager
 
         mRepoInstanceList = new List<RepoInstance>();
 
+        m_CacheServiceURL = Utility.GetSettingString("CacheServiceUrl");
 
-        m_intervalPull = GIT_PULL_INTERVAL;
-        m_pullDelay = GIT_PULL_DELAY;
+        m_intervalPull = Utility.GetSettingInt("GitPullInterval");
+        m_pullDelay = Utility.GetSettingInt("GitPullDelay");
 
         mRepoInstancCallbacks = callbacks;
         
@@ -167,9 +130,6 @@ public class RepoManager
             instance.MakeActive();
         }
 
-
-
-
     }
 
     private void TidyRepositoryState() // verify that we need each folder. If not in dictRepoState, remove it.
@@ -178,12 +138,12 @@ public class RepoManager
 
         try
         {
-
-            string[] ticketFolder = Directory.GetDirectories(FOLDER_ROOT,"*", SearchOption.TopDirectoryOnly);
+            string sRoot = Utility.GetSettingString("FolderRoot");
+            string[] ticketFolder = Directory.GetDirectories(sRoot,"*", SearchOption.TopDirectoryOnly);
             foreach (string folderpath in ticketFolder)
             {
-                if (folderpath.Contains(REPOCACHE_TOKEN)) continue;
-                if (folderpath.Contains(KEEP_TRASH)) continue;
+                if (folderpath.Contains(Utility.GetSettingString("RepoCacheToken"))) continue;
+                if (folderpath.Contains(Utility.GetSettingString("KeepTrash"))) continue;
 
 
 
@@ -216,30 +176,7 @@ public class RepoManager
             { 
                 try
                 {
-                    Utility.MakeAllWritable(pathToDelete);/*
-                    // git repos sometimes have readonly files, particularly if the clone/pull has been not completed cleanly.
-                    var readOnlyFiles = new DirectoryInfo(pathToDelete)
-                        .EnumerateFiles("*", SearchOption.AllDirectories)
-                        .Where(file => file.Attributes.HasFlag(FileAttributes.ReadOnly));
-
-                    foreach (FileInfo fi in readOnlyFiles)
-                    {
-                        File.SetAttributes(fi.FullName,  FileAttributes.Normal);
-
-                    }
-
-
-                    var readOnlyDirs = new DirectoryInfo(pathToDelete)
-                        .EnumerateDirectories("*", SearchOption.AllDirectories);
-
-                    foreach (DirectoryInfo di in readOnlyDirs)
-                    {
-                        File.SetAttributes(di.FullName, System.IO.FileAttributes.Normal);
-
-                    }
-                    */
-
-
+                    Utility.MakeAllWritable(pathToDelete);
                     Directory.Delete(pathToDelete, true);
                 }
                 catch ( Exception e) 
@@ -254,8 +191,6 @@ public class RepoManager
         {
         }
 
-
-        //throw new NotImplementedException();
     }
 
 
@@ -267,7 +202,11 @@ public class RepoManager
     /// <param name="PullInterval"></param>
     public void Init()//int PullDelay, int PullInterval)
     {
-        mRepoCacheManager = new RepoCacheManager(FOLDER_ROOT, 3, m_GitRepositoryURI, BIN_DIR, mRepoInstancCallbacks.callbackInfo);
+        string sRoot = Utility.GetSettingString("FolderRoot");
+        string sBinDir = Utility.GetSettingString("BinDir");
+
+
+        mRepoCacheManager = new RepoCacheManager(sRoot, 3, m_GitRepositoryURI, sBinDir, mRepoInstancCallbacks.callbackInfo);
 
         List<string> processlist = new List<string>();
 
@@ -295,8 +234,9 @@ public class RepoManager
     private void LoadRepositoryState()
     {
         m_dictRepoState = new Dictionary<string, string>();
+        string sRoot = Utility.GetSettingString("FolderRoot");
 
-        string filepath = FOLDER_ROOT + @"\" + "repostate.csv";
+        string filepath = sRoot + @"\" + "repostate.csv";
         if (File.Exists(filepath))
         {
             var reader = new StreamReader(File.OpenRead(filepath));
@@ -321,7 +261,7 @@ public class RepoManager
 
             if (sTicketFolder == CURRENT_REPO) continue; // ignore token
 
-            if(!Directory.Exists( FOLDER_ROOT + "\\" + sTicketFolder ))
+            if(!Directory.Exists( sRoot + "\\" + sTicketFolder ))
             {
                 if (m_dictRepoState[CURRENT_REPO] == sTicketFolder) m_dictRepoState[CURRENT_REPO] = "";
                 m_dictRepoState.Remove(sTicketFolder);
@@ -338,7 +278,9 @@ public class RepoManager
     /// </summary>
     private void SaveepositoryState()
     {
-        string filepath = FOLDER_ROOT + @"\" + "repostate.csv";
+        string sRoot = Utility.GetSettingString("FolderRoot");
+
+        string filepath = sRoot + @"\" + "repostate.csv";
         string csv = "";
         foreach (KeyValuePair<string, string> kvp in m_dictRepoState)
         {
@@ -369,21 +311,6 @@ public class RepoManager
 
     }
 
-    /// <summary>
-    /// Watchdog process to check whether a ticket has finished uploading, and if so, close/remove it.
-    /// </summary>
-    /// <param name="sTicketID"></param>
-    /*private void ProcessTicketState( string sTicketID )
-    {
-        TicketChangeState state = GetTicketUploadState(sTicketID);
-        if( !state.active )
-        {
-            RemoveTicket(sTicketID);
-            //TODO: is this needed - if we close a ticket whilst the UI has it open - like after an upload finishes?
-            //CallbackUploadState?.Invoke(sTicketID, state);
-        }
-
-    }*/
 
     /// <summary>
     /// Retrieves the ticket state from the server
@@ -392,8 +319,9 @@ public class RepoManager
     /// <returns></returns>
     private TicketChangeState GetTicketUploadState(string sTicketID)
     {
-
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{gServerName}:{DAM_UPLOAD_PORT}/dynamic/change_status,{sTicketID}");
+        string Server = Utility.GetSettingString("ServerName");
+        string Port = Utility.GetSettingString("DAMUploadPort");
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{Server}:{Port}/dynamic/change_status,{sTicketID}");
         request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
         TicketChangeState state;
 
@@ -463,10 +391,12 @@ public class RepoManager
     private void MoveToTrash( string sTicketID )
     {
         RepoInstance repo = null;
-        string sTrashFolder = FOLDER_ROOT + "\\" + KEEP_TRASH;
+        string sRoot = Utility.GetSettingString("FolderRoot");
+
+        string sTrashFolder = sRoot + "\\" + Utility.GetSettingString("KeepTrash");
 
 
-        if( GetInstanceSafe(sTicketID, ref repo))
+        if ( GetInstanceSafe(sTicketID, ref repo))
         {
             if( !Directory.Exists( sTrashFolder))
             {
@@ -475,13 +405,14 @@ public class RepoManager
 
             repo.Shutdown();
 
-            string sTicketFolder = FOLDER_ROOT + "\\" + sTicketID;
+            string sTicketFolder = sRoot + "\\" + sTicketID;
             try
             {
                 Directory.Move(sTicketFolder, sTrashFolder + "\\" + sTicketID);
 
             }
-            catch            {
+            catch            
+            {
 
             }
 
@@ -501,13 +432,15 @@ public class RepoManager
                 m_timerMonitorTicketState = null;
             }
         }
-        
-        string path = FOLDER_ROOT + "\\" + sTicketID;
+        string sRoot = Utility.GetSettingString("FolderRoot");
+
+        string path = sRoot + "\\" + sTicketID;
 
         if (BackupTicket( path) )
         {
-            RepoInstance.CloseTicketOnServer(sTicketID, sFolder, gServerName);
-            //MoveToTrash(sTicketID);
+
+            string Server = Utility.GetSettingString("ServerName");
+            RepoInstance.CloseTicketOnServer(sTicketID, sFolder, Server);
             mRepoInstanceList.Remove(GetInstanceUnsafe(sTicketID));
             m_dictRepoState.Remove(sTicketID);
 
@@ -549,11 +482,14 @@ public class RepoManager
         RepoInstanceConfig config = new RepoInstanceConfig();
         config.TicketID = sTicketID;
         config.FolderID = sFolderID;
-        config.URLServer = gServerName;
+        string sRoot = Utility.GetSettingString("FolderRoot");
+
+        string Server = Utility.GetSettingString("ServerName");
+        config.URLServer = Server;
         config.URLCache = m_CacheServiceURL;
         config.GitPullInitialDelay = m_pullDelay;
         config.GitPullInterval = m_intervalPull;
-        config.BaseFolder = FOLDER_ROOT + "\\" + sTicketID ;
+        config.BaseFolder = sRoot + "\\" + sTicketID ;
         config.isActive = isCurrent;
 
         var instance = new RepoInstance(config, mRepoInstancCallbacks);
@@ -619,9 +555,11 @@ public class RepoManager
         // switch context.
         JObject jsonissue = JObject.Parse(jsonTicket);
         string ticketID = (string)jsonissue["key"];
+        string sRoot = Utility.GetSettingString("FolderRoot");
 
 
-        if (mRepoCacheManager.SetupTicket(FOLDER_ROOT + "\\" + ticketID))
+
+        if (mRepoCacheManager.SetupTicket(sRoot + "\\" + ticketID))
         {
 
             string FolderID = ServerLinkTicket(jsonissue);
@@ -653,7 +591,6 @@ public class RepoManager
         string sDescription = (string)theIssue["fields"]["description"];
         string sName = (string)theIssue["fields"]["name"];
 
-        string sAssignee = "";
         try
         {
             sName = (string)theIssue["fields"]["assignee"]["name"];
@@ -661,30 +598,19 @@ public class RepoManager
         }
         catch { }
 
-        /*
-        if (theIssue.isNull("assignee") == false)
-        {
-            JSONObject assigneeObj = fieldsObj.getJSONObject("assignee");
-            ji.setAssignee(assigneeObj.getString("name"));
-            ji.setAssigneeemail(assigneeObj.getString("emailAddress"));
-        }*/
-
-
+        // TODO
         string theParams = $"theTicket={sTicketID}&theDescription=abc&theLead=JonBeeby&theAssignee=JonBeeby";
-
-        //string theParams = System.Net.WebUtility.HtmlEncode($"theTicket={sTicketID},theDescription=abc,theLead=JonBeeby,theAssignee=JonBeeby");
-
 
         using (WebClient client = new WebClient())
         {
+            string Port = Utility.GetSettingString("DAMUploadPort");
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-            sFolderName = client.UploadString(gServerName + ":" + DAM_UPLOAD_PORT + "/linkTicket", theParams);
+
+            string Server = Utility.GetSettingString("ServerName");
+            sFolderName = client.UploadString(Server + ":" + Port + "/linkTicket", theParams);
             Console.WriteLine(sFolderName);
 
         }
-
-        //        UpdateSchedule();
-        //        GetTicketScheduleStatus();
         return sFolderName;
     }
 
@@ -697,14 +623,20 @@ public class RepoManager
     {
         string ticket = m_dictRepoState[CURRENT_REPO];
         string folder = m_dictRepoState[ticket];
-        // TODO: move to config
-
+     
         m_timerMonitorTicketState = new System.Threading.Timer( ProcessTicketState, ticket, 5000,5000);
 
-        return $"http://ckcm.healthy.bewell.ca:10081/init,{folder},VGhpcyBpcyB0aGUgSW1wbGVtZW50YXRpb24gTm90ZQ==,am9uLmJlZWJ5,UGE1NXdvcmQ=";
+        string UploadUrl = Utility.GetSettingString("DAMUploadUrl");
+        string user = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Utility.GetSettingString("User")));
+        string pw = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Utility.GetSettingString("Password")));
+        string message = "hardcoded change message";
+        string ChangeMessage = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message));
+
+        string sFullURL = UploadUrl + folder + "," + ChangeMessage + "," + user + "," + pw;
+
+
+        return sFullURL;
     }
-
-
 
 
     /// <summary>

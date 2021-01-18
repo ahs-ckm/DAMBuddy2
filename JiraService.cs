@@ -38,27 +38,26 @@ namespace DAMBuddy2
 	public class JiraService
 	{
 		//TODO - move some to config, and we need jira user form.
-		static string JIRA_USER = "jonbeeby";
-		static string JIRA_PW = "Up2Tkj2PqxPCkt";
-		static string JIRA_BASE_URL = "http://wsatsapp01.healthy.bewell.ca:8080/";
+		readonly static string JIRA_USER = "jonbeeby";
+		readonly static string JIRA_PW = "Up2Tkj2PqxPCkt";
+		readonly static string JIRA_BASE_URL = "http://wsatsapp01.healthy.bewell.ca:8080/";
 
-		public static String search = "/rest/api/2/search";
-		public static String jqlCKCMTickets = "jql=assignee=ckcmservice+order+by+duedate";
+		readonly public static String search = "/rest/api/2/search";
+		readonly public static String jqlCKCMTickets = "jql=assignee=ckcmservice+order+by+duedate";
 
-		private static CredentialCache GetCredential(string url)
+		/*private static CredentialCache GetCredential(string url)
 		{
 			//string url = @"https://telematicoprova.agenziadogane.it/TelematicoServiziDiUtilitaWeb/ServiziDiUtilitaAutServlet?UC=22&SC=1&ST=2";
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 			CredentialCache credentialCache = new CredentialCache();
 			credentialCache.Add(new System.Uri(url), "Basic", new NetworkCredential(JIRA_USER, JIRA_PW));
 			return credentialCache;
-		}
+		}*/
 
 		public static List<JiraIssue> getItems(String jql)
 		{
 			List<JiraIssue> jiraIssues = new List<JiraIssue>();
 			String finalUrl = "";
-			String mes = "";
 
 			try
 			{
@@ -153,12 +152,12 @@ namespace DAMBuddy2
 
 		public static string GetJiraIssue(String issueIdorKey)
 		{
-			JiraIssue ji = null;
+			//JiraIssue ji = null;
 
-			String u = JIRA_USER;
-			String p = JIRA_PW;
-			String jiraBaseUrl = JIRA_BASE_URL;
-			String finalUrl = jiraBaseUrl + "/rest/api/2/issue/" + issueIdorKey;
+			//String u = JIRA_USER;
+			//String p = JIRA_PW;
+			//String jiraBaseUrl = JIRA_BASE_URL;
+			//String finalUrl = jiraBaseUrl + "/rest/api/2/issue/" + issueIdorKey;
 
 			//			finalUrl = jiraBaseUrl + search + "?" + jql;
 			var client = new RestClient(JIRA_BASE_URL);
@@ -301,7 +300,7 @@ return ji;
 			*/
 
 
-			return null;
+		//	return null;
 
 		}
 

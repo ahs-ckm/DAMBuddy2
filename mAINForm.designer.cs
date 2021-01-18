@@ -121,6 +121,7 @@
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.tsWorkViewDocument = new System.Windows.Forms.ToolStripButton();
             this.tsbWordWIP = new System.Windows.Forms.ToolStripButton();
+            this.tsbDocReview = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.tslReadyState = new System.Windows.Forms.ToolStripLabel();
             this.tsbPause = new System.Windows.Forms.ToolStripButton();
@@ -131,7 +132,7 @@
             this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
             this.tpUpload = new System.Windows.Forms.TabPage();
             this.tpSchedule = new System.Windows.Forms.TabPage();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.tpDocReview = new System.Windows.Forms.TabPage();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.timerRepoFilter = new System.Windows.Forms.Timer(this.components);
@@ -197,7 +198,7 @@
             this.tabControl1.Controls.Add(this.tpWIP);
             this.tabControl1.Controls.Add(this.tpUpload);
             this.tabControl1.Controls.Add(this.tpSchedule);
-            this.tabControl1.Controls.Add(this.tabPage5);
+            this.tabControl1.Controls.Add(this.tpDocReview);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Font = new System.Drawing.Font("Arial Unicode MS", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -470,6 +471,7 @@
             this.tsmiUserAccount.Name = "tsmiUserAccount";
             this.tsmiUserAccount.Size = new System.Drawing.Size(215, 30);
             this.tsmiUserAccount.Text = "User Account...";
+            this.tsmiUserAccount.Click += new System.EventHandler(this.tsmiUserAccount_Click);
             // 
             // tsmiLog
             // 
@@ -720,7 +722,7 @@
             this.wbRepositoryView.Size = new System.Drawing.Size(1025, 642);
             this.wbRepositoryView.TabIndex = 5;
             this.wbRepositoryView.Url = new System.Uri("", System.UriKind.Relative);
-            this.wbRepositoryView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser1_DocumentCompleted);
+            this.wbRepositoryView.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.WebBrowser1_DocumentCompleted);
             // 
             // tpWUR
             // 
@@ -1027,6 +1029,7 @@
             this.toolStripSeparator4,
             this.tsWorkViewDocument,
             this.tsbWordWIP,
+            this.tsbDocReview,
             this.toolStripSeparator7,
             this.tslReadyState,
             this.tsbPause,
@@ -1207,6 +1210,18 @@
             this.tsbWordWIP.Size = new System.Drawing.Size(48, 42);
             this.tsbWordWIP.Text = "Open In Word";
             // 
+            // tsbDocReview
+            // 
+            this.tsbDocReview.AutoSize = false;
+            this.tsbDocReview.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbDocReview.Image = ((System.Drawing.Image)(resources.GetObject("tsbDocReview.Image")));
+            this.tsbDocReview.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbDocReview.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbDocReview.Name = "tsbDocReview";
+            this.tsbDocReview.Size = new System.Drawing.Size(48, 42);
+            this.tsbDocReview.Text = "Build a Document Review";
+            this.tsbDocReview.Click += new System.EventHandler(this.tsbDocReview_Click);
+            // 
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
@@ -1313,16 +1328,16 @@
             this.tpSchedule.Text = "Schedule";
             this.tpSchedule.UseVisualStyleBackColor = true;
             // 
-            // tabPage5
+            // tpDocReview
             // 
-            this.tabPage5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabPage5.Location = new System.Drawing.Point(4, 35);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(1641, 755);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "Document Review";
-            this.tabPage5.UseVisualStyleBackColor = true;
+            this.tpDocReview.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tpDocReview.Location = new System.Drawing.Point(4, 35);
+            this.tpDocReview.Name = "tpDocReview";
+            this.tpDocReview.Padding = new System.Windows.Forms.Padding(3);
+            this.tpDocReview.Size = new System.Drawing.Size(1641, 755);
+            this.tpDocReview.TabIndex = 4;
+            this.tpDocReview.Text = "Document Review";
+            this.tpDocReview.UseVisualStyleBackColor = true;
             // 
             // timerRepoFilter
             // 
@@ -1492,7 +1507,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TabPage tpWIP;
         private System.Windows.Forms.TabPage tpUpload;
-        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.TabPage tpDocReview;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbRepositoryReload;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -1598,6 +1613,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripButton tsbDocReview;
     }
 }
 

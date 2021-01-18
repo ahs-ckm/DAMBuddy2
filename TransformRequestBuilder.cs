@@ -107,7 +107,7 @@ namespace DAMBuddy2
 
         public bool BuildRequest(string filepathTemplate, ref string sSOAPRequest)
         {
-            string work = "";
+            //string work = "";
             var sTemplateXML = GetTemplateXML(filepathTemplate);
 
             string sAllEmbeddedTemplateXML = "";
@@ -135,7 +135,7 @@ namespace DAMBuddy2
 
         private bool GetAllXML(ref string sAllEmbeddedTemplateXML, ref string sAllArchetypesXML, string sTemplateXML, ref List<string> listAllEmbeddedTemplateIDs)
         {
-            string sTemplateFile = "";
+            //string sTemplateFile = "";
             List<string> listArch = new List<string>() ;
             List<string> listThisLevelEmbedded = new List<string>();
 

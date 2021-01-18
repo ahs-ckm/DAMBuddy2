@@ -132,6 +132,16 @@
   <metadata name="toolStrip2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>662, 17</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="tsbDocReview.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAC/SURBVEhL3ZTBDcIwDEUzRA8MwQjdgsEYhgE4MAKHDsMB
+        /kf6UeXYUusQIXjSOzhOv5VKSfkrZniFz04v8Agb7tD7ICOHNKjZS5izZcAE3eOvSA84wAU+4IkLAakB
+        CtceDolOEuZEDRtOWfN3eUQ5biMK53qEl/PGNjLhxOZUbCMTTmxOxTZUU4V7p5LC1pVo45ZwKmxdCRs7
+        +f4A3lJeJNUZb7BBzd5wvsp8+hvWm85c+DRDw8nQcDI0/Fcp5QUx77DLTir7UAAAAABJRU5ErkJggg==
+</value>
+  </data>
   <metadata name="backgroundWorker1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>767, 17</value>
   </metadata>
@@ -147,7 +157,6 @@
   <metadata name="statusForm.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 0</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="toolStripDropDownButton1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
