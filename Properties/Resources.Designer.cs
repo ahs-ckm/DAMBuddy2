@@ -83,6 +83,46 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap outline_add_circle_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_add_circle_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_add_circle_outline_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_add_circle_outline_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_api_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_api_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_arrow_forward_ios_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_arrow_forward_ios_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap outline_backspace_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_backspace_black_24dp", resourceCulture);
@@ -163,6 +203,26 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap outline_navigate_before_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_navigate_before_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_navigate_next_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_navigate_next_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap outline_pause_circle_outline_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_pause_circle_outline_black_24dp", resourceCulture);
@@ -183,9 +243,29 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap outline_post_add_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_post_add_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap outline_preview_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_preview_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_remove_circle_outline_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_remove_circle_outline_black_24dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -236,6 +316,16 @@ namespace DAMBuddy2.Properties {
         internal static System.Drawing.Bitmap outline_text_snippet_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_text_snippet_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rootnode_outline_call_split_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("rootnode-outline_call_split_black_24dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -9,12 +9,14 @@ using System.Windows.Forms;
 namespace DAMBuddy2
 {
     public delegate void ModifiedCallback(string filename, string state);
+    public delegate void RootEditCallback(string filename, bool state);
     public delegate void ReadyStateCallback(bool isReady);
     public delegate void GenericCallback(string filename);
     public delegate void UploadStateCallback(string Ticket, RepoManager.TicketChangeState state);
+    public delegate void UserInfoCallback(string message, int nCacheCount);
 
-    public class RepoInstanceConfig
-    {
+    public class RepoInstanceConfig { 
+    
         /// <summary>
         /// the path to the folder for the repository
         /// </summary>
@@ -64,15 +66,19 @@ namespace DAMBuddy2
         public GenericCallback callbackScheduleState;
         public ReadyStateCallback callbackTicketState;
         public ModifiedCallback callbackModifiedWIP;
+        public RootEditCallback callbackRootEditWIP;
         public GenericCallback callbackRemoveWIP;
         public GenericCallback callbackStale;
         public GenericCallback callbackDisplayWIP;
         public UploadStateCallback callbackUploadState;
-        public GenericCallback callbackInfo;
+        public UserInfoCallback callbackInfo;
     }
 
     public class RepoInstance
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+
         private static string DAM_SCHEDULER_PORT = "10008";
         private List<ListViewItem> m_masterlist;
 
@@ -80,6 +86,7 @@ namespace DAMBuddy2
         private static Dictionary<string, string> m_dictFileToPath;
         private Dictionary<string, string> m_dictID2Gitpath;
         private Dictionary<string, string> m_dictWIPName2Path;
+        private Dictionary<string, bool> m_dictWIPRootNodeEdits;
         private Dictionary<string, string> m_dictWIPID2Path;
         private FileSystemWatcher m_watcherNewAssets;
         private RepoCallbackSettings mCallbacks;
@@ -160,24 +167,8 @@ namespace DAMBuddy2
         {
             m_masterlist = new List<ListViewItem>();
             mConfig = config;
-
             mCallbacks = callbacks;
-/*
-            if (!File.Exists(mConfig.BaseFolder + @"\" + GITKEEP_INITIAL))
-            {
-                Directory.CreateDirectory(mConfig.BaseFolder + @"\" + GITKEEP_INITIAL);
-            }
 
-            if (!File.Exists(mConfig.BaseFolder + @"\" + GITKEEP_UPDATE))
-            {
-                Directory.CreateDirectory(mConfig.BaseFolder + @"\" + GITKEEP_UPDATE);
-            }
-
-            if (!File.Exists(mConfig.BaseFolder + @"\" + WIP))
-            {
-                Directory.CreateDirectory(mConfig.BaseFolder + @"\" + WIP);
-            }
-*/
             Init();
             LoadRepositoryTemplates();
         }
@@ -501,6 +492,56 @@ namespace DAMBuddy2
             }
         }
 
+        public bool SetRootNodeEdit( bool bDoRootNodeEdit, string sTemplateName )
+        {
+            bool result = true;
+            string sURL = "";
+            
+            if (bDoRootNodeEdit)
+            {
+                sURL = Utility.GetSettingString("SetRootNodeEditURL");
+            }
+            else
+            {
+                sURL = Utility.GetSettingString("CancelRootNodeEditURL");
+
+            }
+            string sTemplateID = GetTemplateID(sTemplateName);
+
+               
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{sURL},{TicketID},{sTemplateID}");
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                if( response.StatusCode != HttpStatusCode.OK )
+                {
+                    Logger.Error("Failed to manage RootNodeEdit on the server");
+                    result = false;
+                }
+                    
+            } catch (Exception e)
+            {
+                Logger.Error(e, "An error occurred which is going to cause the application to close.");
+                result = false;
+            }
+
+            if( result )
+            {
+                if (bDoRootNodeEdit)
+                {
+                    m_dictWIPRootNodeEdits[sTemplateName] = true;
+                } else
+                {
+                    m_dictWIPRootNodeEdits.Remove(sTemplateName);
+                }
+                mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, bDoRootNodeEdit);
+
+            }
+
+            return result;
+        }
+
         public bool PostWIP()
         {
             bool result = false;
@@ -589,6 +630,20 @@ namespace DAMBuddy2
             }
 
             File.WriteAllText(mConfig.BaseFolder + @"\WIPID.csv", csv);
+
+            csv = "";
+            foreach (KeyValuePair<string, bool> kvp in m_dictWIPRootNodeEdits)
+            {
+                csv += kvp.Key;
+                csv += ", ";
+                csv += kvp.Value;
+                csv += "\n"; //newline to represent new pair
+            }
+
+            File.WriteAllText(mConfig.BaseFolder + @"\RootNodeEdits.csv", csv);
+
+
+
             File.WriteAllText(mConfig.BaseFolder + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
         }
 
@@ -597,6 +652,7 @@ namespace DAMBuddy2
             m_dictWIPName2Path.Clear();
             m_dictID2Gitpath.Clear();
             m_dictWIPID2Path.Clear();
+            m_dictWIPRootNodeEdits.Clear();
 
             string filepath = mConfig.BaseFolder + @"\WIP.csv";
             if (File.Exists(filepath))
@@ -650,6 +706,27 @@ namespace DAMBuddy2
                 }
             }
 
+
+            filepath = mConfig.BaseFolder + @"\RootNodeEdits.csv";
+            if (File.Exists(filepath))
+            {
+                var reader = new StreamReader(File.OpenRead(filepath));
+
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    if (line == "") break;
+                    var values = line.Split(',');
+
+                    bool state = (values[1] == " True") ? true : false;
+
+                    m_dictWIPRootNodeEdits.Add(values[0], state);
+                    mCallbacks.callbackRootEditWIP?.Invoke(values[0], state);
+                }
+            }
+
+
+
             filepath = mConfig.BaseFolder + @"\ReadyState.txt";
 
             if (File.Exists(filepath))
@@ -663,7 +740,7 @@ namespace DAMBuddy2
             }
         }
 
-        public bool RemoveWIP(string filename)//, string gitpath)
+        public bool RemoveWIP(string filename)
         {
             string assetfilepath = m_dictWIPName2Path[filename];
 
@@ -674,7 +751,7 @@ namespace DAMBuddy2
             }
 
             string sTID = Utility.GetTemplateID(assetfilepath);
-            string trashDir = mConfig.BaseFolder + Utility.GetSettingString("KeepTrash");//KEEP_TRASH;
+            string trashDir = mConfig.BaseFolder + Utility.GetSettingString("KeepTrash");
             string dirname = Path.GetDirectoryName(assetfilepath);
 
             if( Path.GetDirectoryName(dirname) == Path.GetDirectoryName(WIPPath ) )
@@ -719,6 +796,15 @@ namespace DAMBuddy2
                     m_dictWIPID2Path.Remove(sTID);
                     m_dictID2Gitpath.Remove(sTID);
 
+
+                    if( m_dictWIPRootNodeEdits.ContainsKey(filename ) )
+                    {
+                        SetRootNodeEdit(false, filename);
+                        m_dictWIPRootNodeEdits.Remove(filename);
+                    }
+
+                    
+
                     //  TODO: put back in
                     /*                    if (File.Exists(assetfilepath))
                                         {
@@ -726,9 +812,14 @@ namespace DAMBuddy2
                                                 Directory.CreateDirectory(trashDir);
 
                                             if (File.Exists(trashDir + "\\" + filename + ".old"))
-                                                File.Delete(trashDir + "\\" + filename + ".old");
+                                            {
+                                                    File.SetAttributes(trashDir + "\\" + filename + ".old", FileAttributes.Normal);
+                                            }
+                                            File.Delete(trashDir + "\\" + filename + ".old");
 
                                             File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
+                                            File.SetAttributes(trashDir + "\\" + filename + ".old", FileAttributes.Normal);
+
                                         }*/
 
                     mCallbacks.callbackRemoveWIP?.Invoke(filename);
@@ -847,6 +938,7 @@ namespace DAMBuddy2
             m_dictID2Gitpath = new Dictionary<string, string>();
             m_dictWIPName2Path = new Dictionary<string, string>();
             m_dictWIPID2Path = new Dictionary<string, string>();
+            m_dictWIPRootNodeEdits = new Dictionary<string, bool>();
 
             m_watcherNewAssets = new FileSystemWatcher();
             m_watcherNewAssets.Path = AssetPath;
@@ -917,7 +1009,6 @@ namespace DAMBuddy2
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{URLServer}:{sPort}/dynamic/removeTicket,{sTicketID},{sFolder}");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            //RepoManager.TicketChangeState state;
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
@@ -932,7 +1023,7 @@ namespace DAMBuddy2
         public bool SetTicketReadiness(bool bReady)
         {
             m_ReadyStateSetByUser = bReady;
-            //bool result = false;
+
             string ReadyParam = "notready";
             if (bReady)
             {

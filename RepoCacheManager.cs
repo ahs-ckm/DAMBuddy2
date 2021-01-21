@@ -44,7 +44,7 @@ namespace DAMBuddy2
 
         readonly private string mRepoCacheStateFilepath = "";
         private string mRemoteGitRepository = "";                                   // the URL for the git repo to be cloned (the CKMMirror repository)
-        private GenericCallback mCallbackInfo;
+        private UserInfoCallback mCallbackInfo;
         public string mRootFolder = "";                                             // the top level directory path
         private int mCacheSize = -1;                                                // how many cache folders should be maintained
 
@@ -55,7 +55,7 @@ namespace DAMBuddy2
         private Timer m_timerManger;
         private int mAvailableCaches;
 
-        public RepoCacheManager(string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, GenericCallback callbackInfoUpdate)
+        public RepoCacheManager(string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, UserInfoCallback callbackInfoUpdate)
         {
             Logger.Info("RepoCacheManager() : Hello world");
 
@@ -79,7 +79,7 @@ namespace DAMBuddy2
             {
                 var AvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
                 mAvailableCaches = AvailableCaches;
-                callbackInfoUpdate?.Invoke($"Available Caches: {AvailableCaches}/{cachesize}");
+                callbackInfoUpdate?.Invoke($"Available Caches: {AvailableCaches}/{cachesize}", AvailableCaches);
             }
             finally
             {
@@ -180,7 +180,7 @@ namespace DAMBuddy2
                         repoCacheList[i].CloneCompleted = true;
                         var nAvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
                         mAvailableCaches = nAvailableCaches;
-                        mCallbackInfo?.Invoke($"Cache Clone Completed ({threadargs.ThreadID}). Available Caches: {nAvailableCaches}/{mCacheSize}");
+                        mCallbackInfo?.Invoke($"Cache Clone Completed ({threadargs.ThreadID}). Available Caches: {nAvailableCaches}/{mCacheSize}", nAvailableCaches);
                         SaveCacheState(repoCacheList);
 
                         break;
@@ -277,7 +277,7 @@ namespace DAMBuddy2
 
                 string msg = $"Available Caches: {mAvailableCaches}/{mCacheSize}. Preparing a new cache. Indexed: {progress.IndexedObjects} of {progress.TotalObjects}.";
                 //Console.WriteLine( msg );
-                mCallbackInfo?.Invoke(msg);
+                mCallbackInfo?.Invoke(msg, mAvailableCaches);
                 mProgressMsgCounter = 0;
             }
             return true;
@@ -320,10 +320,11 @@ namespace DAMBuddy2
             {
                 if (repoCacheList.Count < mCacheSize)
                 {
-                    string cacheid = Guid.NewGuid().ToString().Substring(0, 4);
-                    // we need to create some
+                    // not enough caches available, we need to create some
+
                     RepoCacheState newCacheState = new RepoCacheState();
-                    ///
+                    string cacheid = Guid.NewGuid().ToString().Substring(0, 4);
+
                     string cachefolder = $"{mRootFolder}\\{REPOCACHE_FOLDER}\\{cacheid}";
                     if (Directory.Exists(cachefolder))
                     {
@@ -343,9 +344,10 @@ namespace DAMBuddy2
                     args.ThreadInstance.Name = args.ThreadID;
                     args.ThreadInstance.Start(args);
                     mProgressMsgCounter = 0;
-                    //mRepoCacheList.Where(x => x.CloneCompleted).Count();
+                    
+                    int nAvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
 
-                    mCallbackInfo?.Invoke($"Preparing new cache. Available caches = {repoCacheList.Where(x => x.CloneCompleted).Count()}/{mCacheSize}");
+                    mCallbackInfo?.Invoke($"Preparing new cache. Available caches = {nAvailableCaches}/{mCacheSize}", nAvailableCaches );
                     mCacheCreateThreads.Add(args);
 
                     ///
@@ -431,9 +433,9 @@ namespace DAMBuddy2
                         mAvailableCaches = repoCacheList.Where(x => x.CloneCompleted).Count();
 
 
-                        if (!File.Exists(path + @"\" + Utility.GetSettingString("GitKeepIntitial")))
+                        if (!File.Exists(path + @"\" + Utility.GetSettingString("GitKeepInitial")))
                         {
-                            Directory.CreateDirectory(path + @"\" + Utility.GetSettingString("GitKeepIntitial"));
+                            Directory.CreateDirectory(path + @"\" + Utility.GetSettingString("GitKeepInitial"));
                         }
 
                         if (!File.Exists(path + @"\" + Utility.GetSettingString("GitKeepUpdate")))

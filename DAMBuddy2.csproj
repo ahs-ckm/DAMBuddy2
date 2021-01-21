@@ -210,6 +210,15 @@
       <DependentUpon>UserForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utility.cs" />
+    <None Include="Resources\rootnode-outline_call_split_black_24dp.png" />
+    <None Include="Resources\outline_api_black_24dp.png" />
+    <None Include="Resources\outline_navigate_before_black_24dp.png" />
+    <None Include="Resources\outline_navigate_next_black_24dp.png" />
+    <None Include="Resources\outline_arrow_forward_ios_black_24dp.png" />
+    <None Include="Resources\outline_remove_circle_outline_black_24dp.png" />
+    <None Include="Resources\outline_add_circle_outline_black_24dp.png" />
+    <None Include="Resources\outline_add_circle_black_24dp.png" />
+    <None Include="Resources\outline_post_add_black_24dp.png" />
     <EmbeddedResource Include="busyForm.resx">
       <DependentUpon>busyForm.cs</DependentUpon>
     </EmbeddedResource>

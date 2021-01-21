@@ -62,6 +62,7 @@ namespace DAMBuddy2
         private static TransformRequestBuilder m_RequestBuilder;
         private bool gSearchDocumentRep;
         private string m_fileWipHTML;
+        private bool mSetupTicketEnabled = true;
 
         /// <summary>
         /// Called (from RepoManager) when the transform process has completed for the Repository Doc Viewer
@@ -72,9 +73,47 @@ namespace DAMBuddy2
             DisplayTransformedDocumentRepo(filename);
         }
 
-        public void CallbackUserInfoDisplay(string message)
+        public void RepoCacheCountUpdate( int nCacheCount)
         {
+            if( nCacheCount > 0 && !mSetupTicketEnabled)
+            {
+                foreach (ToolStripItem tsm in tsddbRepository.DropDownItems)
+                {
+                    if( tsm.Name.Contains("Setup") )
+                    {
+                        tsm.Text = "Setup New Ticket...";
+                        tsm.Enabled = true;
+                    }
+                }
+                mSetupTicketEnabled = true;
+            }
+
+            if( nCacheCount < 1 && mSetupTicketEnabled)
+            {
+                foreach (ToolStripItem tsm in tsddbRepository.DropDownItems)
+                {
+                    if (tsm.Name.Contains("Setup"))
+                    {
+                        tsm.Text = "Please wait while repository cache is being built.";
+                        tsm.Enabled = false;
+                    }
+                }
+                mSetupTicketEnabled = false;
+
+            }
+
+        }
+
+        public void CallbackUserInfoDisplay(string message, int nCacheCount)
+        {
+
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate { this.CallbackUserInfoDisplay(message, nCacheCount); });
+                return;
+            }
             toolStripStatusLabel1.Text = message;
+            RepoCacheCountUpdate(nCacheCount);
         }
 
         /// <summary>
@@ -267,6 +306,7 @@ namespace DAMBuddy2
                 if (item.Text == filename)
                 {
                     lvWork.Items.Remove(item);
+                    LoadRepositoryTemplates();
                     break;
                 }
             }
@@ -290,8 +330,10 @@ namespace DAMBuddy2
             ListViewItem newitem = new ListViewItem(filename);
             newitem.SubItems.Add("Fresh");
             newitem.SubItems.Add("Unchanged");
+            newitem.SubItems.Add(""); // Rootnode Edit Status
             lvWork.Items.Add(newitem);
             lvWork.Columns[0].Width = -1;
+            //LoadRepositoryTemplates();
 
             UpdateWorkViewTitle();
         }
@@ -338,12 +380,13 @@ namespace DAMBuddy2
             callbacks.callbackUploadState = CallbackTicketUpdateState;
             callbacks.callbackTicketState = CallbackTicketStateChange;
             callbacks.callbackInfo = CallbackUserInfoDisplay;
+            callbacks.callbackRootEditWIP = CallbackRootNodeEditChange;
 
             m_RepoManager = new RepoManager(callbacks);
 
             m_browserSchedule = new ChromiumWebBrowser(Utility.GetSettingString("SchedulerUrl")); 
             m_browserUpload = new ChromiumWebBrowser("about:blank");
-            m_browserDocReview = new ChromiumWebBrowser(Utility.GetSettingString("DocReviewUrl")); 
+            m_browserDocReview = new ChromiumWebBrowser("about:blank"); 
 
 
             m_browserUpload.CreateControl();
@@ -367,7 +410,7 @@ namespace DAMBuddy2
 
             LoadRepositoryTemplates();
             
-            if(Utility.GetSettingString("User") == "")
+            if((Utility.GetSettingString("User") == "") || (Utility.GetSettingString("Password") == ""))
             {
                 ManageUserCredentials();
             } else
@@ -375,6 +418,31 @@ namespace DAMBuddy2
                 Utility.AuthorizeUserAsync(Utility.GetSettingString("User"), Utility.GetSettingString("Password"));
 
             }
+        }
+
+        private void CallbackRootNodeEditChange(string filename, bool state)
+        {
+
+            if (InvokeRequired)
+            {
+                BeginInvoke((MethodInvoker)delegate { this.CallbackRootNodeEditChange(filename, state); });
+                return;
+            }
+
+            foreach ( ListViewItem item in lvWork.Items)
+            {
+                if (item.Text == filename )
+                {
+                    if (state) {
+                        item.SubItems[3].Text = "Yes"; }
+                    else
+                    {
+                        item.SubItems[3].Text = "";
+                    }
+                }
+            }
+
+//            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -431,6 +499,7 @@ namespace DAMBuddy2
             addNew.Font = theFont;
             addNew.Height = 30;
             addNew.ImageScaling = ToolStripItemImageScaling.None;
+            addNew.Name = "tsmSetupNewTicketRepo";
             tsddbRepository.DropDownItems.Add(addNew);
 
 
@@ -439,8 +508,10 @@ namespace DAMBuddy2
             addNew.Font = theFont;
             addNew.Height = 30;
             addNew.ImageScaling = ToolStripItemImageScaling.None;
+            addNew.Name = "tsmSetupNewTicketWIP";
             tsddbRepositoryWIP.DropDownItems.Add(addNew);
 
+            mSetupTicketEnabled = true;
 
             if (m_RepoManager.CurrentRepo == null)
             {
@@ -660,7 +731,8 @@ namespace DAMBuddy2
 
             try
             {
-                string sTempHTML = @"c:\temp\" + Guid.NewGuid().ToString() + @".html";
+                
+                string sTempHTML = @"c:\temp\dambuddy2\" + Guid.NewGuid().ToString() + @".html";
 
                 HttpWebRequest wr = TransformRequestBuilder.CreateSOAPWebRequest(m_OPTWebserviceUrl);
                 XmlDocument SOAPReqBody = new XmlDocument();
@@ -1288,6 +1360,8 @@ namespace DAMBuddy2
 
         private void LoadRepositoryTemplates()
         {
+            if (m_RepoManager == null) return;
+
             if (m_RepoManager.CurrentRepo == null) return;
 
             m_RepoManager.CurrentRepo.LoadRepositoryTemplates();
@@ -1530,6 +1604,9 @@ namespace DAMBuddy2
 
 
             lvWork.Items.Clear();
+            lvRepository.Items.Clear();
+            lvRepoSearchResults.Items.Clear();
+            
             UpdateWorkViewTitle();
             tstbRepositoryFilter.Text = "";
             wbRepositoryView.Navigate(new Uri("about:blank"));
@@ -1563,6 +1640,8 @@ namespace DAMBuddy2
             {
                 MessageBox.Show("About to remove the current ticket..");
                 m_RepoManager.RemoveTicket(current.TicketID);
+                InitAvailableRepos();
+                InitView();
                 LoadRepositoryTemplates();
             }
 
@@ -1598,7 +1677,7 @@ namespace DAMBuddy2
             {
                 using (WebClient client = new WebClient())
                 {
-                    string response = client.UploadString(Utility.GetSettingString("DocReviewUrl") + m_RepoManager.CurrentRepo.TicketID + "," + docname, html);
+                    string response = client.UploadString(Utility.GetSettingString("DocReviewUploadUrl") + m_RepoManager.CurrentRepo.TicketID + "," + docname, html);
                     Console.WriteLine("\nResponse Received. The contents of the file uploaded are:\n{0}", response);
 
                 }
@@ -1608,8 +1687,10 @@ namespace DAMBuddy2
                 MessageBox.Show("A problem occurred when uploading the document for review.", "Error", MessageBoxButtons.OK);
                 return;
             }
-            //("http://ckcm.healthy.bewell.ca/buildbuddy/rest/documentToReview?doc=Epidural Transition Pediatric Order Set.html")
-            m_browserDocReview.Load(($"http://ckcm.healthy.bewell.ca/buildbuddy/rest/documentToReview?doc={docname}"));
+
+            string sURL = Utility.GetSettingString("StartDocReviewUrl");
+
+            m_browserDocReview.Load(($"{sURL}{docname}"));
             tabControl1.SelectedTab = tabControl1.TabPages[4];  // change to the DocReview Tab
 
 
@@ -1645,6 +1726,63 @@ namespace DAMBuddy2
         private void tsmiUserAccount_Click(object sender, EventArgs e)
         {
             ManageUserCredentials();
+        }
+
+        private void btnAddWIP_Click(object sender, EventArgs e)
+        {
+
+            if (lvRepository.SelectedItems.Count > 0)
+            {
+                var item = lvRepository.SelectedItems[0];
+                if (item.Tag != null)
+                {
+
+                    //                    string itemdata = (string)lvRepository.SelectedItems[0].Tag;
+
+                    string itemdata = (string)item.Tag;
+                    m_RepoManager.CurrentRepo.AddWIP(itemdata);
+                    lvRepository.Items.Remove(item);
+                }
+            }
+
+        }
+
+        private void btnRemoveWIP_Click(object sender, EventArgs e)
+        {
+            if( lvWork.SelectedItems.Count > 0 )
+            {
+                var item = lvWork.SelectedItems[0];
+                //if( item.Tag != null)
+                {
+                    //string itemData = item.Tag.ToString();
+
+                    //var items = itemData.Split('~');
+                    
+                    //if (items.Length > 1)
+                    {
+                        m_RepoManager.CurrentRepo.RemoveWIP(item.Text);//, items[1]);
+
+                    }
+
+                }
+            }
+
+        }
+
+        private void btnRootNode_Click(object sender, EventArgs e)
+        {
+            string statusRootNodeEdit = "";
+
+            if (lvWork.SelectedItems.Count > 0)
+            {
+                var item = lvWork.SelectedItems[0];
+                statusRootNodeEdit = item.SubItems[3].Text;
+
+                bool stateToSet = (statusRootNodeEdit == "Yes") ? false : true;
+
+                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text);
+            }
+
         }
     }
 }

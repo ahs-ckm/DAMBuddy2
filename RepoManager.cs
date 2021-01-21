@@ -206,6 +206,9 @@ public class RepoManager
         string sBinDir = Utility.GetSettingString("BinDir");
 
 
+        if (!Directory.Exists("c:\\temp")) Directory.CreateDirectory("c:\\temp");
+        if (!Directory.Exists("c:\\temp\\dambuddy2")) Directory.CreateDirectory("c:\\temp\\dambuddy2");
+
         mRepoCacheManager = new RepoCacheManager(sRoot, 3, m_GitRepositoryURI, sBinDir, mRepoInstancCallbacks.callbackInfo);
 
         List<string> processlist = new List<string>();
@@ -236,19 +239,32 @@ public class RepoManager
         m_dictRepoState = new Dictionary<string, string>();
         string sRoot = Utility.GetSettingString("FolderRoot");
 
-        string filepath = sRoot + @"\" + "repostate.csv";
-        if (File.Exists(filepath))
+        if( !Directory.Exists( sRoot ))
         {
-            var reader = new StreamReader(File.OpenRead(filepath));
+            Directory.CreateDirectory(sRoot);
+        }
 
-            while (!reader.EndOfStream)
-            {
-                var line = reader.ReadLine();
-                if (line == "") break;
-                var values = line.Split(',');
 
-                m_dictRepoState.Add(values[0], values[1]);
-            }
+        string filepath = sRoot + @"\" + "repostate.csv";
+        if (!File.Exists(filepath))
+        {
+            // create if doesn't already exist
+            var stream = File.Create(filepath);
+            string token = CURRENT_REPO + ",";
+            stream.Write(System.Text.Encoding.ASCII.GetBytes(token), 0, token.Length);
+            stream.Close();
+
+        }
+
+        var reader = new StreamReader(File.OpenRead(filepath));
+
+        while (!reader.EndOfStream)
+        {
+            var line = reader.ReadLine();
+            if (line == "") break;
+            var values = line.Split(',');
+
+            m_dictRepoState.Add(values[0], values[1]);
         }
 
         // check that all the repo directories actually exist
@@ -383,6 +399,11 @@ public class RepoManager
 
     private bool BackupTicket(string sPath)
     {
+        if( Directory.Exists( sPath))
+        {
+           // Directory.Move(sPath, sPath + "-DELETEME");
+        }
+
         // TODO: zip up to backup folder
         //MessageBox.Show("Backing up :" + sPath );
         return true;
@@ -495,6 +516,7 @@ public class RepoManager
         var instance = new RepoInstance(config, mRepoInstancCallbacks);
         
         mRepoInstanceList.Add(instance);
+        instance.SetTicketReadiness(false);
         
         return instance;
     }
