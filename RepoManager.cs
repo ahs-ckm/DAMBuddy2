@@ -74,6 +74,10 @@ public class RepoManager
         get => GetInstanceUnsafe(m_dictRepoState[CURRENT_REPO]);
     }
 
+    public string CurrentRepoServerFolder
+    {
+        get => m_dictRepoState[m_dictRepoState[CURRENT_REPO]];
+    }
             
     /// <summary>
     /// Represents the server side state of a ticket (drawn from change table)

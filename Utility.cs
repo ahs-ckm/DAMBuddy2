@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,6 +70,40 @@ namespace DAMBuddy2
 
 
             return result;
+        }
+
+        public static string GetRootNodeText( string sAssetFilepath )
+        {
+            string sRootNodeText = "";
+            
+            XmlDocument assetdoc = new XmlDocument();
+            assetdoc.Load(sAssetFilepath);
+            var elements = assetdoc.GetElementsByTagName("template");
+            if( elements.Count > 0 )
+            {
+                var node = elements[0];
+                if ( node.HasChildNodes )
+                {
+                    foreach (XmlNode child in node.ChildNodes)
+                    {
+                        if (child.Name == "definition")
+                        {
+                            foreach( XmlAttribute attr in child.Attributes)
+                            {
+                                if( attr.Name == "name")
+                                {
+                                    sRootNodeText = attr.Value;
+                                }
+                            }  
+
+                        }
+
+                    }
+                }
+            }
+
+
+            return sRootNodeText;
         }
 
         public static string GetSettingString( string sName )

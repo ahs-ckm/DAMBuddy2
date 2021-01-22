@@ -63,6 +63,7 @@ namespace DAMBuddy2
         private bool gSearchDocumentRep;
         private string m_fileWipHTML;
         private bool mSetupTicketEnabled = true;
+        //private bool m_bIsLoading;
 
         /// <summary>
         /// Called (from RepoManager) when the transform process has completed for the Repository Doc Viewer
@@ -195,13 +196,13 @@ namespace DAMBuddy2
 
             if (isReady)
             {
-                tslReadyState.Text = "Work: Ready";
+                tslReadyState.Text = "Ticket: Ready";
                 tsbPause.Enabled = true;
                 tsbStart.Enabled = false;
             }
             else
             {
-                tslReadyState.Text = "Work: Paused";
+                tslReadyState.Text = "Ticket: Paused";
                 tsbStart.Enabled = true;
                 tsbPause.Enabled = false;
             }
@@ -346,6 +347,7 @@ namespace DAMBuddy2
         {
             if (m_IsClosing) return;
 
+
             SetAssetModified(filename, state);
         }
 
@@ -362,7 +364,9 @@ namespace DAMBuddy2
         /// </summary>
         private void InitializeApp()
         {
+//            m_bIsLoading = true;
             var appsettings = ConfigurationManager.AppSettings;
+            
             AppSettingsSection settings = (AppSettingsSection)ConfigurationManager.GetSection("PreviewView.Properties.Settings");
 
             mCurrentPage = 0;
@@ -418,6 +422,8 @@ namespace DAMBuddy2
                 Utility.AuthorizeUserAsync(Utility.GetSettingString("User"), Utility.GetSettingString("Password"));
 
             }
+
+          //  m_bIsLoading = false;
         }
 
         private void CallbackRootNodeEditChange(string filename, bool state)
@@ -515,18 +521,19 @@ namespace DAMBuddy2
 
             if (m_RepoManager.CurrentRepo == null)
             {
-                SetRepositoryTitle("Select a Ticket");
+                SetRepositoryTitle("Select a Ticket", "");
             }
             else
             {
-                SetRepositoryTitle(m_RepoManager.CurrentRepo.TicketID);
+                SetRepositoryTitle(m_RepoManager.CurrentRepo.TicketID, m_RepoManager.CurrentRepoServerFolder);
             }
         }
 
-        private void SetRepositoryTitle(string sTitle)
+        private void SetRepositoryTitle(string sTitle, string sFolder)
         {
             tsddbRepository.Text = sTitle;
             tsddbRepositoryWIP.Text = sTitle;
+            tsslFolder.Text = sFolder;
 
             //tslWorkRepository.Text = tsddbRepository.Text;
         }
@@ -1007,7 +1014,8 @@ namespace DAMBuddy2
             //http://ckcm:8011/WhereUsed,0f3e3fc2-6dbe-4f6f-b292-e8ef0501c163
             string sTID = m_RepoManager.CurrentRepo.GetTemplateID(filename);
             wbWIPWUR.ScriptErrorsSuppressed = true;
-            wbWIPWUR.Url = new Uri("http://ckcm:8011/WhereUsed," + sTID);
+            string sURL = Utility.GetSettingString("WURUrl");
+            wbWIPWUR.Url = new Uri($"{sURL}{sTID}" ); 
         }
 
         private void LoadRepoWUR(string filename)
@@ -1467,7 +1475,7 @@ namespace DAMBuddy2
 
         private void tsbStart_Click(object sender, EventArgs e)
         {
-            tslReadyState.Text = "Work: Ready";
+            tslReadyState.Text = "Ticket: Ready";
 
             tsbStart.Enabled = false;
             tsbPause.Enabled = true;
@@ -1476,7 +1484,7 @@ namespace DAMBuddy2
 
         private void tsbPause_Click(object sender, EventArgs e)
         {
-            tslReadyState.Text = "Work: Paused";
+            tslReadyState.Text = "Ticket: Paused";
 
             tsbStart.Enabled = true;
             tsbPause.Enabled = false;
@@ -1583,7 +1591,7 @@ namespace DAMBuddy2
 
                 if (m_RepoManager.SetCurrentRepository(newRepo))
                 {
-                    SetRepositoryTitle(newRepo);
+                    SetRepositoryTitle(newRepo, m_RepoManager.CurrentRepoServerFolder);
                     LoadRepositoryTemplates();
                 }
             }
@@ -1780,7 +1788,7 @@ namespace DAMBuddy2
 
                 bool stateToSet = (statusRootNodeEdit == "Yes") ? false : true;
 
-                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text);
+                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text, true);
             }
 
         }

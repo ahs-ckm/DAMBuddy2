@@ -18,6 +18,9 @@ namespace DAMBuddy2
         [STAThread]
         static void Main()
         {
+
+            //Utility.GetRootNodeText(@"C:\TD\CSDFK-1971\local\WIP\a child.oet");
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             try

@@ -101,7 +101,7 @@ namespace DAMBuddy2
         public string TicketFolder { get => mConfig.BaseFolder; }
 
         private RepoInstanceConfig mConfig;
-        private readonly string INFO_RESCHEDULE_WARNING = "Adding assets when the ticket is ready will require the ticket to be rescheduled. \nIf the new asset is being changed by another user, it may result in your ticket becoming blocked.\nTo avoid this warning, pause the work whilst you add the necessary assets.";
+        private readonly string INFO_RESCHEDULE_WARNING = "Modifying assets when the ticket is ready will require the ticket to be rescheduled. \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
 
         public string WIPPath
         {
@@ -492,53 +492,81 @@ namespace DAMBuddy2
             }
         }
 
-        public bool SetRootNodeEdit( bool bDoRootNodeEdit, string sTemplateName )
+        public bool SetRootNodeEdit( bool bDoRootNodeEdit, string sTemplateName, bool WarnUser )
         {
+
+            bool bResetSchedule = false;
             bool result = true;
             string sURL = "";
-            
-            if (bDoRootNodeEdit)
-            {
-                sURL = Utility.GetSettingString("SetRootNodeEditURL");
-            }
-            else
-            {
-                sURL = Utility.GetSettingString("CancelRootNodeEditURL");
 
-            }
-            string sTemplateID = GetTemplateID(sTemplateName);
+            if (m_ReadyStateSetByUser && WarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
+            {
+                if (MessageBox.Show(INFO_RESCHEDULE_WARNING,
+                    "Schedule Warning",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning) == DialogResult.Cancel) { return false; }
 
-               
+                SetTicketReadiness(false);
+                bResetSchedule = true;
+            }
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{sURL},{TicketID},{sTemplateID}");
-                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                if( response.StatusCode != HttpStatusCode.OK )
-                {
-                    Logger.Error("Failed to manage RootNodeEdit on the server");
-                    result = false;
-                }
-                    
-            } catch (Exception e)
-            {
-                Logger.Error(e, "An error occurred which is going to cause the application to close.");
-                result = false;
-            }
 
-            if( result )
-            {
                 if (bDoRootNodeEdit)
                 {
-                    m_dictWIPRootNodeEdits[sTemplateName] = true;
-                } else
-                {
-                    m_dictWIPRootNodeEdits.Remove(sTemplateName);
+                    sURL = Utility.GetSettingString("SetRootNodeEditURL");
                 }
-                mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, bDoRootNodeEdit);
+                else
+                {
+                    sURL = Utility.GetSettingString("CancelRootNodeEditURL");
+
+                }
+                string sTemplateID = GetTemplateID(sTemplateName);
+
+
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{sURL}{TicketID},{sTemplateID}");
+                    request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        if (response.StatusCode != HttpStatusCode.OK)
+                        {
+                            Logger.Error("Failed to manage RootNodeEdit on the server");
+                            result = false;
+                        }
+
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "An error occurred which is going to cause the application to close.");
+                    result = false;
+                }
+
+                if (result)
+                {
+                    if (bDoRootNodeEdit)
+                    {
+                        m_dictWIPRootNodeEdits[sTemplateName] = true;
+                    }
+                    else
+                    {
+                        m_dictWIPRootNodeEdits.Remove(sTemplateName);
+                    }
+                    mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, bDoRootNodeEdit);
+
+                }
+
+
 
             }
-
+            finally
+            {
+                if (bResetSchedule)
+                {
+                    SetTicketReadiness(true);
+                }
+            }
+            
             return result;
         }
 
@@ -575,8 +603,7 @@ namespace DAMBuddy2
                 }
             }
 
-            //Directory.Move(directory, directory + "-posted");
-
+            
             long length = new System.IO.FileInfo(zipname).Length;
             Console.WriteLine("\nSending file length: {0}", length);
 
@@ -744,49 +771,140 @@ namespace DAMBuddy2
         {
             string assetfilepath = m_dictWIPName2Path[filename];
 
-            if (!File.Exists(assetfilepath))
+            bool bResetSchedule = false;
+
+            if (m_ReadyStateSetByUser)
             {
-                Console.WriteLine($"RemoveWIP() : {assetfilepath} doesn't exist");
-                return false;
+                if (MessageBox.Show(INFO_RESCHEDULE_WARNING,
+                    "Schedule Warning",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning) == DialogResult.Cancel) { return false; }
+
+                SetTicketReadiness(false);
+                bResetSchedule = true;
             }
-
-            string sTID = Utility.GetTemplateID(assetfilepath);
-            string trashDir = mConfig.BaseFolder + Utility.GetSettingString("KeepTrash");
-            string dirname = Path.GetDirectoryName(assetfilepath);
-
-            if( Path.GetDirectoryName(dirname) == Path.GetDirectoryName(WIPPath ) )
+            try
             {
-                // if modified message the user
 
-                // delete file in WIP
-                string gitpath = m_dictID2Gitpath[sTID];
-                
-                string initialFile = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepInitial") + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");
-                string updateFile = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepUpdate") + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");
-                try
+
+                if (!File.Exists(assetfilepath))
                 {
-                    if (File.Exists(assetfilepath))
+                    Console.WriteLine($"RemoveWIP() : {assetfilepath} doesn't exist");
+                    return false;
+                }
+
+                string sTID = Utility.GetTemplateID(assetfilepath);
+                string trashDir = mConfig.BaseFolder + Utility.GetSettingString("KeepTrash");
+                string dirname = Path.GetDirectoryName(assetfilepath);
+
+                if( Path.GetDirectoryName(dirname) == Path.GetDirectoryName(WIPPath ) )
+                {
+                    // if modified message the user
+
+                    bool hasChanged = false, hasRootNodeChanged = false;
+                    if( HasAssetBeenModified(WIPPath, ref hasChanged, ref hasRootNodeChanged) )
                     {
-                        File.SetAttributes(assetfilepath, FileAttributes.Normal);
-                        File.Delete(assetfilepath);
+                        if (hasChanged)
+                        {
+                            if( MessageBox.Show($"{filename} has been edited and these changes will be lost when this asset is removed from the ticket\n\nDo you want to continue?",
+                                "Modified Ticket Warning",
+                                MessageBoxButtons.YesNoCancel,
+                                MessageBoxIcon.Warning,
+                                MessageBoxDefaultButton.Button3) != DialogResult.Yes )
+                            {
+                                return false;
+                            }
+                        }
                     }
 
+                    // delete file in WIP
+                    string gitpath = m_dictID2Gitpath[sTID];
+                
+                    string initialFile = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepInitial") + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");
+                    string updateFile = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepUpdate") + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");
+                    try
+                    {
+                        if (File.Exists(assetfilepath))
+                        {
+                            File.SetAttributes(assetfilepath, FileAttributes.Normal);
+                            File.Delete(assetfilepath);
+                        }
+
+                        if (File.Exists(assetfilepath + ".md5"))
+                        {
+                            File.Delete(assetfilepath + ".md5");
+                        }
+
+                        // move inital/update file back to repo path
+                        if (File.Exists(updateFile))
+                        {
+                            File.Move(updateFile, gitpath);
+                            if (File.Exists(initialFile)) File.Delete(initialFile);
+                            if (File.Exists(updateFile + ".md5")) File.Delete(updateFile + ".md5");
+                        }
+                        else
+                        {
+                            File.Move(initialFile, gitpath);
+                            if (File.Exists(initialFile + ".md5")) File.Delete(initialFile + ".md5");
+                        }
+
+                        WIPRemoveFromServer(filename, sTID);
+
+                        m_dictWIPName2Path.Remove(filename);
+                        m_dictWIPName2Path.Remove(sTID);
+                        m_dictWIPID2Path.Remove(sTID);
+                        m_dictID2Gitpath.Remove(sTID);
+
+
+                        if( m_dictWIPRootNodeEdits.ContainsKey(filename ) )
+                        {
+                            SetRootNodeEdit(false, filename, false);
+                            m_dictWIPRootNodeEdits.Remove(filename);
+                        }
+
+                    
+
+                        //  TODO: put back in
+                        /*                    if (File.Exists(assetfilepath))
+                                            {
+                                                if (!File.Exists(trashDir))
+                                                    Directory.CreateDirectory(trashDir);
+
+                                                if (File.Exists(trashDir + "\\" + filename + ".old"))
+                                                {
+                                                        File.SetAttributes(trashDir + "\\" + filename + ".old", FileAttributes.Normal);
+                                                }
+                                                File.Delete(trashDir + "\\" + filename + ".old");
+
+                                                File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
+                                                File.SetAttributes(trashDir + "\\" + filename + ".old", FileAttributes.Normal);
+
+                                            }*/
+
+                        mCallbacks.callbackRemoveWIP?.Invoke(filename);
+                        SaveExistingWip();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("RemoveWIP() : " + e.Message);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Will delete new asset " + filename);
+                    if (File.Exists(assetfilepath))
+                    {
+                        if (!File.Exists(trashDir))
+                            Directory.CreateDirectory(trashDir);
+
+                        if (File.Exists(trashDir + "\\" + filename + ".old"))
+                            File.Delete(trashDir + "\\" + filename + ".old");
+
+                        File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
+                    }
                     if (File.Exists(assetfilepath + ".md5"))
                     {
                         File.Delete(assetfilepath + ".md5");
-                    }
-
-                    // move inital/update file back to repo path
-                    if (File.Exists(updateFile))
-                    {
-                        File.Move(updateFile, gitpath);
-                        if (File.Exists(initialFile)) File.Delete(initialFile);
-                        if (File.Exists(updateFile + ".md5")) File.Delete(updateFile + ".md5");
-                    }
-                    else
-                    {
-                        File.Move(initialFile, gitpath);
-                        if (File.Exists(initialFile + ".md5")) File.Delete(initialFile + ".md5");
                     }
 
                     WIPRemoveFromServer(filename, GetTemplateID(filename));
@@ -796,68 +914,19 @@ namespace DAMBuddy2
                     m_dictWIPID2Path.Remove(sTID);
                     m_dictID2Gitpath.Remove(sTID);
 
-
-                    if( m_dictWIPRootNodeEdits.ContainsKey(filename ) )
-                    {
-                        SetRootNodeEdit(false, filename);
-                        m_dictWIPRootNodeEdits.Remove(filename);
-                    }
-
-                    
-
-                    //  TODO: put back in
-                    /*                    if (File.Exists(assetfilepath))
-                                        {
-                                            if (!File.Exists(trashDir))
-                                                Directory.CreateDirectory(trashDir);
-
-                                            if (File.Exists(trashDir + "\\" + filename + ".old"))
-                                            {
-                                                    File.SetAttributes(trashDir + "\\" + filename + ".old", FileAttributes.Normal);
-                                            }
-                                            File.Delete(trashDir + "\\" + filename + ".old");
-
-                                            File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
-                                            File.SetAttributes(trashDir + "\\" + filename + ".old", FileAttributes.Normal);
-
-                                        }*/
-
                     mCallbacks.callbackRemoveWIP?.Invoke(filename);
                     SaveExistingWip();
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine("RemoveWIP() : " + e.Message);
-                }
+
             }
-            else
+            finally
             {
-                MessageBox.Show("Will delete new asset " + filename);
-                if (File.Exists(assetfilepath))
+                if (bResetSchedule)
                 {
-                    if (!File.Exists(trashDir))
-                        Directory.CreateDirectory(trashDir);
-
-                    if (File.Exists(trashDir + "\\" + filename + ".old"))
-                        File.Delete(trashDir + "\\" + filename + ".old");
-
-                    File.Move(assetfilepath, trashDir + "\\" + filename + ".old");
+                    SetTicketReadiness(true);
                 }
-                if (File.Exists(assetfilepath + ".md5"))
-                {
-                    File.Delete(assetfilepath + ".md5");
-                }
-
-                WIPRemoveFromServer(filename, GetTemplateID(filename));
-
-                m_dictWIPName2Path.Remove(filename);
-                m_dictWIPName2Path.Remove(sTID);
-                m_dictWIPID2Path.Remove(sTID);
-                m_dictID2Gitpath.Remove(sTID);
-
-                mCallbacks.callbackRemoveWIP?.Invoke(filename);
-                SaveExistingWip();
             }
+
             return true;
         }
 
@@ -879,26 +948,47 @@ namespace DAMBuddy2
 
         private void CompareWIP2Initial(string filepath)
         {
-            string asset = Path.GetFileName(filepath);
+            bool hasChanged = false;
+            bool hasRootNodeChanged = false;
+            if( HasAssetBeenModified(filepath, ref hasChanged, ref hasRootNodeChanged))
+            {
+                if( hasChanged )
+                {
+                    
+                    mCallbacks.callbackModifiedWIP?.Invoke(Path.GetFileName(filepath), "CHANGED");
+                }
+            }
 
+        }
+
+        private bool HasAssetBeenModified(string filepath, ref bool hasChanged, ref bool hasRootNodeChanged)
+        {
+            string asset = Path.GetFileName(filepath);
+            hasChanged = false;
             string initialasset = mConfig.BaseFolder + Utility.GetSettingString("GitKeepInitial") + @"\" + asset + Utility.GetSettingString("GitKeepSuffix");
             byte[] WIPHashBytes = new byte[16];
 
-            //string WIPHashHex = "";
 
             string wipContents = Utility.ReadAsset(filepath);
             string initialContents = Utility.ReadAsset(initialasset);
 
             if (string.IsNullOrEmpty(initialContents))
-                return;
+                return false;
 
             if (String.IsNullOrEmpty(wipContents))
-                return;
+                return false;
 
             if (!wipContents.Equals(initialContents))
             {
-                mCallbacks.callbackModifiedWIP?.Invoke(asset, "CHANGED");
+                hasChanged = true;
+                string latestRNT = Utility.GetRootNodeText(filepath);
+                string originalRNT = Utility.GetRootNodeText(initialasset);
+                if( latestRNT != originalRNT )
+                {
+                    hasRootNodeChanged = true;
+                }
             }
+            return true;
         }
 
         private void OnChangedNewAsset(object source, FileSystemEventArgs e)
@@ -926,7 +1016,26 @@ namespace DAMBuddy2
         private void OnChangedWIP(object source, FileSystemEventArgs e)
         {
             Console.WriteLine($"OnChangedWIP File: {e.FullPath} {e.ChangeType}");
-            CompareWIP2Initial(e.FullPath);
+
+            bool hasChanged = false, hasRootNodeChanged = false;
+           
+            if( HasAssetBeenModified(e.FullPath,ref hasChanged, ref hasRootNodeChanged) ) {
+                if(hasChanged)
+                {
+                    mCallbacks.callbackModifiedWIP?.Invoke(e.Name, "CHANGED");
+                    if( hasRootNodeChanged )
+                    {
+                        //check if it has already been changed
+                        bool isAlreadyFlagged = false;
+                        if ( !m_dictWIPRootNodeEdits.TryGetValue(e.Name, out isAlreadyFlagged ))
+                        {
+                            SetRootNodeEdit(true, e.Name, true);
+                        }
+                    }
+                }
+            }
+            
+            //CompareWIP2Initial(e.FullPath);
 
             // TODO: should check whether the md5 of the file is actually different to the initial md5
         }
