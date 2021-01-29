@@ -583,6 +583,10 @@ public class RepoManager
         string ticketID = (string)jsonissue["key"];
         string sRoot = Utility.GetSettingString("FolderRoot");
 
+        string assignee = (string)jsonissue["fields"]["assignee"]["displayName"];
+        string description = (string)jsonissue["fields"]["description"];
+        string email = (string)jsonissue["fields"]["assignee"]["emailAddress"];
+
 
 
         if (mRepoCacheManager.SetupTicket(sRoot + "\\" + ticketID))
@@ -592,6 +596,7 @@ public class RepoManager
 
             CreateRepoInstance(ticketID, FolderID, true);
 
+            //m_dictRepoDescription.Add(ticketID, description);
             m_dictRepoState.Add(ticketID, FolderID);
             m_dictRepoState[CURRENT_REPO] = ticketID;
 
@@ -613,31 +618,34 @@ public class RepoManager
     public string ServerLinkTicket(JObject theIssue)
     {
         string sFolderName = "";
-        string sTicketID = (string)theIssue["key"];
-        string sDescription = (string)theIssue["fields"]["description"];
-        string sName = (string)theIssue["fields"]["name"];
 
         try
         {
-            sName = (string)theIssue["fields"]["assignee"]["name"];
+            string sTicketID = (string)theIssue["key"];
+            string sDescription = (string)theIssue["fields"]["description"];
+            string sLead = Utility.GetSettingString("User");
+            string sAssignee = (string)theIssue["fields"]["assignee"]["displayName"];
+            string theParams = $"theTicket={sTicketID}&theDescription={sDescription}&theLead={sLead}&theAssignee={sAssignee}";
+
+            using (WebClient client = new WebClient())
+            {
+                string Port = Utility.GetSettingString("DAMUploadPort");
+                client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+
+                string Server = Utility.GetSettingString("ServerName");
+                sFolderName = client.UploadString(Server + ":" + Port + "/linkTicket", theParams);
+                Console.WriteLine(sFolderName);
+
+            }
 
         }
-        catch { }
-
-        // TODO
-        string theParams = $"theTicket={sTicketID}&theDescription=abc&theLead=JonBeeby&theAssignee=JonBeeby";
-
-        using (WebClient client = new WebClient())
+        catch ( Exception e )
         {
-            string Port = Utility.GetSettingString("DAMUploadPort");
-            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-
-            string Server = Utility.GetSettingString("ServerName");
-            sFolderName = client.UploadString(Server + ":" + Port + "/linkTicket", theParams);
-            Console.WriteLine(sFolderName);
-
+            Logger.LogException(NLog.LogLevel.Error, "Problems occured when trying to link the ticket.", e);
         }
+
         return sFolderName;
+
     }
 
     /// <summary>

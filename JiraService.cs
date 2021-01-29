@@ -61,7 +61,7 @@ namespace DAMBuddy2
 
 			try
 			{
-				String u = JIRA_USER;
+				String u = JIRA_USER; // TODO - need user jira details.
 				String p = JIRA_PW;
 				String jiraBaseUrl = JIRA_BASE_URL;
 

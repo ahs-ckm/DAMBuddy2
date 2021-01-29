@@ -250,6 +250,8 @@ namespace DAMBuddy2
                     Console.WriteLine($"Created this directory for Clone(): {info.FullName}");
                 }
 
+               // Repository repository = new Repository();
+               // repository.Config.Set("core.autocrlf", "auto");
                 string repopath = Repository.Clone(mRemoteGitRepository, threadargs.RepoPath, options);
                 Console.WriteLine($"Clone returned {repopath}");
             }

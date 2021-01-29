@@ -149,8 +149,8 @@
             this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
             this.tsslFolder = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tslScheduleStatus = new System.Windows.Forms.ToolStripLabel();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -637,7 +637,7 @@
             this.tpRepoSearch.Location = new System.Drawing.Point(4, 25);
             this.tpRepoSearch.Name = "tpRepoSearch";
             this.tpRepoSearch.Padding = new System.Windows.Forms.Padding(3);
-            this.tpRepoSearch.Size = new System.Drawing.Size(553, 659);
+            this.tpRepoSearch.Size = new System.Drawing.Size(439, 489);
             this.tpRepoSearch.TabIndex = 1;
             this.tpRepoSearch.Text = "Search Results";
             // 
@@ -656,7 +656,7 @@
             this.lvRepoSearchResults.Location = new System.Drawing.Point(3, 3);
             this.lvRepoSearchResults.MultiSelect = false;
             this.lvRepoSearchResults.Name = "lvRepoSearchResults";
-            this.lvRepoSearchResults.Size = new System.Drawing.Size(547, 653);
+            this.lvRepoSearchResults.Size = new System.Drawing.Size(433, 483);
             this.lvRepoSearchResults.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lvRepoSearchResults.TabIndex = 16;
             this.lvRepoSearchResults.UseCompatibleStateImageBehavior = false;
@@ -751,7 +751,7 @@
             this.tpWUR.Location = new System.Drawing.Point(32, 4);
             this.tpWUR.Name = "tpWUR";
             this.tpWUR.Padding = new System.Windows.Forms.Padding(3);
-            this.tpWUR.Size = new System.Drawing.Size(1034, 680);
+            this.tpWUR.Size = new System.Drawing.Size(818, 510);
             this.tpWUR.TabIndex = 1;
             this.tpWUR.Text = "Where Used Report";
             this.tpWUR.UseVisualStyleBackColor = true;
@@ -762,7 +762,7 @@
             this.wbRepoWUR.Location = new System.Drawing.Point(3, 3);
             this.wbRepoWUR.MinimumSize = new System.Drawing.Size(20, 20);
             this.wbRepoWUR.Name = "wbRepoWUR";
-            this.wbRepoWUR.Size = new System.Drawing.Size(1028, 674);
+            this.wbRepoWUR.Size = new System.Drawing.Size(812, 504);
             this.wbRepoWUR.TabIndex = 0;
             // 
             // cbTransforms
@@ -986,7 +986,7 @@
             this.tpOverlapsWIP.Location = new System.Drawing.Point(32, 4);
             this.tpOverlapsWIP.Name = "tpOverlapsWIP";
             this.tpOverlapsWIP.Padding = new System.Windows.Forms.Padding(3);
-            this.tpOverlapsWIP.Size = new System.Drawing.Size(929, 697);
+            this.tpOverlapsWIP.Size = new System.Drawing.Size(734, 527);
             this.tpOverlapsWIP.TabIndex = 1;
             this.tpOverlapsWIP.Text = "Where Used Report";
             this.tpOverlapsWIP.UseVisualStyleBackColor = true;
@@ -997,7 +997,7 @@
             this.wbWIPWUR.Location = new System.Drawing.Point(3, 3);
             this.wbWIPWUR.MinimumSize = new System.Drawing.Size(20, 20);
             this.wbWIPWUR.Name = "wbWIPWUR";
-            this.wbWIPWUR.Size = new System.Drawing.Size(923, 691);
+            this.wbWIPWUR.Size = new System.Drawing.Size(728, 521);
             this.wbWIPWUR.TabIndex = 6;
             // 
             // tpOverlaps2
@@ -1006,7 +1006,7 @@
             this.tpOverlaps2.Location = new System.Drawing.Point(32, 4);
             this.tpOverlaps2.Name = "tpOverlaps2";
             this.tpOverlaps2.Padding = new System.Windows.Forms.Padding(3);
-            this.tpOverlaps2.Size = new System.Drawing.Size(929, 697);
+            this.tpOverlaps2.Size = new System.Drawing.Size(734, 527);
             this.tpOverlaps2.TabIndex = 2;
             this.tpOverlaps2.Text = "Overlaps";
             this.tpOverlaps2.UseVisualStyleBackColor = true;
@@ -1017,7 +1017,7 @@
             this.wbOverlaps.Location = new System.Drawing.Point(3, 3);
             this.wbOverlaps.MinimumSize = new System.Drawing.Size(20, 20);
             this.wbOverlaps.Name = "wbOverlaps";
-            this.wbOverlaps.Size = new System.Drawing.Size(923, 691);
+            this.wbOverlaps.Size = new System.Drawing.Size(728, 521);
             this.wbOverlaps.TabIndex = 1;
             // 
             // comboBox1
@@ -1356,7 +1356,7 @@
             this.tpUpload.Location = new System.Drawing.Point(4, 35);
             this.tpUpload.Name = "tpUpload";
             this.tpUpload.Padding = new System.Windows.Forms.Padding(3);
-            this.tpUpload.Size = new System.Drawing.Size(1641, 755);
+            this.tpUpload.Size = new System.Drawing.Size(1311, 585);
             this.tpUpload.TabIndex = 3;
             this.tpUpload.Text = "Upload";
             this.tpUpload.UseVisualStyleBackColor = true;
@@ -1366,7 +1366,7 @@
             this.tpSchedule.Location = new System.Drawing.Point(4, 35);
             this.tpSchedule.Name = "tpSchedule";
             this.tpSchedule.Padding = new System.Windows.Forms.Padding(0, 0, 10, 0);
-            this.tpSchedule.Size = new System.Drawing.Size(1641, 755);
+            this.tpSchedule.Size = new System.Drawing.Size(1311, 585);
             this.tpSchedule.TabIndex = 5;
             this.tpSchedule.Text = "Schedule";
             this.tpSchedule.UseVisualStyleBackColor = true;
@@ -1377,7 +1377,7 @@
             this.tpDocReview.Location = new System.Drawing.Point(4, 35);
             this.tpDocReview.Name = "tpDocReview";
             this.tpDocReview.Padding = new System.Windows.Forms.Padding(3);
-            this.tpDocReview.Size = new System.Drawing.Size(1641, 755);
+            this.tpDocReview.Size = new System.Drawing.Size(1311, 585);
             this.tpDocReview.TabIndex = 4;
             this.tpDocReview.Text = "Document Review";
             this.tpDocReview.UseVisualStyleBackColor = true;
@@ -1455,23 +1455,30 @@
             // logToolStripMenuItem
             // 
             this.logToolStripMenuItem.Name = "logToolStripMenuItem";
-            this.logToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.logToolStripMenuItem.Text = "Log";
             // 
             // configToolStripMenuItem
             // 
             this.configToolStripMenuItem.Name = "configToolStripMenuItem";
-            this.configToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.configToolStripMenuItem.Text = "Config";
             this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(622, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(637, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // tsslFolder
+            // 
+            this.tsslFolder.Name = "tsslFolder";
+            this.tsslFolder.Size = new System.Drawing.Size(637, 17);
+            this.tsslFolder.Spring = true;
+            this.tsslFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // tslScheduleStatus
             // 
@@ -1484,13 +1491,6 @@
             this.tslScheduleStatus.Size = new System.Drawing.Size(180, 52);
             this.tslScheduleStatus.Text = "<unknown>";
             this.tslScheduleStatus.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            // 
-            // tsslFolder
-            // 
-            this.tsslFolder.Name = "tsslFolder";
-            this.tsslFolder.Size = new System.Drawing.Size(622, 17);
-            this.tsslFolder.Spring = true;
-            this.tsslFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // MainForm
             // 
