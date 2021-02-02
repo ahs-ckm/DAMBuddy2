@@ -63,6 +63,10 @@ namespace DAMBuddy2
         private bool gSearchDocumentRep;
         private string m_fileWipHTML;
         private bool mSetupTicketEnabled = true;
+        private Thread m_BusyDialogThread;
+        private bool m_bIsBusy = false;
+        private BusyForm m_BusyForm;
+
         //private bool m_bIsLoading;
 
         /// <summary>
@@ -355,8 +359,12 @@ namespace DAMBuddy2
         {
             
             InitAvailableRepos();
-            InitView();
             
+            if( TicketId == m_RepoManager.CurrentRepo.TicketID)
+            {
+                InitView();
+            }
+
         }
 
         /// <summary>
@@ -685,6 +693,7 @@ namespace DAMBuddy2
 
             Thread thread1 = new Thread(RunTransform);
             thread1.Start(args);
+          
             m_currentDocumentWIP = sTemplateName;
         }
 
@@ -856,7 +865,16 @@ namespace DAMBuddy2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            InitializeApp();
+            try 
+            {
+                BusyStart();
+                InitializeApp();
+
+            }
+            finally
+            {
+                BusyStop();
+            }
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
@@ -1066,7 +1084,7 @@ namespace DAMBuddy2
 
         }
 
-        private void timer2_Tick(object sender, EventArgs e)
+        private void timerRepoFilter_tick(object sender, EventArgs e)
         {
             timerRepoFilter.Enabled = false;
             string filter = tstbRepositoryFilter.Text;
@@ -1263,7 +1281,7 @@ namespace DAMBuddy2
 
         private void tsmWIPRemove_Click(object sender, EventArgs e)
         {
-            SendKeys.Send("{ESC}"); //
+            //SendKeys.Send("{ESC}"); //
             MenuItem item = (MenuItem)sender;
             //MessageBox.Show(item.Text);
             string itemData = item.Tag.ToString();
@@ -1272,7 +1290,16 @@ namespace DAMBuddy2
 
             if (items.Length > 1)
             {
-                m_RepoManager.CurrentRepo.RemoveWIP(items[0]);//, items[1]);
+                BusyStart();
+                try
+                {
+                    m_RepoManager.CurrentRepo.RemoveWIP(items[0]);//, items[1]);
+
+                }
+                finally
+                {
+                    BusyStop();
+                }
             }
         }
 
@@ -1522,19 +1549,58 @@ namespace DAMBuddy2
             LaunchTD("");
         }
 
+
+        private void BusyStop()
+        {
+            if (m_BusyDialogThread == null) return;
+            //m_BusyDialogThread.Abort();
+            m_bIsBusy = false;
+            m_BusyDialogThread = null;
+        }
+
+        private void BusyStart()
+        {
+            if (m_BusyDialogThread != null) return;
+
+
+            m_BusyDialogThread = new Thread(BusyShow);
+            //m_BusyDialogThread.Start(lvRepository.PointToScreen(lvRepository.Location));
+            m_BusyDialogThread.Start(wbRepositoryView.PointToScreen(wbRepositoryView.Location));
+
+
+        }
+
+        private void BusyShow( object pt )
+        {
+            m_bIsBusy = true;
+            BusyForm bf = new BusyForm();
+            bf.StartPosition = FormStartPosition.Manual;
+            
+            bf.Location = (Point)pt;
+
+            bf.TopLevel = true;
+            //bf.Parent = this;
+            bf.Show();
+
+            while (m_bIsBusy) { Application.DoEvents(); System.Threading.Thread.Sleep(1); }
+
+            bf.Close();
+            
+        }
+
         private void setupNewTicketToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SetupTicketForm ticketform = new SetupTicketForm();
             if (ticketform.ShowDialog() == DialogResult.OK)
             {
-                BusyForm bf = new BusyForm();
-                
+                //BusyForm bf = new BusyForm();
+                BusyStart();
                 
                 try
                 {
-                    bf.StartPosition = FormStartPosition.CenterScreen;
+                  //  bf.StartPosition = FormStartPosition.CenterScreen;
 
-                    bf.Show();
+                 //   bf.Show();
 
                     if (m_RepoManager.PrepareNewTicket(ticketform.m_TicketJSON))
                     {
@@ -1549,7 +1615,8 @@ namespace DAMBuddy2
                 }
                 finally
                 {
-                    bf.Close();
+                    BusyStop();
+                   // bf.Close();
                 }
             };
         }
@@ -1578,15 +1645,21 @@ namespace DAMBuddy2
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
 
             string newRepo = item.Text;
+            if( m_RepoManager.CurrentRepo != null)
+            {
+                if (newRepo == m_RepoManager.CurrentRepo.TicketID) { return; } // don't bother doing anythng if it's the same repo
 
-            BusyForm busy = new BusyForm();
-            busy.StartPosition = FormStartPosition.CenterScreen;
+            }
+
+            //BusyForm busy = new BusyForm();
+            //busy.StartPosition = FormStartPosition.CenterScreen;
             //busy.Parent = this;
+            BusyStart();
 
             try
             {
                 this.UseWaitCursor = true;
-                busy.Show();
+                //busy.Show();
                 InitView();
 
                 if (m_RepoManager.SetCurrentRepository(newRepo))
@@ -1597,10 +1670,14 @@ namespace DAMBuddy2
             }
             finally
             {
-                busy.Hide();
+                //busy.Hide();
+                BusyStop();
                 this.UseWaitCursor = false;
             }
         }
+
+
+
 
         private void InitView()
         {
@@ -1647,10 +1724,23 @@ namespace DAMBuddy2
             if( current != null)
             {
                 MessageBox.Show("About to remove the current ticket..");
-                m_RepoManager.RemoveTicket(current.TicketID);
-                InitAvailableRepos();
-                InitView();
-                LoadRepositoryTemplates();
+                if(MessageBox.Show($"Close {current.TicketID} and lose any work in progress?", "Close Ticket?", MessageBoxButtons.OKCancel,MessageBoxIcon.Question) == DialogResult.OK)
+                {
+                    BusyStart();
+                    try
+                    {
+
+                        m_RepoManager.RemoveTicket(current.TicketID);
+                        InitAvailableRepos();
+                        InitView();
+                        LoadRepositoryTemplates();
+                    }
+                    finally
+                    {
+                        BusyStop();
+                    }
+
+                }
             }
 
         }
@@ -1760,19 +1850,20 @@ namespace DAMBuddy2
             if( lvWork.SelectedItems.Count > 0 )
             {
                 var item = lvWork.SelectedItems[0];
-                //if( item.Tag != null)
+
+
+
+                BusyStart();
+                try
                 {
-                    //string itemData = item.Tag.ToString();
-
-                    //var items = itemData.Split('~');
-                    
-                    //if (items.Length > 1)
-                    {
-                        m_RepoManager.CurrentRepo.RemoveWIP(item.Text);//, items[1]);
-
-                    }
+                    m_RepoManager.CurrentRepo.RemoveWIP(item.Text);//, items[1]);
 
                 }
+                finally
+                {
+                    BusyStop();
+                }
+
             }
 
         }

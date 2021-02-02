@@ -36,18 +36,6 @@ namespace DAMBuddy2
 
 		private void btnSearch_Click(object sender, EventArgs e)
 		{
-			string jsonTicket = "";
-			string searchTicket = cbPrefix.SelectedItem + tbTicket.Text;
-
-
-			jsonTicket = JiraService.GetJiraIssue(searchTicket);
-			
-			if (!String.IsNullOrEmpty(jsonTicket))
-			{
-				m_Ticket = searchTicket;
-				m_TicketJSON = jsonTicket;
-				webBrowser1.DocumentText = BuildHTML(jsonTicket);
-			}
 
 			
 		}
@@ -62,6 +50,48 @@ namespace DAMBuddy2
 		{
 			cbPrefix.SelectedItem = "CSDFK-";
 //			cbPrefix.SelectedIndex = 1;
+		}
+
+		private void timerSearch_Tick(object sender, EventArgs e)
+		{
+			timerSearch.Enabled = false;
+			string jsonTicket = "";
+			string searchTicket = cbPrefix.SelectedItem + tbTicket.Text;
+
+			try
+			{
+				Application.UseWaitCursor = true;
+				jsonTicket = JiraService.GetJiraIssue(searchTicket);
+
+			}
+			finally
+			{
+				Application.UseWaitCursor = false;
+			}
+
+			if (!String.IsNullOrEmpty(jsonTicket))
+			{
+				m_Ticket = searchTicket;
+				m_TicketJSON = jsonTicket;
+				webBrowser1.DocumentText = BuildHTML(jsonTicket);
+			}
+
+
+		}
+
+		private void tbTicket_TextChanged(object sender, EventArgs e)
+		{
+			timerSearch.Enabled = true;
+		}
+
+		private void tbTicket_KeyUp(object sender, KeyEventArgs e)
+		{
+			timerSearch.Enabled = false;
+		}
+
+		private void tbTicket_KeyDown(object sender, KeyEventArgs e)
+		{
+			timerSearch.Enabled = true;
 		}
 	}
 }

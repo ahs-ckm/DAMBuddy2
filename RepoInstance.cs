@@ -634,7 +634,12 @@ namespace DAMBuddy2
                 csv += "\n"; //newline to represent new pair
             }
 
-            File.WriteAllText(mConfig.BaseFolder + @"\WIP.csv", csv);
+            try
+            {
+                File.WriteAllText(mConfig.BaseFolder + @"\WIP.csv", csv);
+
+            }
+            catch  { }
 
             csv = "";
             foreach (KeyValuePair<string, string> kvp in m_dictID2Gitpath)
@@ -656,6 +661,7 @@ namespace DAMBuddy2
                 csv += "\n"; //newline to represent new pair
             }
 
+           
             File.WriteAllText(mConfig.BaseFolder + @"\WIPID.csv", csv);
 
             csv = "";
@@ -667,11 +673,13 @@ namespace DAMBuddy2
                 csv += "\n"; //newline to represent new pair
             }
 
+
             File.WriteAllText(mConfig.BaseFolder + @"\RootNodeEdits.csv", csv);
 
 
 
             File.WriteAllText(mConfig.BaseFolder + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
+
         }
 
         public void LoadExistingWIP()

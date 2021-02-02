@@ -191,7 +191,6 @@
             // 
             // timer1
             // 
-            this.timer1.Enabled = true;
             this.timer1.Interval = 60000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
@@ -1385,7 +1384,7 @@
             // timerRepoFilter
             // 
             this.timerRepoFilter.Interval = 1000;
-            this.timerRepoFilter.Tick += new System.EventHandler(this.timer2_Tick);
+            this.timerRepoFilter.Tick += new System.EventHandler(this.timerRepoFilter_tick);
             // 
             // cmsRemove
             // 

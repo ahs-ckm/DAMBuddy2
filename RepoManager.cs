@@ -318,12 +318,14 @@ public class RepoManager
     /// Watchdog process to check whether a ticket has finished uploading, and if so, close/remove it.
     /// </summary>
     /// <param name="sTicketID"></param>
+    /// 
     private void ProcessTicketState(Object info)
     {
         string sTicketID = (string)info;
         TicketChangeState state = GetTicketUploadState(sTicketID);
         if (!state.active)
         {
+
             RemoveTicket(sTicketID);
             //TODO: is this needed - if we close a ticket whilst the UI has it open - like after an upload finishes?
             mRepoInstancCallbacks.callbackUploadState?.Invoke(sTicketID, state);
@@ -331,6 +333,26 @@ public class RepoManager
 
     }
 
+
+    private void ThreadProcessTicketState(Object info )
+    {
+        string sTicketID = (string)info;
+        string sFolder;
+
+        if (!m_dictRepoState.TryGetValue(sTicketID, out sFolder))
+        {
+
+            if (m_timerMonitorTicketState != null)
+            {
+                m_timerMonitorTicketState.Dispose();
+                m_timerMonitorTicketState = null;
+            }
+            return;
+        }
+
+
+        ProcessTicketState(info);
+    }
 
     /// <summary>
     /// Retrieves the ticket state from the server
@@ -447,7 +469,15 @@ public class RepoManager
 
     public void RemoveTicket(string sTicketID)
     {
-        string sFolder = m_dictRepoState[sTicketID];
+
+        string sFolder;
+
+        if( !m_dictRepoState.TryGetValue(sTicketID, out sFolder))
+        {
+            return;
+        }
+
+        //string sFolder = m_dictRepoState[sTicketID];
 
         if (m_dictRepoState[CURRENT_REPO] == sTicketID)
         {
@@ -658,7 +688,7 @@ public class RepoManager
         string ticket = m_dictRepoState[CURRENT_REPO];
         string folder = m_dictRepoState[ticket];
      
-        m_timerMonitorTicketState = new System.Threading.Timer( ProcessTicketState, ticket, 5000,5000);
+        m_timerMonitorTicketState = new System.Threading.Timer( ThreadProcessTicketState, ticket, 5000,5000);
 
         string UploadUrl = Utility.GetSettingString("DAMUploadUrl");
         string user = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Utility.GetSettingString("User")));
