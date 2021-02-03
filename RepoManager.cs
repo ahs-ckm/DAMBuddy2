@@ -609,6 +609,8 @@ public class RepoManager
         // move pre-prepared git folder
 
         // switch context.
+        if (jsonTicket == null) return false;
+
         JObject jsonissue = JObject.Parse(jsonTicket);
         string ticketID = (string)jsonissue["key"];
         string sRoot = Utility.GetSettingString("FolderRoot");

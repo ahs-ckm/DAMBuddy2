@@ -24,10 +24,22 @@ namespace DAMBuddy2
 		private string BuildHTML( string json )
 		{
 			JObject jsonissue = JObject.Parse(json);
+			string assignee = "" ;
+			string email = "";
 
-			string assignee = (string)jsonissue["fields"]["assignee"]["displayName"];
+			try
+			{
+				assignee = (string)jsonissue["fields"]["assignee"]["displayName"];
+			}
+			catch { }
+			try
+			{ 
+				email = (string)jsonissue["fields"]["assignee"]["emailAddress"];
+			}
+			catch { }
+
+
 			string description = (string)jsonissue["fields"]["description"];
-			string email = (string)jsonissue["fields"]["assignee"]["emailAddress"];
 			string sTicketID = (string)jsonissue["key"];
 
 			string html = $"<html><body style='font-family:verdana'><h2>{sTicketID}</h2><br><br>Assignee: </b>{assignee}<br><b>Description: </b>{description}</body></html>";
@@ -48,12 +60,14 @@ namespace DAMBuddy2
 
 		private void SetupTicketForm_Load(object sender, EventArgs e)
 		{
+			btnOK.Enabled = false;
 			cbPrefix.SelectedItem = "CSDFK-";
 //			cbPrefix.SelectedIndex = 1;
 		}
 
 		private void timerSearch_Tick(object sender, EventArgs e)
 		{
+			btnOK.Enabled = false;
 			timerSearch.Enabled = false;
 			string jsonTicket = "";
 			string searchTicket = cbPrefix.SelectedItem + tbTicket.Text;
@@ -74,6 +88,7 @@ namespace DAMBuddy2
 				m_Ticket = searchTicket;
 				m_TicketJSON = jsonTicket;
 				webBrowser1.DocumentText = BuildHTML(jsonTicket);
+				btnOK.Enabled = true;
 			}
 
 

@@ -102,6 +102,7 @@ namespace DAMBuddy2
 
         private RepoInstanceConfig mConfig;
         private readonly string INFO_RESCHEDULE_WARNING = "Modifying assets when the ticket is ready will require the ticket to be rescheduled. \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
+        private readonly string INFO_ROOTNODE_RESCHEDULE_WARNING = "Modifying assets when the ticket is ready will require the ticket to be rescheduled. \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
 
         public string WIPPath
         {
@@ -129,6 +130,7 @@ namespace DAMBuddy2
 
         public void MakeInactive() // no longer the current repo
         {
+            SaveExistingWip();
             mConfig.isActive = false;
             DisableBackgroundActivities();
         }
@@ -261,35 +263,42 @@ namespace DAMBuddy2
             return true;
         }
 
-        public bool GetTicketScheduleStatus()
+        public void GetTicketScheduleStatus()
         {
-            if (!mConfig.isActive) return false;
+            if (!mConfig.isActive) return ;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{mConfig.URLServer}:{DAM_SCHEDULER_PORT}/dynamic/TicketStatus,{TicketID}");
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            try
             {
-                string jsonStatus = reader.ReadToEnd();
-                RepoInstance.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoInstance.TicketScheduleState>(jsonStatus);
-
-                if (state.UploadEnabled == "true")
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    LockFiles(false);
-                }
-                else
-                {
-                    LockFiles(true);
+                    string jsonStatus = reader.ReadToEnd();
+                    RepoInstance.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoInstance.TicketScheduleState>(jsonStatus);
+
+                    if (state.UploadEnabled == "true")
+                    {
+                        LockFiles(false);
+                    }
+                    else
+                    {
+                        LockFiles(true);
+                    }
+
+                    if (!mConfig.isActive) return ;
+
+                    mCallbacks.callbackScheduleState?.Invoke(jsonStatus);
                 }
 
-                if (!mConfig.isActive) return false;
-
-                mCallbacks.callbackScheduleState?.Invoke(jsonStatus);
+            }
+            catch( Exception e )
+            {
+                Logger.LogException(NLog.LogLevel.Error, "Problems when trying to get Scheduled Status", e);
             }
 
-            return true;
         }
 
         private bool LockFiles(bool Lock)
@@ -1168,6 +1177,7 @@ namespace DAMBuddy2
                 return false;
             }
 
+            //SaveExistingWip();
             UpdateSchedule(mConfig.URLServer);
             GetTicketScheduleStatus();
             return true;

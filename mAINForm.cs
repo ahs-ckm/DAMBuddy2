@@ -1506,7 +1506,16 @@ namespace DAMBuddy2
 
             tsbStart.Enabled = false;
             tsbPause.Enabled = true;
-            m_RepoManager.CurrentRepo.SetTicketReadiness(true);
+            BusyStart();
+            try
+            {
+                m_RepoManager.CurrentRepo.SetTicketReadiness(true);
+
+            }
+            finally
+            {
+                BusyStop();
+            }
         }
 
         private void tsbPause_Click(object sender, EventArgs e)
@@ -1515,7 +1524,16 @@ namespace DAMBuddy2
 
             tsbStart.Enabled = true;
             tsbPause.Enabled = false;
-            m_RepoManager.CurrentRepo.SetTicketReadiness(false);
+            BusyStart();
+            try
+            {
+                m_RepoManager.CurrentRepo.SetTicketReadiness(false);
+
+            }
+            finally
+            {
+                BusyStop();
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -1723,7 +1741,7 @@ namespace DAMBuddy2
             RepoInstance current = m_RepoManager.CurrentRepo;
             if( current != null)
             {
-                MessageBox.Show("About to remove the current ticket..");
+                //MessageBox.Show("About to remove the current ticket..");
                 if(MessageBox.Show($"Close {current.TicketID} and lose any work in progress?", "Close Ticket?", MessageBoxButtons.OKCancel,MessageBoxIcon.Question) == DialogResult.OK)
                 {
                     BusyStart();
