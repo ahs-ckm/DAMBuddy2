@@ -1,4 +1,5 @@
-﻿using CefSharp.WinForms;
+﻿using CefSharp;
+using CefSharp.WinForms;
 using java.util;
 using Saxon.Api;
 using System;
@@ -17,6 +18,7 @@ using System.Xml.Linq;
 
 namespace DAMBuddy2
 {
+
     public partial class MainForm : Form
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -359,11 +361,19 @@ namespace DAMBuddy2
         {
             
             InitAvailableRepos();
-            
-            if( TicketId == m_RepoManager.CurrentRepo.TicketID)
+
+            if( m_RepoManager.CurrentRepo != null)
+            {
+                if (TicketId == m_RepoManager.CurrentRepo.TicketID)
+                {
+                    InitView();
+                }
+            } else
             {
                 InitView();
+
             }
+
 
         }
 
@@ -398,10 +408,10 @@ namespace DAMBuddy2
 
             m_browserSchedule = new ChromiumWebBrowser(Utility.GetSettingString("SchedulerUrl")); 
             m_browserUpload = new ChromiumWebBrowser("about:blank");
-            m_browserDocReview = new ChromiumWebBrowser("about:blank"); 
+            m_browserDocReview = new ChromiumWebBrowser("about:blank");
+            m_browserDocReview.DownloadHandler =
 
-
-            m_browserUpload.CreateControl();
+            m_browserUpload.DownloadHandler = new MyDownloadHandler();
             
 
             tpUpload.Controls.Add(m_browserUpload);
@@ -574,7 +584,7 @@ namespace DAMBuddy2
         {
             tstbRepositoryFilter.Focus();
             lvRepository.Items.Clear();
-            lblPageCount.Text = "";
+            tslPageCount.Text = "";
             // This filters and adds your filtered items to listView1
 
             int availablePages = -1;
@@ -595,7 +605,8 @@ namespace DAMBuddy2
                 mTotalItems = m_RepoManager.CurrentRepo.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Count();
 
                 availablePages = mTotalItems / mPageSize;
-                lblPageCount.Text = $"{mCurrentPage + 1}/{availablePages + 1}";
+              //  if (mCurrentPage + 1 > availablePages) return;
+                tslPageCount.Text = $"{mCurrentPage + 1}/{availablePages + 1}";
 
                 var RepoPage = m_RepoManager.CurrentRepo.Masterlist.Where(lvi => lvi.Text.ToLower().Contains(tstbRepositoryFilter.Text.ToLower().Trim())).Skip(numberOfObjectsPerPage * pageNumber).Take(numberOfObjectsPerPage);
 
@@ -618,15 +629,15 @@ namespace DAMBuddy2
                 lvRepository.Columns[0].Width = -1;
             }
 
-            if (mCurrentPage == 0) btnPrev.Visible = false;
+            if (mCurrentPage == 0) tsbPrev.Visible = false;
 
             if (mCurrentPage == availablePages)
             {
-                btnNext.Visible = false;
+                tsbNext.Visible = false;
             }
             else
             {
-                btnNext.Visible = true;
+                tsbNext.Visible = true;
             }
         }
 
@@ -1117,8 +1128,9 @@ namespace DAMBuddy2
             }
             if (sResult == null) return;
             if (sResult.Trim() == "") return;
-            lvRepoSearchResults.Items.Add(new ListViewItem(Path.GetFileName(sResult)));
-            //lvRepoSearchResults.Columns[0].Width = -1;
+            ListViewItem newItem = new ListViewItem(Path.GetFileName(sResult));
+            newItem.Tag = sResult; // Passed to AddWIP()
+            lvRepoSearchResults.Items.Add(newItem);
         }
 
         private void SetAssetModified(string filename, string state)
@@ -1484,22 +1496,6 @@ namespace DAMBuddy2
             }
         }
 
-        private void btnNext_Click(object sender, EventArgs e)
-        {
-            mCurrentPage++;
-            if (mCurrentPage > 0) btnPrev.Visible = true;
-            lblPageCount.Text = $"{mCurrentPage + 1}";
-            DisplayTemplates2();
-        }
-
-        private void btnPrev_Click(object sender, EventArgs e)
-        {
-            mCurrentPage--;
-            if (mCurrentPage == 0) btnPrev.Visible = false;
-            lblPageCount.Text = $"{mCurrentPage + 1}";
-            DisplayTemplates2();
-        }
-
         private void tsbStart_Click(object sender, EventArgs e)
         {
             tslReadyState.Text = "Ticket: Ready";
@@ -1592,9 +1588,10 @@ namespace DAMBuddy2
         {
             m_bIsBusy = true;
             BusyForm bf = new BusyForm();
-            bf.StartPosition = FormStartPosition.Manual;
+            //bf.StartPosition = FormStartPosition.Manual;
             
-            bf.Location = (Point)pt;
+            //bf.Location = (Point)pt;
+            //bf.Location = Location
 
             bf.TopLevel = true;
             //bf.Parent = this;
@@ -1641,7 +1638,11 @@ namespace DAMBuddy2
 
         private void tsbHelp_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("TODO: Info on Scheduler State and implications...");
+
+            frmScheduleInfo frm = new frmScheduleInfo();
+            frm.ShowDialog();
+
+            //MessageBox.Show("TODO: Info on Scheduler State and implications...");
         }
 
         private void lvRepository_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -1846,26 +1847,53 @@ namespace DAMBuddy2
 
         private void btnAddWIP_Click(object sender, EventArgs e)
         {
-
-            if (lvRepository.SelectedItems.Count > 0)
-            {
-                var item = lvRepository.SelectedItems[0];
-                if (item.Tag != null)
-                {
-
-                    //                    string itemdata = (string)lvRepository.SelectedItems[0].Tag;
-
-                    string itemdata = (string)item.Tag;
-                    m_RepoManager.CurrentRepo.AddWIP(itemdata);
-                    lvRepository.Items.Remove(item);
-                }
-            }
-
         }
 
         private void btnRemoveWIP_Click(object sender, EventArgs e)
         {
-            if( lvWork.SelectedItems.Count > 0 )
+
+        }
+
+        private void btnRootNode_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tsbAddFromSearch_Click(object sender, EventArgs e)
+        {
+            if (lvRepoSearchResults.SelectedItems.Count > 0)
+            {
+                var item = lvRepoSearchResults.SelectedItems[0];
+                if (item.Tag != null)
+                {
+                    string itemdata = (string)item.Tag;
+                    m_RepoManager.CurrentRepo.AddWIP(itemdata);
+                    //lvRepository.Items.Remove(item);
+                }
+            }
+
+
+        }
+
+        private void toolStripButton1_Click_1(object sender, EventArgs e)
+        {
+            string statusRootNodeEdit = "";
+
+            if (lvWork.SelectedItems.Count > 0)
+            {
+                var item = lvWork.SelectedItems[0];
+                statusRootNodeEdit = item.SubItems[3].Text;
+
+                bool stateToSet = (statusRootNodeEdit == "Yes") ? false : true;
+
+                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text, true);
+            }
+
+        }
+
+        private void tsbRemoveWIP_Click(object sender, EventArgs e)
+        {
+            if (lvWork.SelectedItems.Count > 0)
             {
                 var item = lvWork.SelectedItems[0];
 
@@ -1886,20 +1914,83 @@ namespace DAMBuddy2
 
         }
 
-        private void btnRootNode_Click(object sender, EventArgs e)
+        private void tsbAddWIP_Click(object sender, EventArgs e)
         {
-            string statusRootNodeEdit = "";
 
-            if (lvWork.SelectedItems.Count > 0)
+            if (lvRepository.SelectedItems.Count > 0)
             {
-                var item = lvWork.SelectedItems[0];
-                statusRootNodeEdit = item.SubItems[3].Text;
+                var item = lvRepository.SelectedItems[0];
+                if (item.Tag != null)
+                {
 
-                bool stateToSet = (statusRootNodeEdit == "Yes") ? false : true;
+                    //                    string itemdata = (string)lvRepository.SelectedItems[0].Tag;
 
-                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text, true);
+                    string itemdata = (string)item.Tag;
+                    m_RepoManager.CurrentRepo.AddWIP(itemdata);
+                    lvRepository.Items.Remove(item);
+                }
             }
+
+
+        }
+
+        private void tsbPrev_Click(object sender, EventArgs e)
+        {
+            mCurrentPage--;
+            if (mCurrentPage == 0) tsbPrev.Visible = false;
+            tslPageCount.Text = $"{mCurrentPage + 1}";
+            DisplayTemplates2();
+
+        }
+
+        private void tsbNext_Click(object sender, EventArgs e)
+        {
+            mCurrentPage++;
+            if (mCurrentPage > 0) tsbPrev.Visible = true;
+            tslPageCount.Text = $"{mCurrentPage + 1}";
+            DisplayTemplates2();
+        }
+
+        private void logToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tsbWordWIP_Click(object sender, EventArgs e)
+        {
 
         }
     }
+
+
+
+    internal class MyDownloadHandler : CefSharp.IDownloadHandler
+    {
+
+        public bool OnBeforeDownload(CefSharp.DownloadItem downloadItem, out string downloadPath, out bool showDialog)
+        {
+            downloadPath = "";
+            showDialog = true;
+            return true;
+        }
+
+        public void OnBeforeDownload(IWebBrowser chromiumWebBrowser, IBrowser browser, DownloadItem downloadItem, IBeforeDownloadCallback callback)
+        {
+            if (!callback.IsDisposed) callback.Continue("c:\\temp\\" + downloadItem.SuggestedFileName, false);
+            //throw new NotImplementedException();
+        }
+
+        public bool OnDownloadUpdated(CefSharp.DownloadItem downloadItem)
+        {
+            return false;
+        }
+
+        public void OnDownloadUpdated(IWebBrowser chromiumWebBrowser, IBrowser browser, DownloadItem downloadItem, IDownloadItemCallback callback)
+        {
+            //throw new NotImplementedException();
+            //callback.Resume();
+        }
+    }
+
+
 }

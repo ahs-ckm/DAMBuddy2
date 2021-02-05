@@ -1,6 +1,6 @@
 ﻿namespace DAMBuddy2
 {
-    partial class BusyForm
+    partial class frmScheduleInfo
     {
         /// <summary>
         /// Required designer variable.
@@ -34,29 +34,25 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.DarkGray;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.ErrorImage = global::DAMBuddy2.Properties.Resources.ounq1mw5kdxy;
-            this.pictureBox1.ImageLocation = ".\\Resources\\ounq1mw5kdxy.gif";
+            this.pictureBox1.Image = global::DAMBuddy2.Properties.Resources.image_2021_02_05_11_55_03;
+            this.pictureBox1.InitialImage = global::DAMBuddy2.Properties.Resources.image_2021_02_05_11_55_03;
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(210, 200);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox1.Size = new System.Drawing.Size(617, 461);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
-            // BusyForm
+            // frmScheduleInfo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(210, 200);
+            this.ClientSize = new System.Drawing.Size(617, 461);
             this.Controls.Add(this.pictureBox1);
-            this.DoubleBuffered = true;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "BusyForm";
-            this.ShowInTaskbar = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Name = "frmScheduleInfo";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Working";
+            this.Text = "Scheduler States";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 

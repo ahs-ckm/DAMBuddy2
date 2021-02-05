@@ -550,7 +550,7 @@ public class RepoManager
         var instance = new RepoInstance(config, mRepoInstancCallbacks);
         
         mRepoInstanceList.Add(instance);
-        instance.SetTicketReadiness(false);
+        //instance.SetTicketReadiness(false);
         
         return instance;
     }

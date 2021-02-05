@@ -102,7 +102,7 @@ namespace DAMBuddy2
 
         private RepoInstanceConfig mConfig;
         private readonly string INFO_RESCHEDULE_WARNING = "Modifying assets when the ticket is ready will require the ticket to be rescheduled. \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
-        private readonly string INFO_ROOTNODE_RESCHEDULE_WARNING = "Modifying assets when the ticket is ready will require the ticket to be rescheduled. \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
+        private readonly string INFO_ROOTNODE_RESCHEDULE_WARNING = "A Change to the RootNode was made. This will require the ticket to be rescheduled, as the overlap profile of this ticket will have enlarged... \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
 
         public string WIPPath
         {
@@ -223,7 +223,7 @@ namespace DAMBuddy2
                 m_dictFileToPath[filename] = template;
 
                 newAsset = new ListViewItem(filename);
-                newAsset.Tag = template;
+                newAsset.Tag = template; // store the path to the git copy of the asset, this is passed to AddWIP()
 
                 m_masterlist.Add(newAsset);
             }
@@ -443,7 +443,7 @@ namespace DAMBuddy2
         {
             // copy to git
             string filename = Path.GetFileName(filepath);
-            string gitpath = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepInitial");// GITKEEP_UPDATE;
+            string gitpath = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepUpdate");// GITKEEP_UPDATE;
             string gitkeepfile = gitpath + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");// GITKEEP_SUFFIX;
             if (File.Exists(gitkeepfile))
             {
@@ -510,7 +510,7 @@ namespace DAMBuddy2
 
             if (m_ReadyStateSetByUser && WarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
             {
-                if (MessageBox.Show(INFO_RESCHEDULE_WARNING,
+                if (MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING,  // rootnode specific warning
                     "Schedule Warning",
                     MessageBoxButtons.OKCancel,
                     MessageBoxIcon.Warning) == DialogResult.Cancel) { return false; }
@@ -634,61 +634,69 @@ namespace DAMBuddy2
 
         private void SaveExistingWip()
         {
-            string csv = "";
-            foreach (KeyValuePair<string, string> kvp in m_dictWIPName2Path)
-            {
-                csv += kvp.Key;
-                csv += ",";
-                csv += kvp.Value;
-                csv += "\n"; //newline to represent new pair
-            }
-
             try
             {
-                File.WriteAllText(mConfig.BaseFolder + @"\WIP.csv", csv);
+                string csv = "";
+                foreach (KeyValuePair<string, string> kvp in m_dictWIPName2Path)
+                {
+                    csv += kvp.Key;
+                    csv += ",";
+                    csv += kvp.Value;
+                    csv += "\n"; //newline to represent new pair
+                }
+
+                try
+                {
+                    File.WriteAllText(mConfig.BaseFolder + @"\WIP.csv", csv);
+
+                }
+                catch { }
+
+                csv = "";
+                foreach (KeyValuePair<string, string> kvp in m_dictID2Gitpath)
+                {
+                    csv += kvp.Key;
+                    csv += ",";
+                    csv += kvp.Value;
+                    csv += "\n"; //newline to represent new pair
+                }
+
+                File.WriteAllText(mConfig.BaseFolder + @"\ID2Gitpath.csv", csv);
+
+                csv = "";
+                foreach (KeyValuePair<string, string> kvp in m_dictWIPID2Path)
+                {
+                    csv += kvp.Key;
+                    csv += ", ";
+                    csv += kvp.Value;
+                    csv += "\n"; //newline to represent new pair
+                }
+
+
+                File.WriteAllText(mConfig.BaseFolder + @"\WIPID.csv", csv);
+
+                csv = "";
+                foreach (KeyValuePair<string, bool> kvp in m_dictWIPRootNodeEdits)
+                {
+                    csv += kvp.Key;
+                    csv += ", ";
+                    csv += kvp.Value;
+                    csv += "\n"; //newline to represent new pair
+                }
+
+
+                File.WriteAllText(mConfig.BaseFolder + @"\RootNodeEdits.csv", csv);
+
+
+
+                File.WriteAllText(mConfig.BaseFolder + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
+
 
             }
-            catch  { }
-
-            csv = "";
-            foreach (KeyValuePair<string, string> kvp in m_dictID2Gitpath)
+            catch( Exception e )
             {
-                csv += kvp.Key;
-                csv += ",";
-                csv += kvp.Value;
-                csv += "\n"; //newline to represent new pair
+                Logger.LogException(NLog.LogLevel.Error, "Problems in SaveExistingWip()", e);
             }
-
-            File.WriteAllText(mConfig.BaseFolder + @"\ID2Gitpath.csv", csv);
-
-            csv = "";
-            foreach (KeyValuePair<string, string> kvp in m_dictWIPID2Path)
-            {
-                csv += kvp.Key;
-                csv += ", ";
-                csv += kvp.Value;
-                csv += "\n"; //newline to represent new pair
-            }
-
-           
-            File.WriteAllText(mConfig.BaseFolder + @"\WIPID.csv", csv);
-
-            csv = "";
-            foreach (KeyValuePair<string, bool> kvp in m_dictWIPRootNodeEdits)
-            {
-                csv += kvp.Key;
-                csv += ", ";
-                csv += kvp.Value;
-                csv += "\n"; //newline to represent new pair
-            }
-
-
-            File.WriteAllText(mConfig.BaseFolder + @"\RootNodeEdits.csv", csv);
-
-
-
-            File.WriteAllText(mConfig.BaseFolder + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
-
         }
 
         public void LoadExistingWIP()
@@ -698,90 +706,105 @@ namespace DAMBuddy2
             m_dictWIPID2Path.Clear();
             m_dictWIPRootNodeEdits.Clear();
 
-            string filepath = mConfig.BaseFolder + @"\WIP.csv";
-            if (File.Exists(filepath))
+            try
             {
-                var reader = new StreamReader(File.OpenRead(filepath));
-
-                while (!reader.EndOfStream)
+                string filepath = mConfig.BaseFolder + @"\WIP.csv";
+                if (File.Exists(filepath))
                 {
-                    var line = reader.ReadLine();
-                    if (line == "") break;
-                    var values = line.Split(',');
-                    string filename = values[0];
-                    string wippath = values[1];
-                    m_dictWIPName2Path.Add(filename, wippath);
-                    mCallbacks.callbackDisplayWIP?.Invoke(filename);
+                    var reader = new StreamReader(File.OpenRead(filepath));
 
-                    string sWIP = Utility.GetSettingString("WorkInProgress");
-                    string filepathWIP = mConfig.BaseFolder + sWIP + @"\" + filename;
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        if (line == "") break;
+                        var values = line.Split(',');
+                        string filename = values[0];
+                        string wippath = values[1];
+                        m_dictWIPName2Path.Add(filename, wippath);
+                        mCallbacks.callbackDisplayWIP?.Invoke(filename);
 
-                    CompareWIP2Initial(filepathWIP); // to ensure tracking of modifications
+                        string sWIP = Utility.GetSettingString("WorkInProgress");
+                        string filepathWIP = mConfig.BaseFolder + sWIP + @"\" + filename;
+
+                        CompareWIP2Initial(filepathWIP); // to ensure tracking of modifications
+                    }
                 }
-            }
 
-            filepath = mConfig.BaseFolder + @"\ID2Gitpath.csv";
-            if (File.Exists(filepath))
-            {
-                var reader = new StreamReader(File.OpenRead(filepath));
-
-                while (!reader.EndOfStream)
+                filepath = mConfig.BaseFolder + @"\ID2Gitpath.csv";
+                if (File.Exists(filepath))
                 {
-                    var line = reader.ReadLine();
-                    if (line == "") break;
-                    var values = line.Split(',');
+                    var reader = new StreamReader(File.OpenRead(filepath));
 
-                    m_dictID2Gitpath.Add(values[0], values[1]);
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        if (line == "") break;
+                        var values = line.Split(',');
+
+                        m_dictID2Gitpath.Add(values[0], values[1]);
+                    }
                 }
-            }
 
-            filepath = mConfig.BaseFolder + @"\WIPID.csv";
-            if (File.Exists(filepath))
-            {
-                var reader = new StreamReader(File.OpenRead(filepath));
-
-                while (!reader.EndOfStream)
+                filepath = mConfig.BaseFolder + @"\WIPID.csv";
+                if (File.Exists(filepath))
                 {
-                    var line = reader.ReadLine();
-                    if (line == "") break;
-                    var values = line.Split(',');
+                    var reader = new StreamReader(File.OpenRead(filepath));
 
-                    m_dictWIPID2Path.Add(values[0], values[1]);
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        if (line == "") break;
+                        var values = line.Split(',');
+
+                        m_dictWIPID2Path.Add(values[0], values[1]);
+                    }
                 }
-            }
 
 
-            filepath = mConfig.BaseFolder + @"\RootNodeEdits.csv";
-            if (File.Exists(filepath))
-            {
-                var reader = new StreamReader(File.OpenRead(filepath));
-
-                while (!reader.EndOfStream)
+                filepath = mConfig.BaseFolder + @"\RootNodeEdits.csv";
+                if (File.Exists(filepath))
                 {
-                    var line = reader.ReadLine();
-                    if (line == "") break;
-                    var values = line.Split(',');
+                    var reader = new StreamReader(File.OpenRead(filepath));
 
-                    bool state = (values[1] == " True") ? true : false;
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        if (line == "") break;
+                        var values = line.Split(',');
 
-                    m_dictWIPRootNodeEdits.Add(values[0], state);
-                    mCallbacks.callbackRootEditWIP?.Invoke(values[0], state);
+                        bool state = (values[1] == " True") ? true : false;
+
+                        m_dictWIPRootNodeEdits.Add(values[0], state);
+                        mCallbacks.callbackRootEditWIP?.Invoke(values[0], state);
+                    }
                 }
+
+
+
+                filepath = mConfig.BaseFolder + @"\ReadyState.txt";
+
+                if (File.Exists(filepath))
+                {
+                    var reader = new StreamReader(File.OpenRead(filepath));
+
+                    var line = reader.ReadLine();
+                    if (line == "True") { m_ReadyStateSetByUser = true; }
+                    SetTicketReadiness(m_ReadyStateSetByUser);
+                    mCallbacks.callbackTicketState?.Invoke(m_ReadyStateSetByUser);
+                }
+                else
+                {
+                    SetTicketReadiness(false);
+                    mCallbacks.callbackTicketState?.Invoke(m_ReadyStateSetByUser);
+
+                }
+
             }
-
-
-
-            filepath = mConfig.BaseFolder + @"\ReadyState.txt";
-
-            if (File.Exists(filepath))
+            catch (Exception e)
             {
-                var reader = new StreamReader(File.OpenRead(filepath));
-
-                var line = reader.ReadLine();
-                if (line == "True") { m_ReadyStateSetByUser = true; }
-                SetTicketReadiness(m_ReadyStateSetByUser);
-                mCallbacks.callbackTicketState?.Invoke(m_ReadyStateSetByUser);
+                Logger.LogException(NLog.LogLevel.Error, "Problems in LoadExistingWIP()", e);
             }
+
         }
 
         public bool RemoveWIP(string filename)
@@ -1117,7 +1140,7 @@ namespace DAMBuddy2
 
         private void TimeToPull(Object info)
         {
-            Console.WriteLine("TimeToPull()");
+            Console.WriteLine("TimeToPull() : " + TicketID);
             RepoCacheManager.Pull2(TicketFolder);
 
             // TODO: move this process & timer to RepoCacheHelper

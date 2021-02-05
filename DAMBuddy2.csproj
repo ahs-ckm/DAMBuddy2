@@ -171,6 +171,12 @@
     <Compile Include="busyForm.Designer.cs">
       <DependentUpon>busyForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form2.Designer.cs">
+      <DependentUpon>Form2.cs</DependentUpon>
+    </Compile>
     <Compile Include="JiraService.cs" />
     <Compile Include="mAINForm.cs">
       <SubType>Form</SubType>
@@ -204,6 +210,9 @@
       <DependentUpon>UserForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Utility.cs" />
+    <None Include="Resources\outline_rate_review_black_24dp.png" />
+    <None Include="Resources\image_2021-02-05_11-55-031.png" />
+    <None Include="Resources\image_2021-02-05_11-55-03.png" />
     <None Include="Resources\rootnode-outline_call_split_black_24dp.png" />
     <None Include="Resources\outline_api_black_24dp.png" />
     <None Include="Resources\outline_navigate_before_black_24dp.png" />
@@ -215,6 +224,9 @@
     <None Include="Resources\outline_post_add_black_24dp.png" />
     <EmbeddedResource Include="busyForm.resx">
       <DependentUpon>busyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form2.resx">
+      <DependentUpon>Form2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="mAINForm.resx">
       <DependentUpon>mAINForm.cs</DependentUpon>

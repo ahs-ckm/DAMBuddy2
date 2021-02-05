@@ -63,6 +63,26 @@ namespace DAMBuddy2.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap image_2021_02_05_11_55_03 {
+            get {
+                object obj = ResourceManager.GetObject("image_2021-02-05_11-55-03", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap image_2021_02_05_11_55_031 {
+            get {
+                object obj = ResourceManager.GetObject("image_2021-02-05_11-55-031", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ounq1mw5kdxy {
             get {
                 object obj = ResourceManager.GetObject("ounq1mw5kdxy", resourceCulture);
@@ -256,6 +276,16 @@ namespace DAMBuddy2.Properties {
         internal static System.Drawing.Bitmap outline_preview_black_24dp {
             get {
                 object obj = ResourceManager.GetObject("outline_preview_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap outline_rate_review_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("outline_rate_review_black_24dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
