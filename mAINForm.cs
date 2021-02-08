@@ -68,7 +68,8 @@ namespace DAMBuddy2
         private Thread m_BusyDialogThread;
         private bool m_bIsBusy = false;
         private BusyForm m_BusyForm;
-
+        private TabPage m_UploadTab;
+        private TabPage m_ReviewTab;
         //private bool m_bIsLoading;
 
         /// <summary>
@@ -221,13 +222,25 @@ namespace DAMBuddy2
         /// This menthod updates the WIP toolbar color to match the state of the schedule and manages the state of the upload button
         /// </remarks>
         /// <param name="jsonStatus"></param>
-        public void CallbackScheduleStateChange(string jsonStatus)
+        public void CallbackScheduleStateChange(string sTicketID, string jsonStatus)
         {
+            if (m_RepoManager == null) 
+                return;
+            
+            if (m_RepoManager.CurrentRepo != null)
+            {
+                if (sTicketID != m_RepoManager.CurrentRepo.TicketID)
+                {
+                    return;
+                }
+            }
+
+
             if (m_IsClosing) return;
 
             if (InvokeRequired)
             {
-                BeginInvoke((MethodInvoker)delegate { this.CallbackScheduleStateChange(jsonStatus); });
+                BeginInvoke((MethodInvoker)delegate { this.CallbackScheduleStateChange(sTicketID, jsonStatus); });
                 return;
             }
             RepoInstance.TicketScheduleState state = System.Text.Json.JsonSerializer.Deserialize<RepoInstance.TicketScheduleState>(jsonStatus);
@@ -235,10 +248,16 @@ namespace DAMBuddy2
             if (state.UploadEnabled == "true")
             {
                 tsbWorkUpload.Enabled = true;
+                tsbLaunchTD.Text = "Edit in TD";
             }
-            else { tsbWorkUpload.Enabled = false; }
+            else { 
+                tsbWorkUpload.Enabled = false;
+                tsbLaunchTD.Text = "View in TD";
 
-            tslScheduleStatus2.Text = state.ScheduleState;
+            }
+
+            tslScheduleState.Text = "&& " + state.ScheduleState;
+            //tslScheduleStatus2.Text = state.ScheduleState;
 
             if (state.ScheduleState == "In Progress")
             {
@@ -256,6 +275,11 @@ namespace DAMBuddy2
             if (state.ScheduleState == "Blocked")
             {
                 toolStrip2.BackColor = Color.FromArgb(244, 206, 70);
+                foreach (ToolStripItem c in toolStrip2.Items)
+                {
+                    c.ForeColor = Color.Black;
+                }
+
             }
 
             if (state.ScheduleState == "Not Yet Ready")
@@ -409,10 +433,10 @@ namespace DAMBuddy2
             m_browserSchedule = new ChromiumWebBrowser(Utility.GetSettingString("SchedulerUrl")); 
             m_browserUpload = new ChromiumWebBrowser("about:blank");
             m_browserDocReview = new ChromiumWebBrowser("about:blank");
-            m_browserDocReview.DownloadHandler =
+            m_browserDocReview.DownloadHandler = new MyDownloadHandler();
 
-            m_browserUpload.DownloadHandler = new MyDownloadHandler();
-            
+            ToggleTab("tpUpload", ref m_UploadTab);
+            ToggleTab("tpDocReview", ref m_ReviewTab);
 
             tpUpload.Controls.Add(m_browserUpload);
             tpSchedule.Controls.Add(m_browserSchedule);
@@ -440,6 +464,10 @@ namespace DAMBuddy2
                 Utility.AuthorizeUserAsync(Utility.GetSettingString("User"), Utility.GetSettingString("Password"));
 
             }
+
+            m_RepoManager.CurrentRepo.GetTicketScheduleStatus();
+
+            this.BringToFront();
 
           //  m_bIsLoading = false;
         }
@@ -1068,31 +1096,26 @@ namespace DAMBuddy2
 
         private void tsbWorkUpload_Click(object sender, EventArgs e)
         {
+            if( m_UploadTab != null ) ToggleTab("tpUpload", ref m_UploadTab); // show the tab
             m_RepoManager.CurrentRepo.PostWIP();
             StartUpload();
         }
 
         private bool StartUpload()
         {
-            tabControl1.SelectedTab = tabControl1.TabPages[2];
-
-            //var authResult = Utility.AuthorizeUserAsync(Utility.GetSettingString("User"), Utility.GetSettingString("Password"));
-
-            //authResult.Wait();
-
-            if ( true )
+            TabPage tpUpload;
+            
+            if (GetTab("tpUpload", out tpUpload))
             {
-                string url = m_RepoManager.PrepareForUpload();
+                    tabControl1.SelectedTab = tpUpload;
+
+                    string url = m_RepoManager.PrepareForUpload();
 
                 m_browserUpload.Load(url);
 
                 return true;
-            } else
-            {
-                ManageUserCredentials();
-                return false;
             }
-
+            return false;
         }
 
         private void timerRepoFilter_tick(object sender, EventArgs e)
@@ -1778,8 +1801,19 @@ namespace DAMBuddy2
 
         private void RunDocumentReview()
         {
+            string html = "";
+            
+            if( m_ReviewTab == null )
+                ToggleTab("tpDocReview", ref m_ReviewTab); //hide tab
+            
+            try
+            {
+                if (wbWIP.Document == null) return;
+                html = wbWIP.Document.Body.InnerHtml;
 
-            string html = wbWIP.Document.Body.InnerHtml;
+            }
+            catch
+            { return; }
 
             if (lvWork.SelectedItems.Count < 1)
             {
@@ -1808,7 +1842,15 @@ namespace DAMBuddy2
             string sURL = Utility.GetSettingString("StartDocReviewUrl");
 
             m_browserDocReview.Load(($"{sURL}{docname}"));
-            tabControl1.SelectedTab = tabControl1.TabPages[4];  // change to the DocReview Tab
+
+            TabPage tpReview = m_ReviewTab;
+            ToggleTab("tpDocReview", ref m_ReviewTab); // showtab
+
+            if( GetTab("tpDocReview", out tpReview))
+            {
+                tabControl1.SelectedTab = tpReview;  // change to the DocReview Tab
+
+            }
 
 
             return; 
@@ -1954,9 +1996,49 @@ namespace DAMBuddy2
         private void logToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+
+        }
+
+        private void ToggleTab( string sTabName, ref TabPage savePage )
+        {
+            // if savePage is null -> hide tab
+
+            if( savePage == null )
+            {
+                if (GetTab(sTabName, out savePage))
+                {
+                    tabControl1.TabPages.Remove(savePage);
+                }
+            } else
+            {
+                tabControl1.TabPages.Insert(tabControl1.TabPages.Count, savePage);
+                savePage = null; 
+            }
+            
+        }
+
+        private bool GetTab( string sTabName, out TabPage page )
+        {
+            page = null;
+            foreach( TabPage p in tabControl1.TabPages )
+            {
+                if( p.Name == sTabName )
+                {
+                    page = p;
+                    return true;
+                }
+            }
+
+            return false;
+
         }
 
         private void tsbWordWIP_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void splitContainer2_SplitterMoved(object sender, SplitterEventArgs e)
         {
 
         }

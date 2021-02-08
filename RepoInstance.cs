@@ -63,7 +63,7 @@ namespace DAMBuddy2
 
     public class RepoCallbackSettings
     {
-        public GenericCallback callbackScheduleState;
+        public ModifiedCallback callbackScheduleState;
         public ReadyStateCallback callbackTicketState;
         public ModifiedCallback callbackModifiedWIP;
         public RootEditCallback callbackRootEditWIP;
@@ -290,7 +290,7 @@ namespace DAMBuddy2
 
                     if (!mConfig.isActive) return ;
 
-                    mCallbacks.callbackScheduleState?.Invoke(jsonStatus);
+                    mCallbacks.callbackScheduleState?.Invoke(TicketID, jsonStatus);
                 }
 
             }
@@ -629,6 +629,8 @@ namespace DAMBuddy2
             }
             result = true;
 
+            System.Threading.Thread.Sleep(2000);
+
             return result;
         }
 
@@ -931,7 +933,17 @@ namespace DAMBuddy2
                 }
                 else
                 {
-                    MessageBox.Show("Will delete new asset " + filename);
+                    //MessageBox.Show("Will delete new asset " + filename);
+                    if (MessageBox.Show($"{filename} is a new asset and will be deleted if it is removed from the ticket\n\nDo you want to continue?",
+                        "Delete Asset Warning",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button3) != DialogResult.Yes)
+                    {
+                        return false;
+                    }
+
+
                     if (File.Exists(assetfilepath))
                     {
                         if (!File.Exists(trashDir))

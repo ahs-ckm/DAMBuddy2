@@ -201,6 +201,36 @@ namespace DAMBuddy2
         {
             try
             {
+/*
+                var processReset = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = mGitBinariesPath + "git.exe",
+                        WorkingDirectory = repofolder,
+                        Arguments = "pull",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+                processReset.OutputDataReceived += new DataReceivedEventHandler((s, eData) =>
+                {
+                    Console.WriteLine(eData.Data);
+                });
+
+                processReset.ErrorDataReceived += new DataReceivedEventHandler((s, eData) =>
+                {
+                    Console.WriteLine(eData.Data);
+                });
+
+                processReset.Start();
+                processReset.BeginOutputReadLine();
+                processReset.BeginErrorReadLine();
+
+                processReset.WaitForExit();*/
+
                 var process = new Process
                 {
                     StartInfo = new ProcessStartInfo
