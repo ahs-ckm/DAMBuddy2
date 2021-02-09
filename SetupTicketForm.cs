@@ -15,6 +15,7 @@ namespace DAMBuddy2
 	{
 		public string m_Ticket;
 		public string m_TicketJSON;
+		public string m_Prefix;
 
 		public SetupTicketForm()
 		{
@@ -61,7 +62,7 @@ namespace DAMBuddy2
 		private void SetupTicketForm_Load(object sender, EventArgs e)
 		{
 			btnOK.Enabled = false;
-			cbPrefix.SelectedItem = "CSDFK-";
+			cbPrefix.SelectedItem = m_Prefix;
 //			cbPrefix.SelectedIndex = 1;
 		}
 
@@ -107,6 +108,11 @@ namespace DAMBuddy2
 		private void tbTicket_KeyDown(object sender, KeyEventArgs e)
 		{
 			timerSearch.Enabled = true;
+		}
+
+		private void btnOK_Click(object sender, EventArgs e)
+		{
+			m_Prefix = cbPrefix.Text;
 		}
 	}
 }

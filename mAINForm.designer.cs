@@ -124,13 +124,13 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbDocReview = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbPause = new System.Windows.Forms.ToolStripButton();
             this.tsbStart = new System.Windows.Forms.ToolStripButton();
+            this.tsbHelp = new System.Windows.Forms.ToolStripButton();
             this.tslReadyState = new System.Windows.Forms.ToolStripLabel();
             this.tslScheduleState = new System.Windows.Forms.ToolStripLabel();
-            this.tsbHelp = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbWorkUpload = new System.Windows.Forms.ToolStripButton();
             this.tpUpload = new System.Windows.Forms.TabPage();
             this.tpSchedule = new System.Windows.Forms.TabPage();
             this.tpDocReview = new System.Windows.Forms.TabPage();
@@ -883,7 +883,7 @@
             this.tsWorkViewDocument});
             this.toolStrip4.Location = new System.Drawing.Point(0, 0);
             this.toolStrip4.Name = "toolStrip4";
-            this.toolStrip4.Size = new System.Drawing.Size(600, 31);
+            this.toolStrip4.Size = new System.Drawing.Size(600, 45);
             this.toolStrip4.TabIndex = 23;
             // 
             // tsbRemoveWIP
@@ -893,7 +893,7 @@
             this.tsbRemoveWIP.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbRemoveWIP.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRemoveWIP.Name = "tsbRemoveWIP";
-            this.tsbRemoveWIP.Size = new System.Drawing.Size(138, 28);
+            this.tsbRemoveWIP.Size = new System.Drawing.Size(138, 42);
             this.tsbRemoveWIP.Text = "Remove from Work";
             this.tsbRemoveWIP.ToolTipText = "Remove from Work";
             this.tsbRemoveWIP.Click += new System.EventHandler(this.tsbRemoveWIP_Click);
@@ -901,7 +901,7 @@
             // toolStripSeparator12
             // 
             this.toolStripSeparator12.Name = "toolStripSeparator12";
-            this.toolStripSeparator12.Size = new System.Drawing.Size(6, 31);
+            this.toolStripSeparator12.Size = new System.Drawing.Size(6, 45);
             // 
             // tsbRefreshStale
             // 
@@ -910,8 +910,9 @@
             this.tsbRefreshStale.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbRefreshStale.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRefreshStale.Name = "tsbRefreshStale";
-            this.tsbRefreshStale.Size = new System.Drawing.Size(102, 28);
+            this.tsbRefreshStale.Size = new System.Drawing.Size(102, 42);
             this.tsbRefreshStale.Text = "Refresh Stale";
+            this.tsbRefreshStale.Click += new System.EventHandler(this.tsbRefreshStale_Click);
             // 
             // tsbRootNodeEdit
             // 
@@ -920,14 +921,14 @@
             this.tsbRootNodeEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbRootNodeEdit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRootNodeEdit.Name = "tsbRootNodeEdit";
-            this.tsbRootNodeEdit.Size = new System.Drawing.Size(110, 28);
+            this.tsbRootNodeEdit.Size = new System.Drawing.Size(110, 42);
             this.tsbRootNodeEdit.Text = "Rootnode Edit";
             this.tsbRootNodeEdit.Click += new System.EventHandler(this.toolStripButton1_Click_1);
             // 
             // toolStripSeparator13
             // 
             this.toolStripSeparator13.Name = "toolStripSeparator13";
-            this.toolStripSeparator13.Size = new System.Drawing.Size(6, 31);
+            this.toolStripSeparator13.Size = new System.Drawing.Size(6, 45);
             // 
             // tsbWordWIP
             // 
@@ -949,9 +950,9 @@
             this.tsWorkViewDocument.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsWorkViewDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsWorkViewDocument.Name = "tsWorkViewDocument";
-            this.tsWorkViewDocument.Size = new System.Drawing.Size(131, 28);
+            this.tsWorkViewDocument.Size = new System.Drawing.Size(131, 42);
             this.tsWorkViewDocument.Text = "Refresh Transform";
-            this.tsWorkViewDocument.Click += new System.EventHandler(this.logToolStripMenuItem_Click);
+            this.tsWorkViewDocument.Click += new System.EventHandler(this.tsWorkViewDocument_Click_1);
             // 
             // lvWork
             // 
@@ -1257,24 +1258,6 @@
             this.toolStripSeparator8.Name = "toolStripSeparator8";
             this.toolStripSeparator8.Size = new System.Drawing.Size(6, 45);
             // 
-            // tsbWorkUpload
-            // 
-            this.tsbWorkUpload.Enabled = false;
-            this.tsbWorkUpload.Image = global::DAMBuddy2.Properties.Resources.outline_cloud_upload_black_24dp;
-            this.tsbWorkUpload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbWorkUpload.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbWorkUpload.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
-            this.tsbWorkUpload.Name = "tsbWorkUpload";
-            this.tsbWorkUpload.Size = new System.Drawing.Size(157, 42);
-            this.tsbWorkUpload.Text = "Upload to Repository";
-            this.tsbWorkUpload.ToolTipText = "Upload to Repository";
-            this.tsbWorkUpload.Click += new System.EventHandler(this.tsbWorkUpload_Click);
-            // 
-            // toolStripSeparator7
-            // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(6, 45);
-            // 
             // tsbPause
             // 
             this.tsbPause.AutoSize = false;
@@ -1304,6 +1287,19 @@
             this.tsbStart.ToolTipText = "Start Work";
             this.tsbStart.Click += new System.EventHandler(this.tsbStart_Click);
             // 
+            // tsbHelp
+            // 
+            this.tsbHelp.AutoSize = false;
+            this.tsbHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbHelp.Image = global::DAMBuddy2.Properties.Resources.outline_help_outline_black_24dp;
+            this.tsbHelp.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbHelp.Name = "tsbHelp";
+            this.tsbHelp.Size = new System.Drawing.Size(48, 42);
+            this.tsbHelp.Text = "toolStripButton6";
+            this.tsbHelp.ToolTipText = "Info on Scheduler States";
+            this.tsbHelp.Click += new System.EventHandler(this.tsbHelp_Click);
+            // 
             // tslReadyState
             // 
             this.tslReadyState.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1321,18 +1317,23 @@
             this.tslScheduleState.Text = "Schedule Position:";
             this.tslScheduleState.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // tsbHelp
+            // toolStripSeparator7
             // 
-            this.tsbHelp.AutoSize = false;
-            this.tsbHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbHelp.Image = global::DAMBuddy2.Properties.Resources.outline_help_outline_black_24dp;
-            this.tsbHelp.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.tsbHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbHelp.Name = "tsbHelp";
-            this.tsbHelp.Size = new System.Drawing.Size(48, 42);
-            this.tsbHelp.Text = "toolStripButton6";
-            this.tsbHelp.ToolTipText = "Info on Scheduler States";
-            this.tsbHelp.Click += new System.EventHandler(this.tsbHelp_Click);
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(6, 45);
+            // 
+            // tsbWorkUpload
+            // 
+            this.tsbWorkUpload.Enabled = false;
+            this.tsbWorkUpload.Image = global::DAMBuddy2.Properties.Resources.outline_cloud_upload_black_24dp;
+            this.tsbWorkUpload.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this.tsbWorkUpload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbWorkUpload.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
+            this.tsbWorkUpload.Name = "tsbWorkUpload";
+            this.tsbWorkUpload.Size = new System.Drawing.Size(157, 42);
+            this.tsbWorkUpload.Text = "Upload to Repository";
+            this.tsbWorkUpload.ToolTipText = "Upload to Repository";
+            this.tsbWorkUpload.Click += new System.EventHandler(this.tsbWorkUpload_Click);
             // 
             // tpUpload
             // 

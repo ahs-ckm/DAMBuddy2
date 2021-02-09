@@ -10,6 +10,7 @@ namespace DAMBuddy2
 {
     public delegate void ModifiedCallback(string filename, string state);
     public delegate void RootEditCallback(string filename, bool state);
+    public delegate void StaleStateCallback(string filename, bool isStale);
     public delegate void ReadyStateCallback(bool isReady);
     public delegate void GenericCallback(string filename);
     public delegate void UploadStateCallback(string Ticket, RepoManager.TicketChangeState state);
@@ -68,7 +69,7 @@ namespace DAMBuddy2
         public ModifiedCallback callbackModifiedWIP;
         public RootEditCallback callbackRootEditWIP;
         public GenericCallback callbackRemoveWIP;
-        public GenericCallback callbackStale;
+        public StaleStateCallback callbackStale;
         public GenericCallback callbackDisplayWIP;
         public UploadStateCallback callbackUploadState;
         public UserInfoCallback callbackInfo;
@@ -207,6 +208,11 @@ namespace DAMBuddy2
             OceanUtils.ConfigureTD(TicketID, config);
 
             OceanUtils.LaunchTD(assetfilepath);
+        }
+
+        public void RemoveTDConfig()
+        {
+            OceanUtils.RemoveConfig(GetTicketConfigForOcean(), TicketID);
         }
 
         public void LoadRepositoryTemplates()
@@ -497,7 +503,7 @@ namespace DAMBuddy2
             foreach (var item in m_dictWIPID2Path)
             {
                 string filename = item.Key;
-                if (IsStale(filename)) mCallbacks.callbackStale?.Invoke(filename);
+                if (IsStale(filename)) mCallbacks.callbackStale?.Invoke(filename,true);
             }
         }
 
@@ -629,7 +635,6 @@ namespace DAMBuddy2
             }
             result = true;
 
-            System.Threading.Thread.Sleep(2000);
 
             return result;
         }
@@ -649,7 +654,7 @@ namespace DAMBuddy2
 
                 try
                 {
-                    File.WriteAllText(mConfig.BaseFolder + @"\WIP.csv", csv);
+                    File.WriteAllText(mConfig.BaseFolder + @"\WIP", csv);
 
                 }
                 catch { }
@@ -663,7 +668,7 @@ namespace DAMBuddy2
                     csv += "\n"; //newline to represent new pair
                 }
 
-                File.WriteAllText(mConfig.BaseFolder + @"\ID2Gitpath.csv", csv);
+                File.WriteAllText(mConfig.BaseFolder + @"\ID2Gitpath", csv);
 
                 csv = "";
                 foreach (KeyValuePair<string, string> kvp in m_dictWIPID2Path)
@@ -675,7 +680,7 @@ namespace DAMBuddy2
                 }
 
 
-                File.WriteAllText(mConfig.BaseFolder + @"\WIPID.csv", csv);
+                File.WriteAllText(mConfig.BaseFolder + @"\WIPID", csv);
 
                 csv = "";
                 foreach (KeyValuePair<string, bool> kvp in m_dictWIPRootNodeEdits)
@@ -687,11 +692,11 @@ namespace DAMBuddy2
                 }
 
 
-                File.WriteAllText(mConfig.BaseFolder + @"\RootNodeEdits.csv", csv);
+                File.WriteAllText(mConfig.BaseFolder + @"\RootNodeEdits", csv);
 
 
 
-                File.WriteAllText(mConfig.BaseFolder + @"\ReadyState.txt", m_ReadyStateSetByUser.ToString());
+                File.WriteAllText(mConfig.BaseFolder + @"\ReadyState", m_ReadyStateSetByUser.ToString());
 
 
             }
@@ -710,7 +715,7 @@ namespace DAMBuddy2
 
             try
             {
-                string filepath = mConfig.BaseFolder + @"\WIP.csv";
+                string filepath = mConfig.BaseFolder + @"\WIP";
                 if (File.Exists(filepath))
                 {
                     var reader = new StreamReader(File.OpenRead(filepath));
@@ -732,7 +737,7 @@ namespace DAMBuddy2
                     }
                 }
 
-                filepath = mConfig.BaseFolder + @"\ID2Gitpath.csv";
+                filepath = mConfig.BaseFolder + @"\ID2Gitpath";
                 if (File.Exists(filepath))
                 {
                     var reader = new StreamReader(File.OpenRead(filepath));
@@ -747,7 +752,7 @@ namespace DAMBuddy2
                     }
                 }
 
-                filepath = mConfig.BaseFolder + @"\WIPID.csv";
+                filepath = mConfig.BaseFolder + @"\WIPID";
                 if (File.Exists(filepath))
                 {
                     var reader = new StreamReader(File.OpenRead(filepath));
@@ -763,7 +768,7 @@ namespace DAMBuddy2
                 }
 
 
-                filepath = mConfig.BaseFolder + @"\RootNodeEdits.csv";
+                filepath = mConfig.BaseFolder + @"\RootNodeEdits";
                 if (File.Exists(filepath))
                 {
                     var reader = new StreamReader(File.OpenRead(filepath));
@@ -783,7 +788,7 @@ namespace DAMBuddy2
 
 
 
-                filepath = mConfig.BaseFolder + @"\ReadyState.txt";
+                filepath = mConfig.BaseFolder + @"\ReadyState";
 
                 if (File.Exists(filepath))
                 {
@@ -942,6 +947,7 @@ namespace DAMBuddy2
                     {
                         return false;
                     }
+                    WIPRemoveFromServer(filename, GetTemplateID(filename));
 
 
                     if (File.Exists(assetfilepath))
@@ -959,7 +965,6 @@ namespace DAMBuddy2
                         File.Delete(assetfilepath + ".md5");
                     }
 
-                    WIPRemoveFromServer(filename, GetTemplateID(filename));
 
                     m_dictWIPName2Path.Remove(filename);
                     m_dictWIPName2Path.Remove(sTID);
@@ -1146,7 +1151,7 @@ namespace DAMBuddy2
             {
                 if (!mConfig.isActive) return;
 
-                mCallbacks.callbackStale?.Invoke(Path.GetFileName(filepath));
+                mCallbacks.callbackStale?.Invoke(Path.GetFileName(filepath), true);
             }
         }
 
@@ -1233,6 +1238,70 @@ namespace DAMBuddy2
             filepath = "";
             bool exists = m_dictWIPID2Path.TryGetValue(sEmbeddedId, out filepath);
             return exists;
+        }
+
+
+        internal bool RefreshStaleAsset( string assetfilepath)
+        {
+
+            string filename = Path.GetFileName(assetfilepath);
+
+            string initialFile = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepInitial") + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");
+            string updateFile = mConfig.BaseFolder + @"\" + Utility.GetSettingString("GitKeepUpdate") + @"\" + filename + Utility.GetSettingString("GitKeepSuffix");
+
+            try
+            {
+                if (File.Exists(initialFile))
+                {
+                    File.SetAttributes(initialFile, FileAttributes.Normal);
+                    File.Delete(initialFile);
+                }
+                
+                if (File.Exists(assetfilepath))
+                {
+                    File.SetAttributes(assetfilepath, FileAttributes.Normal);
+                    File.Delete(assetfilepath);
+                }
+
+                if (File.Exists(initialFile + ".md5"))
+                {
+                    File.Delete(initialFile + ".md5");
+                }
+
+                // move update file back to WIP and initial
+                if (File.Exists(updateFile))
+                {
+                    File.Copy(updateFile, assetfilepath);
+                    File.Move(updateFile, initialFile);
+                }
+
+                if (File.Exists(updateFile + ".md5"))
+                {
+                    File.Move(updateFile + ".md5", initialFile + ".md5");
+
+                }
+
+            }
+            catch ( Exception e )
+            {
+                Logger.Log( NLog.LogLevel.Error, e);
+                return false;
+            }
+
+            return true;
+        }
+
+
+        internal void RefreshAllStale()
+        {
+            foreach( var asset in m_dictWIPName2Path)
+            {
+                if( IsStale(asset.Key) ) 
+                {
+                    if( RefreshStaleAsset(asset.Value) )
+                        mCallbacks.callbackStale?.Invoke(asset.Key, false);
+                }
+            }
         }
     }
 }

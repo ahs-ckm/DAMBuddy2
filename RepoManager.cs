@@ -249,7 +249,7 @@ public class RepoManager
         }
 
 
-        string filepath = sRoot + @"\" + "repostate.csv";
+        string filepath = sRoot + @"\" + "repostate";
         if (!File.Exists(filepath))
         {
             // create if doesn't already exist
@@ -300,7 +300,7 @@ public class RepoManager
     {
         string sRoot = Utility.GetSettingString("FolderRoot");
 
-        string filepath = sRoot + @"\" + "repostate.csv";
+        string filepath = sRoot + @"\" + "repostate";
         string csv = "";
         foreach (KeyValuePair<string, string> kvp in m_dictRepoState)
         {
@@ -416,14 +416,12 @@ public class RepoManager
 
         return false;
     }
+    
     /// <summary>
-    /// Removes from the RepoState the RepoInstance corresponding to the ticket parameter 
+    /// Removes from the RepoState the RepoInstance for the ticket parameter 
     /// </summary>
     /// <param name="sTicketID"></param>
-
-
-
-    private bool BackupTicket(string sPath)
+   private bool BackupTicket(string sPath)
     {
         if( Directory.Exists( sPath))
         {
@@ -491,12 +489,18 @@ public class RepoManager
 
         string path = sRoot + "\\" + sTicketID;
 
-        if (BackupTicket( path) )
+        if (BackupTicket(path))
         {
 
             string Server = Utility.GetSettingString("ServerName");
             RepoInstance.CloseTicketOnServer(sTicketID, sFolder, Server);
             mRepoInstanceList.Remove(GetInstanceUnsafe(sTicketID));
+
+            RepoInstance theRepo = null;
+            if (GetInstanceSafe(sTicketID, ref theRepo))
+            { 
+                theRepo.RemoveTDConfig();
+            }
             m_dictRepoState.Remove(sTicketID);
 
             if (m_dictRepoState[CURRENT_REPO] == sTicketID)
