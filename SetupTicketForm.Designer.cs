@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SetupTicketForm));
             this.tbTicket = new System.Windows.Forms.TextBox();
             this.cbPrefix = new System.Windows.Forms.ComboBox();
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
@@ -130,6 +131,7 @@
             this.Controls.Add(this.cbPrefix);
             this.Controls.Add(this.tbTicket);
             this.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "SetupTicketForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

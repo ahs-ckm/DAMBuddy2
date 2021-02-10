@@ -9,7 +9,7 @@ using System.Windows.Forms;
 namespace DAMBuddy2
 {
     public delegate void ModifiedCallback(string filename, string state);
-    public delegate void RootEditCallback(string filename, bool state);
+    //public delegate void RootEditCallback(string filename, bool state);
     public delegate void StaleStateCallback(string filename, bool isStale);
     public delegate void ReadyStateCallback(bool isReady);
     public delegate void GenericCallback(string filename);
@@ -67,7 +67,7 @@ namespace DAMBuddy2
         public ModifiedCallback callbackScheduleState;
         public ReadyStateCallback callbackTicketState;
         public ModifiedCallback callbackModifiedWIP;
-        public RootEditCallback callbackRootEditWIP;
+        public ModifiedCallback callbackRootEditWIP;
         public GenericCallback callbackRemoveWIP;
         public StaleStateCallback callbackStale;
         public GenericCallback callbackDisplayWIP;
@@ -87,7 +87,7 @@ namespace DAMBuddy2
         private static Dictionary<string, string> m_dictFileToPath;
         private Dictionary<string, string> m_dictID2Gitpath;
         private Dictionary<string, string> m_dictWIPName2Path;
-        private Dictionary<string, bool> m_dictWIPRootNodeEdits;
+        private Dictionary<string, string> m_dictWIPRootNodeEdits;
         private Dictionary<string, string> m_dictWIPID2Path;
         private FileSystemWatcher m_watcherNewAssets;
         private RepoCallbackSettings mCallbacks;
@@ -103,7 +103,8 @@ namespace DAMBuddy2
 
         private RepoInstanceConfig mConfig;
         private readonly string INFO_RESCHEDULE_WARNING = "Modifying assets when the ticket is ready will require the ticket to be rescheduled. \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
-        private readonly string INFO_ROOTNODE_RESCHEDULE_WARNING = "A Change to the RootNode was made. This will require the ticket to be rescheduled, as the overlap profile of this ticket will have enlarged... \n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
+        private readonly string INFO_ROOTNODE_DETECTED_WARNING = "An unexpected Rootnode edit was detected. This is not a problem but it will require the ticket to be rescheduled, as the overlap report for this Ticket may now have changed.\n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
+        private readonly string INFO_ROOTNODE_RESCHEDULE_WARNING = "Changing the rootnode edit plan after the ticket is ready will require the ticket to be rescheduled, as the overlap report for this Ticket may now have changed.\n\nIf new assets are being changed by another user, it may result in your ticket becoming blocked.\n\nTo avoid this warning, pause the ticket whilst you amend assets.";
 
         public string WIPPath
         {
@@ -507,20 +508,38 @@ namespace DAMBuddy2
             }
         }
 
-        public bool SetRootNodeEdit( bool bDoRootNodeEdit, string sTemplateName, bool WarnUser )
+        public bool SetRootNodeEdit( bool bDoRootNodeEdit, string sTemplateName, bool WarnUser, bool isDetected )
         {
 
             bool bResetSchedule = false;
             bool result = true;
             string sURL = "";
 
+            string sRootNodeState = "";
+
+            if (isDetected)
+                sRootNodeState = "Detected";
+            else if (bDoRootNodeEdit)
+                sRootNodeState = bDoRootNodeEdit.ToString();
+            
+
             if (m_ReadyStateSetByUser && WarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
             {
-                if (MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING,  // rootnode specific warning
-                    "Schedule Warning",
-                    MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.Warning) == DialogResult.Cancel) { return false; }
 
+                if( isDetected)
+                {
+                    MessageBox.Show(INFO_ROOTNODE_DETECTED_WARNING,  // rootnode specific warning
+                        "Schedule Warning",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                } else
+                {
+
+                    if( MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING,  // rootnode specific warning
+                        "Schedule Warning",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Warning) == DialogResult.Cancel) return false;
+                }
                 SetTicketReadiness(false);
                 bResetSchedule = true;
             }
@@ -561,13 +580,13 @@ namespace DAMBuddy2
                 {
                     if (bDoRootNodeEdit)
                     {
-                        m_dictWIPRootNodeEdits[sTemplateName] = true;
+                        m_dictWIPRootNodeEdits[sTemplateName] = sRootNodeState;
                     }
                     else
                     {
                         m_dictWIPRootNodeEdits.Remove(sTemplateName);
                     }
-                    mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, bDoRootNodeEdit);
+                    mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, sRootNodeState);
 
                 }
 
@@ -674,7 +693,7 @@ namespace DAMBuddy2
                 foreach (KeyValuePair<string, string> kvp in m_dictWIPID2Path)
                 {
                     csv += kvp.Key;
-                    csv += ", ";
+                    csv += ",";
                     csv += kvp.Value;
                     csv += "\n"; //newline to represent new pair
                 }
@@ -683,10 +702,10 @@ namespace DAMBuddy2
                 File.WriteAllText(mConfig.BaseFolder + @"\WIPID", csv);
 
                 csv = "";
-                foreach (KeyValuePair<string, bool> kvp in m_dictWIPRootNodeEdits)
+                foreach (KeyValuePair<string, string> kvp in m_dictWIPRootNodeEdits)
                 {
                     csv += kvp.Key;
-                    csv += ", ";
+                    csv += ",";
                     csv += kvp.Value;
                     csv += "\n"; //newline to represent new pair
                 }
@@ -779,10 +798,10 @@ namespace DAMBuddy2
                         if (line == "") break;
                         var values = line.Split(',');
 
-                        bool state = (values[1] == " True") ? true : false;
+                        //bool state = (values[1] == " True") ? true : false;
 
-                        m_dictWIPRootNodeEdits.Add(values[0], state);
-                        mCallbacks.callbackRootEditWIP?.Invoke(values[0], state);
+                        m_dictWIPRootNodeEdits.Add(values[0], values[1]);
+                        mCallbacks.callbackRootEditWIP?.Invoke(values[0], values[1]);
                     }
                 }
 
@@ -905,7 +924,7 @@ namespace DAMBuddy2
 
                         if( m_dictWIPRootNodeEdits.ContainsKey(filename ) )
                         {
-                            SetRootNodeEdit(false, filename, false);
+                            SetRootNodeEdit(false, filename, false, false);
                             m_dictWIPRootNodeEdits.Remove(filename);
                         }
 
@@ -933,6 +952,7 @@ namespace DAMBuddy2
                     }
                     catch (Exception e)
                     {
+                        Logger.Error(e);
                         Console.WriteLine("RemoveWIP() : " + e.Message);
                     }
                 }
@@ -1083,10 +1103,16 @@ namespace DAMBuddy2
                     if( hasRootNodeChanged )
                     {
                         //check if it has already been changed
-                        bool isAlreadyFlagged = false;
-                        if ( !m_dictWIPRootNodeEdits.TryGetValue(e.Name, out isAlreadyFlagged ))
+/*                        string sExistingFlag = "";
+                        if( m_dictWIPRootNodeEdits.TryGetValue(e.Name, out sExistingFlag))
                         {
-                            SetRootNodeEdit(true, e.Name, true);
+                            if (sExistingFlag == "True" && dete)
+                        }
+
+                        */
+                        if ( true )
+                        {
+                            SetRootNodeEdit(true, e.Name, true, true);
                         }
                     }
                 }
@@ -1099,12 +1125,13 @@ namespace DAMBuddy2
 
         public void Init()
         {
+           
             m_timerPull = new System.Threading.Timer(TimeToPull, null, mConfig.GitPullInitialDelay, mConfig.GitPullInterval);
 
             m_dictID2Gitpath = new Dictionary<string, string>();
             m_dictWIPName2Path = new Dictionary<string, string>();
             m_dictWIPID2Path = new Dictionary<string, string>();
-            m_dictWIPRootNodeEdits = new Dictionary<string, bool>();
+            m_dictWIPRootNodeEdits = new Dictionary<string, string>();
 
             m_watcherNewAssets = new FileSystemWatcher();
             m_watcherNewAssets.Path = AssetPath;

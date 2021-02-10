@@ -100,18 +100,14 @@ public class RepoManager
         var appsettings = ConfigurationManager.AppSettings;
 
         m_CacheServiceURL = appsettings["CacheServiceUrl"] ?? "App Settings not found";
-
-        mRepoInstanceList = new List<RepoInstance>();
-
         m_CacheServiceURL = Utility.GetSettingString("CacheServiceUrl");
-
         m_intervalPull = Utility.GetSettingInt("GitPullInterval");
         m_pullDelay = Utility.GetSettingInt("GitPullDelay");
-
         mRepoInstancCallbacks = callbacks;
+
+        mRepoInstanceList = new List<RepoInstance>();
         
         LoadRepositoryState();
-
 
         mThreadTidyRepository = new Thread(TidyRepositoryState);
         mThreadTidyRepository.Priority = ThreadPriority.Lowest;
@@ -537,26 +533,35 @@ public class RepoManager
     /// <returns></returns>
     private RepoInstance CreateRepoInstance( string sTicketID, string sFolderID, bool isCurrent )
     {
+        try {
+            RepoInstanceConfig config = new RepoInstanceConfig();
+            config.TicketID = sTicketID;
+            config.FolderID = sFolderID;
+            string sRoot = Utility.GetSettingString("FolderRoot");
 
-        RepoInstanceConfig config = new RepoInstanceConfig();
-        config.TicketID = sTicketID;
-        config.FolderID = sFolderID;
-        string sRoot = Utility.GetSettingString("FolderRoot");
+            string Server = Utility.GetSettingString("ServerName");
+            config.URLServer = Server;
+            config.URLCache = m_CacheServiceURL;
+            config.GitPullInitialDelay = m_pullDelay;
+            config.GitPullInterval = m_intervalPull;
+            config.BaseFolder = sRoot + "\\" + sTicketID;
+            config.isActive = isCurrent;
 
-        string Server = Utility.GetSettingString("ServerName");
-        config.URLServer = Server;
-        config.URLCache = m_CacheServiceURL;
-        config.GitPullInitialDelay = m_pullDelay;
-        config.GitPullInterval = m_intervalPull;
-        config.BaseFolder = sRoot + "\\" + sTicketID ;
-        config.isActive = isCurrent;
+            var instance = new RepoInstance(config, mRepoInstancCallbacks);
 
-        var instance = new RepoInstance(config, mRepoInstancCallbacks);
-        
-        mRepoInstanceList.Add(instance);
+            mRepoInstanceList.Add(instance);
+
+            return instance;
+
+        }
+        catch (Exception e)
+        {
+            Logger.LogException(NLog.LogLevel.Error, "Problems occured when trying to CreateRepoInstance().", e);
+
+            return null;
+        }
         //instance.SetTicketReadiness(false);
         
-        return instance;
     }
     /// <summary>
     /// Switches to, and if needed creates, the current RepoInstance to correspond to the ticket parameter
@@ -619,16 +624,16 @@ public class RepoManager
         string ticketID = (string)jsonissue["key"];
         string sRoot = Utility.GetSettingString("FolderRoot");
 
-        string assignee = (string)jsonissue["fields"]["assignee"]["displayName"];
-        string description = (string)jsonissue["fields"]["description"];
-        string email = (string)jsonissue["fields"]["assignee"]["emailAddress"];
+        string FolderID = ServerLinkTicket(jsonissue);
 
+        if (FolderID == "")
+        {
+            return false;
+        }
 
 
         if (mRepoCacheManager.SetupTicket(sRoot + "\\" + ticketID))
         {
-
-            string FolderID = ServerLinkTicket(jsonissue);
 
             CreateRepoInstance(ticketID, FolderID, true);
 
@@ -661,7 +666,9 @@ public class RepoManager
             string sDescription = (string)theIssue["fields"]["description"];
             string sLead = Utility.GetSettingString("User");
             string sAssignee = (string)theIssue["fields"]["assignee"]["displayName"];
-            string theParams = $"theTicket={sTicketID}&theDescription={sDescription}&theLead={sLead}&theAssignee={sAssignee}";
+            string theParams = $"theTicket={sTicketID}&theDescription={WebUtility.HtmlEncode(sDescription)}&theLead={sLead}&theAssignee={sAssignee}";
+
+           // theParams = WebUtility.HtmlEncode(theParams);
 
             using (WebClient client = new WebClient())
             {

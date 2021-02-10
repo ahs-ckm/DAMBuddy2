@@ -56,9 +56,7 @@ namespace DAMBuddy2
         private int mAvailableCaches;
 
         public RepoCacheManager(string rootfolder, int cachesize, string gitRemoteRepoURL, string gitBinariesPath, UserInfoCallback callbackInfoUpdate)
-        {
-            Logger.Info("RepoCacheManager() : Hello world");
-
+        {   
             mRootFolder = rootfolder;
             mCacheSize = cachesize;
             mGitBinariesPath = gitBinariesPath;

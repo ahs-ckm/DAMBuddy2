@@ -72,15 +72,17 @@ namespace DAMBuddy2
 			timerSearch.Enabled = false;
 			string jsonTicket = "";
 			string searchTicket = cbPrefix.SelectedItem + tbTicket.Text;
-
+			Application.UseWaitCursor = true;
+			this.UseWaitCursor = true;
 			try
 			{
-				Application.UseWaitCursor = true;
 				jsonTicket = JiraService.GetJiraIssue(searchTicket);
+
 
 			}
 			finally
 			{
+				this.UseWaitCursor = false;
 				Application.UseWaitCursor = false;
 			}
 

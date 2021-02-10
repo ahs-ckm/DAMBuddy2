@@ -307,7 +307,7 @@ namespace DAMBuddy2
 
             }
 
-            if (state.ScheduleState == "Not Yet Ready")
+            if (state.ScheduleState == "Not Yet Ready" || state.ScheduleState == "Unknown")
             {
                 toolStrip2.BackColor = Color.FromArgb(197, 196, 193);
 
@@ -517,7 +517,7 @@ namespace DAMBuddy2
             ;
         }
 
-        private void CallbackRootNodeEditChange(string filename, bool state)
+        private void CallbackRootNodeEditChange(string filename, string state)
         {
 
             if (InvokeRequired)
@@ -530,6 +530,16 @@ namespace DAMBuddy2
             {
                 if (item.Text == filename)
                 {
+                    if( state == "True")  {
+                        item.SubItems[3].Text = "Yes";
+
+                    } 
+                    else
+                    {
+                        item.SubItems[3].Text = state;
+                    }
+
+                    /*
                     if (state)
                     {
                         item.SubItems[3].Text = "Yes";
@@ -537,7 +547,7 @@ namespace DAMBuddy2
                     else
                     {
                         item.SubItems[3].Text = "";
-                    }
+                    }*/
                 }
             }
 
@@ -1693,7 +1703,7 @@ namespace DAMBuddy2
             //bf.Location = (Point)pt;
             //bf.Location = Location
 
-            bf.TopLevel = true;
+            //bf.TopLevel = true;
             //bf.Parent = this;
             bf.Show();
 
@@ -2001,9 +2011,16 @@ namespace DAMBuddy2
                 var item = lvWork.SelectedItems[0];
                 statusRootNodeEdit = item.SubItems[3].Text;
 
+
+                if (statusRootNodeEdit == "Detected")
+                {
+                    MessageBox.Show("A rootnode change has alreedy been made in the asset, so the rootnode status of this asset can not longer be changed manually.", "Rootnode Edit Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;                
+                }
+
                 bool stateToSet = (statusRootNodeEdit == "Yes") ? false : true;
 
-                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text, true);
+                m_RepoManager.CurrentRepo.SetRootNodeEdit(stateToSet, item.Text, true, false);
             }
 
         }
@@ -2133,7 +2150,7 @@ namespace DAMBuddy2
         {
             if (m_RepoManager == null || m_RepoManager.CurrentRepo == null) return;
 
-            if( MessageBox.Show("Refresh all assets and lose any changes already made?", "Refresh Assets?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if( MessageBox.Show("Refresh all Stale assets and lose any changes already made in them?", "Refresh Assets?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
               m_RepoManager.CurrentRepo.RefreshAllStale();
         }
     }

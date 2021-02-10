@@ -883,7 +883,7 @@
             this.tsWorkViewDocument});
             this.toolStrip4.Location = new System.Drawing.Point(0, 0);
             this.toolStrip4.Name = "toolStrip4";
-            this.toolStrip4.Size = new System.Drawing.Size(600, 45);
+            this.toolStrip4.Size = new System.Drawing.Size(600, 31);
             this.toolStrip4.TabIndex = 23;
             // 
             // tsbRemoveWIP
@@ -893,7 +893,7 @@
             this.tsbRemoveWIP.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbRemoveWIP.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRemoveWIP.Name = "tsbRemoveWIP";
-            this.tsbRemoveWIP.Size = new System.Drawing.Size(138, 42);
+            this.tsbRemoveWIP.Size = new System.Drawing.Size(138, 28);
             this.tsbRemoveWIP.Text = "Remove from Work";
             this.tsbRemoveWIP.ToolTipText = "Remove from Work";
             this.tsbRemoveWIP.Click += new System.EventHandler(this.tsbRemoveWIP_Click);
@@ -901,7 +901,7 @@
             // toolStripSeparator12
             // 
             this.toolStripSeparator12.Name = "toolStripSeparator12";
-            this.toolStripSeparator12.Size = new System.Drawing.Size(6, 45);
+            this.toolStripSeparator12.Size = new System.Drawing.Size(6, 31);
             // 
             // tsbRefreshStale
             // 
@@ -910,7 +910,7 @@
             this.tsbRefreshStale.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbRefreshStale.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRefreshStale.Name = "tsbRefreshStale";
-            this.tsbRefreshStale.Size = new System.Drawing.Size(102, 42);
+            this.tsbRefreshStale.Size = new System.Drawing.Size(102, 28);
             this.tsbRefreshStale.Text = "Refresh Stale";
             this.tsbRefreshStale.Click += new System.EventHandler(this.tsbRefreshStale_Click);
             // 
@@ -921,14 +921,14 @@
             this.tsbRootNodeEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsbRootNodeEdit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbRootNodeEdit.Name = "tsbRootNodeEdit";
-            this.tsbRootNodeEdit.Size = new System.Drawing.Size(110, 42);
+            this.tsbRootNodeEdit.Size = new System.Drawing.Size(110, 28);
             this.tsbRootNodeEdit.Text = "Rootnode Edit";
             this.tsbRootNodeEdit.Click += new System.EventHandler(this.toolStripButton1_Click_1);
             // 
             // toolStripSeparator13
             // 
             this.toolStripSeparator13.Name = "toolStripSeparator13";
-            this.toolStripSeparator13.Size = new System.Drawing.Size(6, 45);
+            this.toolStripSeparator13.Size = new System.Drawing.Size(6, 31);
             // 
             // tsbWordWIP
             // 
@@ -950,7 +950,7 @@
             this.tsWorkViewDocument.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.tsWorkViewDocument.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsWorkViewDocument.Name = "tsWorkViewDocument";
-            this.tsWorkViewDocument.Size = new System.Drawing.Size(131, 42);
+            this.tsWorkViewDocument.Size = new System.Drawing.Size(131, 28);
             this.tsWorkViewDocument.Text = "Refresh Transform";
             this.tsWorkViewDocument.Click += new System.EventHandler(this.tsWorkViewDocument_Click_1);
             // 
@@ -1302,6 +1302,7 @@
             // 
             // tslReadyState
             // 
+            this.tslReadyState.BackColor = System.Drawing.Color.White;
             this.tslReadyState.Font = new System.Drawing.Font("Arial Unicode MS", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tslReadyState.Margin = new System.Windows.Forms.Padding(10, 1, 0, 2);
             this.tslReadyState.Name = "tslReadyState";
