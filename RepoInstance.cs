@@ -508,55 +508,26 @@ namespace DAMBuddy2
             }
         }
 
-        public bool SetRootNodeEdit( bool bDoRootNodeEdit, string sTemplateName, bool WarnUser, bool isDetected )
+        public bool CancelRootNodeEdit( string sTemplateName, bool bWarnUser )
         {
+            string sURL = Utility.GetSettingString("SetRootNodeEditURL");
+            string sTemplateID = GetTemplateID(sTemplateName);
+            bool result = false;
+            bool bResetSchedule = true;
 
-            bool bResetSchedule = false;
-            bool result = true;
-            string sURL = "";
-
-            string sRootNodeState = "";
-
-            if (isDetected)
-                sRootNodeState = "Detected";
-            else if (bDoRootNodeEdit)
-                sRootNodeState = bDoRootNodeEdit.ToString();
-            
-
-            if (m_ReadyStateSetByUser && WarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
+            if (m_ReadyStateSetByUser && bWarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
             {
+                if (MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING, "Schedule Warning",
+                    MessageBoxButtons.OKCancel,
+                    MessageBoxIcon.Warning) == DialogResult.Cancel) return false;
 
-                if( isDetected)
-                {
-                    MessageBox.Show(INFO_ROOTNODE_DETECTED_WARNING,  // rootnode specific warning
-                        "Schedule Warning",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                } else
-                {
-
-                    if( MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING,  // rootnode specific warning
-                        "Schedule Warning",
-                        MessageBoxButtons.OKCancel,
-                        MessageBoxIcon.Warning) == DialogResult.Cancel) return false;
-                }
                 SetTicketReadiness(false);
                 bResetSchedule = true;
+
             }
+
             try
             {
-
-                if (bDoRootNodeEdit)
-                {
-                    sURL = Utility.GetSettingString("SetRootNodeEditURL");
-                }
-                else
-                {
-                    sURL = Utility.GetSettingString("CancelRootNodeEditURL");
-
-                }
-                string sTemplateID = GetTemplateID(sTemplateName);
-
 
                 try
                 {
@@ -568,7 +539,6 @@ namespace DAMBuddy2
                             Logger.Error("Failed to manage RootNodeEdit on the server");
                             result = false;
                         }
-
                 }
                 catch (Exception e)
                 {
@@ -578,7 +548,177 @@ namespace DAMBuddy2
 
                 if (result)
                 {
-                    if (bDoRootNodeEdit)
+                    m_dictWIPRootNodeEdits.Remove(sTemplateName);
+                    mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, "False");
+                }
+            }
+
+            finally
+            {
+                if (bResetSchedule)
+                {
+                    SetTicketReadiness(true);
+                }
+            }
+
+            return result;
+
+        }
+        public bool SetRootNodeEdit2(string sTemplateName, bool WarnUser, bool bDetected)
+        {
+
+            bool bResetSchedule = false;
+            bool result = true, bPlanned = false;
+            string sURL = "", sExistingFlag = "", sRootNodeState = "";
+
+            if (bDetected)
+                sRootNodeState = "Detected";
+            else 
+                sRootNodeState = "True";
+
+           
+            if (m_dictWIPRootNodeEdits.TryGetValue(sTemplateName, out sExistingFlag))
+            {
+                bPlanned = true;
+            }
+
+
+            if (!bDetected && bPlanned) return true; // RootNode already planned for, so we can stop here.
+
+            if (m_ReadyStateSetByUser && WarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
+            {
+                if (bDetected && !bPlanned)  // if this is an unplanned rootnode edit
+                {
+                    MessageBox.Show(INFO_ROOTNODE_DETECTED_WARNING,
+                        "Schedule Warning",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+
+                } else
+                {
+                    if (MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING, "Schedule Warning",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Warning) == DialogResult.Cancel) return false;
+
+                }
+                SetTicketReadiness(false);
+                bResetSchedule = true;
+            }
+
+            try
+            {
+                sURL = Utility.GetSettingString("SetRootNodeEditURL");
+                string sTemplateID = GetTemplateID(sTemplateName);
+
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{sURL}{TicketID},{sTemplateID}");
+                    request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        if (response.StatusCode != HttpStatusCode.OK)
+                        {
+                            Logger.Error("Failed to manage RootNodeEdit on the server");
+                            result = false;
+                        }
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "An error occurred which is going to cause the application to close.");
+                    result = false;
+                }
+
+                if (result)
+                {
+                    m_dictWIPRootNodeEdits[sTemplateName] = sRootNodeState;  // save the root node plan for this asset
+                    mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, sRootNodeState);  // update the UI
+                }
+            }
+            finally
+            {
+                if (bResetSchedule)
+                {
+                    SetTicketReadiness(true);
+                }
+            }
+
+            return result;
+        }
+
+
+        public bool SetRootNodeEdit( bool bSetRootNodeEditPlanned, string sTemplateName, bool WarnUser, bool isRootNodeEditDetected )
+        {
+
+            bool bResetSchedule = false;
+            bool result = true;
+            string sURL = "";
+
+            string sRootNodeState = "";
+
+            if (isRootNodeEditDetected)
+                sRootNodeState = "Detected";
+            else if (bSetRootNodeEditPlanned)
+                sRootNodeState = bSetRootNodeEditPlanned.ToString();
+            
+
+
+            if (m_ReadyStateSetByUser && WarnUser) // we may supress this warning if this function is called from another function which has alread done the warning
+            {
+                if( isRootNodeEditDetected && !bSetRootNodeEditPlanned)  // if this is an unplanned rootnode edit
+                {
+                    MessageBox.Show(INFO_ROOTNODE_DETECTED_WARNING,  
+                        "Schedule Warning",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+
+                    SetTicketReadiness(false);
+                    bResetSchedule = true;
+
+                }
+
+                if( !isRootNodeEditDetected && bSetRootNodeEditPlanned ) // oterhwise it's a change to the rootnode "plan" whilst the ticket is already scheduled, whjich the user cancel
+                {
+                    if( MessageBox.Show(INFO_ROOTNODE_RESCHEDULE_WARNING,                        "Schedule Warning",
+                        MessageBoxButtons.OKCancel,
+                        MessageBoxIcon.Warning) == DialogResult.Cancel) return false;
+
+                    SetTicketReadiness(false);
+                    bResetSchedule = true;
+
+                }
+            }
+            try
+            {
+                if (bSetRootNodeEditPlanned)
+                {
+                    sURL = Utility.GetSettingString("SetRootNodeEditURL");
+                }
+                else
+                {
+                    sURL = Utility.GetSettingString("CancelRootNodeEditURL");
+
+                }
+                string sTemplateID = GetTemplateID(sTemplateName);
+
+                try
+                {
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create($"{sURL}{TicketID},{sTemplateID}");
+                    request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        if (response.StatusCode != HttpStatusCode.OK)
+                        {
+                            Logger.Error("Failed to manage RootNodeEdit on the server");
+                            result = false;
+                        }
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "An error occurred which is going to cause the application to close.");
+                    result = false;
+                }
+
+                if (result)
+                {
+                    if (bSetRootNodeEditPlanned)
                     {
                         m_dictWIPRootNodeEdits[sTemplateName] = sRootNodeState;
                     }
@@ -587,11 +727,7 @@ namespace DAMBuddy2
                         m_dictWIPRootNodeEdits.Remove(sTemplateName);
                     }
                     mCallbacks.callbackRootEditWIP?.Invoke(sTemplateName, sRootNodeState);
-
                 }
-
-
-
             }
             finally
             {
@@ -920,7 +1056,7 @@ namespace DAMBuddy2
                         m_dictWIPName2Path.Remove(sTID);
                         m_dictWIPID2Path.Remove(sTID);
                         m_dictID2Gitpath.Remove(sTID);
-
+                        
 
                         if( m_dictWIPRootNodeEdits.ContainsKey(filename ) )
                         {
@@ -1103,19 +1239,28 @@ namespace DAMBuddy2
                     if( hasRootNodeChanged )
                     {
                         //check if it has already been changed
-/*                        string sExistingFlag = "";
-                        if( m_dictWIPRootNodeEdits.TryGetValue(e.Name, out sExistingFlag))
+                        /*                        string sExistingFlag = "";
+                                                if( m_dictWIPRootNodeEdits.TryGetValue(e.Name, out sExistingFlag))
+                                                {
+                                                    if (sExistingFlag == "True" && dete)
+                                                }
+
+                                                */
+
+                        string sExistingFlag = "";
+                        bool isRootNodeEditPlanned = false;
+                        if (m_dictWIPRootNodeEdits.TryGetValue(e.Name, out sExistingFlag))
                         {
-                            if (sExistingFlag == "True" && dete)
+                            isRootNodeEditPlanned = true;
                         }
 
-                        */
-                        if ( true )
-                        {
-                            SetRootNodeEdit(true, e.Name, true, true);
-                        }
+                        SetRootNodeEdit( isRootNodeEditPlanned, e.Name, true, true);
+
+
                     }
+
                 }
+                
             }
             
             //CompareWIP2Initial(e.FullPath);

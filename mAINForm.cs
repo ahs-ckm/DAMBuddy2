@@ -481,7 +481,7 @@ namespace DAMBuddy2
 
             m_RepoManager.Init();//30000 * 1, 60000 * 1);
 
-            SetFormTitle();
+           // SetFormTitle();
             
             m_RequestBuilder = new TransformRequestBuilder(m_RepoManager, appsettings["QueryServiceUrl"] ?? "App Settings not found");
 
@@ -511,7 +511,6 @@ namespace DAMBuddy2
 
         private void SetFormTitle()
         {
-            string sVersion = GetLocalVersionNumber();
             this.Text = $"BuildBuddy v{GetLocalVersionNumber()} - {tsddbRepository.Text}";
 
             ;
@@ -622,35 +621,8 @@ namespace DAMBuddy2
 
             mSetupTicketEnabled = true;
 
-            if (m_RepoManager.CurrentRepo == null)
-            {
-                SetRepositoryTitle("Select a Ticket", "");
-                tsbLaunch2.Enabled = false;
-                tsbLaunchTD.Enabled = false;
-                tsbRepoSearch.Enabled = false;
-                tsbRepositoryReload.Enabled = false;
-                tsbStart.Enabled = false;
-                tsbPause.Enabled = false;
-                tsWorkReload.Enabled = false;
-                tslScheduleState.Visible = false;
-                tslReadyState.Visible = false;
+            SetAvailableButtons();
 
-            }
-            else
-            {
-                tslScheduleState.Visible = true;
-                tslReadyState.Visible = true;
-
-                tsWorkReload.Enabled = true;
-                SetRepositoryTitle(m_RepoManager.CurrentRepo.TicketID, m_RepoManager.CurrentRepoServerFolder);
-                tsbRepositoryReload.Enabled = true;
-                tsbLaunch2.Enabled = true;
-                tsbLaunchTD.Enabled = true;
-                tsbRepoSearch.Enabled = true;
-                tsbStart.Enabled = true;
-                tsbPause.Enabled = true;
-
-            }
         }
 
         private void SetRepositoryTitle(string sTitle, string sFolder)
@@ -1515,15 +1487,57 @@ namespace DAMBuddy2
             m_RepoManager.CurrentRepo.LoadExistingWIP();
         }
 
+
+
         private void LoadRepositoryTemplates()
         {
             if (m_RepoManager == null) return;
 
             if (m_RepoManager.CurrentRepo == null) return;
 
+            SetFormTitle();
+            SetAvailableButtons();
+
             m_RepoManager.CurrentRepo.LoadRepositoryTemplates();
             mCurrentPage = 0;
             DisplayTemplates2();
+        }
+
+        private void SetAvailableButtons()
+        {
+            if (m_RepoManager == null) return;
+
+            if (m_RepoManager.CurrentRepo == null)
+            {
+                SetRepositoryTitle("Select a Ticket", "");
+                tsbLaunch2.Enabled = false;
+                tsbLaunchTD.Enabled = false;
+                tsbRepoSearch.Enabled = false;
+                tsbRepositoryReload.Enabled = false;
+                tsbStart.Enabled = false;
+                tsbPause.Enabled = false;
+                tsWorkReload.Enabled = false;
+                tslScheduleState.Visible = false;
+                tslReadyState.Visible = false;
+
+            }
+            else
+            {
+                tslScheduleState.Visible = true;
+                tslReadyState.Visible = true;
+
+                tsWorkReload.Enabled = true;
+                SetRepositoryTitle(m_RepoManager.CurrentRepo.TicketID, m_RepoManager.CurrentRepoServerFolder);
+                tsbRepositoryReload.Enabled = true;
+                tsbLaunch2.Enabled = true;
+                tsbLaunchTD.Enabled = true;
+                tsbRepoSearch.Enabled = true;
+                tsbStart.Enabled = true;
+                tsbPause.Enabled = true;
+
+            }
+
+            SetFormTitle();
         }
 
         private void tsbRepositoryReload_Click(object sender, EventArgs e)

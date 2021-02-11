@@ -12,7 +12,7 @@
     <ProjectGuid>{8CE7F566-DF75-451D-B103-54D7E7F4FC35}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DAMBuddy2</RootNamespace>
-    <AssemblyName>DAMBuddy2</AssemblyName>
+    <AssemblyName>BuildBuddy</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -64,6 +64,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>bin\x64\Rel\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>outline_accessibility_new_black_18dp.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CefSharp.WinForms">
@@ -267,6 +270,7 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="outline_accessibility_new_black_18dp.ico" />
     <Content Include="README.txt" />
     <None Include="Resources\ounq1mw5kdxy.gif" />
     <None Include="Resources\outline_help_outline_black_24dp.png" />

@@ -19,6 +19,7 @@ namespace DAMBuddy2
         [STAThread]
         static void Main()
         {
+            Logger.Log(NLog.LogLevel.Info, "Startup");
             const string appName = "BuildBuddy";
             bool createNew = false;
             //Utility.GetRootNodeText(@"C:\TD\CSDFK-1971\local\WIP\a child.oet");
